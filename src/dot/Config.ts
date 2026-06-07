@@ -12,11 +12,13 @@ export interface DotfilesConfigShape {
   readonly piNpmPackage: string;
   readonly piPackageDir: string;
   readonly piSettingsPath: string;
+  readonly piVendorDir: string;
   readonly promptConfigPath: string;
   readonly secretsOutputPath: string;
   readonly secretsTemplatePath: string;
   readonly secretsVault: string;
   readonly shellConfigPath: string;
+  readonly trackedPiSettingsPath: string;
 }
 
 export const DotfilesConfig = Config.all({
@@ -52,11 +54,13 @@ export const DotfilesConfig = Config.all({
       piNpmPackage,
       piPackageDir: `${homeDir}/.pi/agent/npm`,
       piSettingsPath: `${homeDir}/.pi/agent/settings.json`,
+      piVendorDir: `${dotfilesDir}/vendor/pi`,
       promptConfigPath: `${homeDir}/.p10k.zsh`,
       secretsOutputPath: `${homeDir}/.config/secrets/env.zsh`,
       secretsTemplatePath: `${dotfilesDir}/home/.config/zsh/secrets.template.zsh`,
       secretsVault,
       shellConfigPath: `${homeDir}/.zshrc`,
+      trackedPiSettingsPath: `${dotfilesDir}/home/.pi/agent/settings.json`,
     })
   )
 );

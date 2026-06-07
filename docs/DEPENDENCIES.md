@@ -21,6 +21,12 @@ runtime packages.
 - Pi extension package dependencies: `home/.pi/agent/npm/package.json` +
   `home/.pi/agent/npm/package-lock.json`
 
+## Vendoring Pi code
+
+Use `dot pi add <owner/repo|git-url> [--ref <ref>]` to clone a package into
+`vendor/pi/`, remove VCS/dependency/cache/local-env artifacts, write provenance,
+and add the local package path to tracked Pi settings.
+
 ## Refresh checklist for vendored Pi code
 
 1. Record the upstream URL and commit/release before importing.

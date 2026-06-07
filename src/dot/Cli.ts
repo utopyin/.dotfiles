@@ -17,6 +17,7 @@ import {
   packageRemove,
   packageUpdate,
 } from "./commands/package.ts";
+import { piAdd } from "./commands/pi.ts";
 import {
   secretsAdd,
   secretsDoctor,
@@ -148,6 +149,23 @@ export const cli = Command.make("dot").pipe(
           Command.withHandler(syncCursorProfile)
         ),
         Command.make("paths").pipe(Command.withHandler(showCursorProfilePaths)),
+      ])
+    ),
+
+    Command.make("pi").pipe(
+      Command.withDescription("Manage vendored Pi packages"),
+      Command.withSubcommands([
+        Command.make("add", {
+          ref: Flag.optional(Flag.string("ref")).pipe(
+            Flag.withDescription("Git ref to checkout after cloning")
+          ),
+          source: Argument.string("SOURCE"),
+        }).pipe(
+          Command.withDescription(
+            "Clone, clean, and wire a local Pi package into tracked Pi settings"
+          ),
+          Command.withHandler(({ ref, source }) => piAdd({ ref, source }))
+        ),
       ])
     ),
 

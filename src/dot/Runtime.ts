@@ -7,6 +7,7 @@ import { CommandExecutor } from "./services/CommandExecutor/index.ts";
 import { ConfigLinker } from "./services/ConfigLinker/index.ts";
 import { FileVersioning } from "./services/FileVersioning/index.ts";
 import { PackageInstaller } from "./services/PackageInstaller/index.ts";
+import { PiExtensionVendor } from "./services/PiExtensionVendor.ts";
 import { SecretManager } from "./services/SecretManager/index.ts";
 import { Secrets } from "./services/Secrets.ts";
 import { SecretValueInput } from "./services/SecretValueInput/index.ts";
@@ -27,6 +28,7 @@ const Implementations = Layer.mergeAll(
 
 export const Live = Layer.mergeAll(
   BinaryLinker.Live,
+  PiExtensionVendor.Live,
   Secrets.Live,
   Workspace.Live
 ).pipe(Layer.provideMerge(Implementations));

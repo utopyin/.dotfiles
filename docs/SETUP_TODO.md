@@ -141,11 +141,11 @@ See `docs/EFFECT_CLI_PLAN.md`. The canonical CLI is Bun + Effect V4, using `effe
 - [x] Pin all package versions in lockfiles.
 - [x] Add dependency provenance notes for vendored code.
 - [x] Add update script/checklist for refreshing vendored code from upstream.
-- [ ] Add `dot pi add <owner/repo|git-url>`:
-  - [ ] download/fork the extension locally
-  - [ ] run a Pi cleanup/conversion pass over the repo
-  - [ ] adapt it to dotfiles dev tools and conventions
-  - [ ] add the local extension to Pi config
+- [x] Add `dot pi add <owner/repo|git-url>`:
+  - [x] download/fork the extension locally
+  - [x] run a Pi cleanup/conversion pass over the repo
+  - [x] adapt it to dotfiles dev tools and conventions
+  - [x] add the local extension to Pi config
 - [x] Add `npm audit`/lockfile review to `dot doctor` or CI.
 
 ## Phase 8 — Test and publish

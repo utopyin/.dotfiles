@@ -37,7 +37,7 @@ export const DotfilesConfig = Config.all({
       homeDir,
       secretsVault,
     }): DotfilesConfigShape => ({
-      brewfilePath: `${dotfilesDir}/Brewfile`,
+      brewfilePath: `${dotfilesDir}/packages/Brewfile`,
       dotfilesDir,
       editorCommand,
       homeDir,

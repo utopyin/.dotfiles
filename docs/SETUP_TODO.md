@@ -48,8 +48,8 @@ Goal: turn this machine’s live setup into a reproducible, publishable dotfiles
   - [ ] current Git config -> `home/.config/git/config`
   - [ ] current Ghostty config -> `home/.config/ghostty/config`
   - [ ] Pi config -> `home/.pi/...`
-- [ ] Keep package manifests in `packages/`:
-  - [ ] `Brewfile` -> `packages/Brewfile` or `packages/bundle`
+- [x] Keep package manifests in `packages/`:
+  - [x] `Brewfile` -> `packages/Brewfile`
 - [ ] Add GNU Stow commands via `dot stow`.
 - [ ] Make stow idempotent and safe with backups.
 

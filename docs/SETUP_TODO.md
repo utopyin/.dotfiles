@@ -95,7 +95,7 @@ See `docs/EFFECT_CLI_PLAN.md`. The canonical CLI is Bun + Effect V4, using `effe
 - [x] Add `dot secrets doctor` to verify required items exist.
 - [x] Add `dot secrets render` helper.
 - [x] Ensure committed configs only reference secret names/1Password refs, never values.
-- [ ] Rotate any tokens that were exposed in shell config/history if needed.
+- [x] Rotate any tokens that were exposed in shell config/history if needed.
 
 ## Phase 5 — Vendor desired Pi extensions
 
@@ -126,13 +126,13 @@ See `docs/EFFECT_CLI_PLAN.md`. The canonical CLI is Bun + Effect V4, using `effe
 
 ## Phase 6 — Web tools decision
 
-- [ ] Compare Davis Firecrawl:
-  - [ ] Pros: clean search/scrape API, simple, good page extraction.
-  - [ ] Cons: paid/API-key dependency, external SaaS.
-- [ ] Compare dmmulroy web-tools:
-  - [ ] Pros: broader local extension architecture, webfetch/websearch, more controllable.
-  - [ ] Cons: more code to maintain; provider/API dependency still likely.
-- [ ] Recommendation to validate: use dmmulroy-style `web-tools` as primary `webfetch/websearch`, and optionally keep Firecrawl as `firecrawl_search/firecrawl_scrape` for high-quality scraping.
+- [x] Compare Davis Firecrawl:
+  - [x] Pros: clean search/scrape API, simple, good page extraction.
+  - [x] Cons: paid/API-key dependency, external SaaS.
+- [x] Compare dmmulroy web-tools:
+  - [x] Pros: broader local extension architecture, webfetch/websearch, more controllable.
+  - [x] Cons: more code to maintain; provider/API dependency still likely.
+- [x] Recommendation to validate: use dmmulroy-style `web-tools` as primary `webfetch/websearch`; defer Firecrawl unless high-quality SaaS scraping becomes worth the extra API key.
 
 ## Phase 7 — Supply-chain / vendoring policy
 

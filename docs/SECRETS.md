@@ -9,6 +9,17 @@ Secrets are managed by 1Password and rendered into an ignored local shell file.
 
 ## 1Password items
 
+The rotation review candidate list from the old shell-config migration is:
+
+- `GITHUB_TOKEN`
+- `GEMINI_API_KEY`
+- `CEREBRAS_API_KEY`
+- `CLOUDFLARE_API_TOKEN`
+- `UIDOTSH_TOKEN`
+- `EXCALIDRAW_API_KEY`
+
+`UIDOTSH_BEARER` is derived from `UIDOTSH_TOKEN`, not a separate secret value.
+
 The template references Password-category items in the `Personal` vault:
 
 - `Dotfiles GitHub Token` → `password`

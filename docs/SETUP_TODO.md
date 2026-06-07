@@ -42,7 +42,7 @@ Goal: turn this machine’s live setup into a reproducible, publishable dotfiles
 
 ## Phase 2 — Convert repo to stow layout
 
-- [ ] Move tracked dotfiles into `home/`:
+- [x] Move tracked dotfiles into `home/`:
   - [x] `.zshrc` -> `home/.zshrc` sanitized from live config
   - [x] `.p10k.zsh` -> `home/.p10k.zsh`
   - [x] current Git config -> `home/.config/git/config`

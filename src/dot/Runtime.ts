@@ -10,6 +10,7 @@ import { PackageInstaller } from "./services/PackageInstaller/index.ts";
 import { SecretManager } from "./services/SecretManager/index.ts";
 import { Secrets } from "./services/Secrets.ts";
 import { SecretValueInput } from "./services/SecretValueInput/index.ts";
+import { ShellSetup } from "./services/ShellSetup/index.ts";
 import { Workspace } from "./services/Workspace.ts";
 
 const Core = CommandExecutor.Bun.pipe(Layer.provideMerge(BunServices.layer));
@@ -19,6 +20,7 @@ const Implementations = Layer.mergeAll(
   PackageInstaller.Homebrew,
   ConfigLinker.Stow,
   AgentRuntime.Pi,
+  ShellSetup.Zsh,
   SecretManager.OnePassword,
   SecretValueInput.Bun
 ).pipe(Layer.provideMerge(Core));

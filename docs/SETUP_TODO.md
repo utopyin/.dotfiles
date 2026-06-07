@@ -61,14 +61,14 @@ See `docs/EFFECT_CLI_PLAN.md`. The canonical CLI is Bun + Effect V4, using `effe
 - [x] Port secrets commands to Effect services.
 - [x] Port first-pass doctor/link/apply/update/init/package list/completions to Effect services.
 - [x] Replace the custom config service with a plain Effect `Config` value.
-- [ ] Implement `dot init`:
-  - [ ] install/check Homebrew
-  - [ ] install packages from Brewfile(s)
-  - [ ] install/check Oh My Zsh + plugins + Powerlevel10k
-  - [ ] stow configs
-  - [ ] install Pi if missing
-  - [ ] install Pi package deps
-  - [ ] setup shell integrations
+- [x] Implement `dot init`:
+  - [x] install/check Homebrew
+  - [x] install packages from Brewfile(s)
+  - [x] install/check Oh My Zsh + plugins + Powerlevel10k
+  - [x] stow configs
+  - [x] install Pi if missing
+  - [x] install Pi package deps
+  - [x] setup shell integrations
 - [x] Implement first-pass `dot update`:
   - [x] pull latest dotfiles
   - [x] brew update/upgrade/bundle

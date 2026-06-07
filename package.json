@@ -1,0 +1,24 @@
+{
+  "name": "@utopy/.dotfiles",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dot": "bun run bin/dot.ts",
+    "check": "bun run check:types && bun run check:lint",
+    "check:types": "tsc --noEmit",
+    "check:lint": "ultracite check",
+    "build": "bun build ./bin/dot.ts --compile --outfile ./dist/dot",
+    "fix": "ultracite fix"
+  },
+  "dependencies": {
+    "@effect/platform-bun": "4.0.0-beta.78",
+    "effect": "4.0.0-beta.78"
+  },
+  "devDependencies": {
+    "@types/bun": "1.3.14",
+    "oxfmt": "0.53.0",
+    "oxlint": "1.68.0",
+    "typescript": "6.0.3",
+    "ultracite": "7.8.1"
+  }
+}

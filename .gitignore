@@ -1,0 +1,45 @@
+# macOS
+.DS_Store
+
+# Secrets / local env
+.env
+.env.*
+!.env.example
+secrets.env
+secrets.json
+secrets.local.*
+!home/.config/zsh/secrets.example.zsh
+!home/.config/zsh/secrets.template.zsh
+*.secret
+*.key
+*.pem
+home/.config/secrets/**
+home/.zshrc.local
+home/.config/zsh/secrets.zsh
+
+# Pi runtime/auth/state
+home/.pi/agent/auth.json
+home/.pi/agent/mcp-cache.json
+home/.pi/agent/mcp-npx-cache.json
+home/.pi/agent/mcp-oauth/**
+home/.pi/agent/sessions/**
+home/.pi/agent/.env
+home/.pi/agent/*.local.json
+home/.pi/agent/npm/node_modules/**
+home/.pi/agent/npm/.cache/**
+
+# Node/package manager generated dirs
+node_modules/**
+.pnpm-store/**
+.bun/**
+
+# Tool caches
+.cache/**
+.local/state/**
+
+# Editor/runtime noise
+*.log
+*.rayconfig
+
+# Build output
+dist/**

@@ -1,0 +1,47 @@
+# dotfiles
+
+Personal development environment and Pi setup.
+
+The repo lives at `~/.dotfiles` and publishes to `https://github.com/utopyin/.dotfiles`.
+
+## Public-safety boundary
+
+Tracked files should contain reproducible configuration only. Tokens, auth files,
+MCP OAuth/session state, generated secret files, local caches, and app export
+bundles stay ignored or untracked. Secret templates use 1Password references,
+not secret values.
+
+## Current migration status
+
+See [`docs/SETUP_TODO.md`](docs/SETUP_TODO.md).
+
+## Usage
+
+The canonical CLI is Bun + Effect V4.
+
+```bash
+bun run dot doctor  # inspect current setup
+bun run build       # build dist/dot, not committed
+bun run dot link    # install ~/.local/bin/dot -> ~/.dotfiles/dist/dot
+```
+
+### Cursor profile
+
+`cursor-profile.code-profile` is sanitized for publishing: it keeps settings,
+keybindings, and extension IDs, but excludes Cursor `globalState`, account data,
+local file history, and absolute project paths.
+
+Sync it from the current Cursor install with:
+
+```bash
+bun run dot cursor sync
+```
+
+Apply it to Cursor through the normal config apply flow:
+
+```bash
+bun run dot apply                         # asks whether to apply Cursor too
+bun run dot apply --cursor                # apply Cursor without prompting
+bun run dot apply --cursor --no-cursor-extensions
+bun run dot apply --yes                   # accept defaults; does not apply Cursor
+```

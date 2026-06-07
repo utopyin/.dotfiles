@@ -1,0 +1,169 @@
+# Dotfiles + Pi Setup TODO
+
+Goal: turn this machine’s live setup into a reproducible, publishable dotfiles repo at `~/.dotfiles`, with a `dot` CLI, locally vendored Pi extensions where useful, and secrets moved out of shell config into 1Password.
+
+## Decisions already made
+
+- [x] Primary dotfiles repo should live at `~/.dotfiles`.
+- [x] Old dev-folder repo location is no longer needed; `~/.dotfiles` is canonical.
+- [x] Vendor most non-official Pi runtime dependencies/extensions as source in dotfiles.
+- [x] Do **not** vendor official Pi SDK/runtime packages such as `@earendil-works/pi-*` / Pi TUI / Pi coding agent packages.
+- [x] Keep official runtime dependencies pinned in lockfiles instead.
+
+## Phase 0 — Repo hygiene
+
+- [x] Replace old remote `https://github.com/utopyin/config` with `https://github.com/utopyin/.dotfiles`.
+- [x] Decide whether to rename GitHub repo from `config` to `.dotfiles`.
+- [x] Add/verify `.gitignore` rules for secrets, caches, auth, sessions, node_modules, local state.
+- [x] Ensure no secret values are committed before next push.
+- [x] Decide public vs private boundaries:
+  - [x] Public: sanitized shell config, sanitized Cursor profile, Pi extensions, skills, themes, dot CLI, package manifests.
+  - [x] Private/ignored: tokens, auth files, MCP OAuth tokens, session logs, machine-specific caches, generated secret files, app export bundles such as Raycast `.rayconfig` files.
+
+## Phase 1 — Inventory current machine
+
+- [ ] Inventory shell setup:
+  - [ ] `~/.zshrc`
+  - [ ] `~/.p10k.zsh`
+  - [ ] Oh My Zsh plugins
+  - [ ] aliases/functions/PATH entries
+- [ ] Inventory Pi setup:
+  - [ ] `~/.pi/agent/settings.json`
+  - [ ] `~/.pi/agent/mcp.json`
+  - [ ] installed Pi packages
+  - [ ] local skills under `~/.agents/skills`
+  - [ ] pi-lens skills/extensions from npm
+- [ ] Inventory apps/tools:
+  - [ ] Homebrew formulae
+  - [ ] Homebrew casks
+  - [ ] npm/pnpm/bun global tools
+  - [ ] Ghostty/Git config
+- [ ] Identify secrets currently embedded in shell/config files.
+
+## Phase 2 — Convert repo to stow layout
+
+- [ ] Move tracked dotfiles into `home/`:
+  - [x] `.zshrc` -> `home/.zshrc` sanitized from live config
+  - [x] `.p10k.zsh` -> `home/.p10k.zsh`
+  - [ ] current Git config -> `home/.config/git/config`
+  - [ ] current Ghostty config -> `home/.config/ghostty/config`
+  - [ ] Pi config -> `home/.pi/...`
+- [ ] Keep package manifests in `packages/`:
+  - [ ] `Brewfile` -> `packages/Brewfile` or `packages/bundle`
+- [ ] Add GNU Stow commands via `dot stow`.
+- [ ] Make stow idempotent and safe with backups.
+
+## Phase 3 — Build your `dot` CLI
+
+See `docs/EFFECT_CLI_PLAN.md`. The canonical CLI is Bun + Effect V4, using `effect/unstable/cli`, `@effect/platform-bun`, Effect `Config` for configuration loading/composition, and dependency-injected capability services.
+
+- [x] Add Bun + Effect V4 TypeScript CLI skeleton.
+- [x] Port secrets commands to Effect services.
+- [x] Port first-pass doctor/link/apply/update/init/package list/completions to Effect services.
+- [x] Replace the custom config service with a plain Effect `Config` value.
+- [ ] Implement `dot init`:
+  - [ ] install/check Homebrew
+  - [ ] install packages from Brewfile(s)
+  - [ ] install/check Oh My Zsh + plugins + Powerlevel10k
+  - [ ] stow configs
+  - [ ] install Pi if missing
+  - [ ] install Pi package deps
+  - [ ] setup shell integrations
+- [x] Implement first-pass `dot update`:
+  - [x] pull latest dotfiles
+  - [x] brew update/upgrade/bundle
+  - [x] restow
+  - [x] update Pi/packages
+- [x] Implement first-pass `dot doctor`:
+  - [ ] check symlinks
+  - [ ] check Homebrew packages
+  - [ ] check shell config
+  - [ ] check Pi config
+  - [ ] check required 1Password items exist
+- [x] Implement `dot stow` / `dot unstow`.
+- [ ] Implement `dot package add/remove/update`.
+- [x] Implement `dot package list`.
+- [ ] Implement `dot edit`.
+- [x] Implement sanitized Cursor profile sync/apply flow (`dot cursor sync`, interactive `dot apply`, or `dot apply --cursor`).
+- [x] Implement generic zsh completion installer (`dot completions add <command>` reads stdin).
+
+## Phase 4 — Move secrets to 1Password
+
+- [x] Remove inline tokens/API keys from tracked `home/.zshrc`.
+- [x] Create ignored generated shell file, e.g. `~/.config/secrets/env.zsh`.
+- [x] Use `op inject` template rendering for secret loading.
+- [x] Add `dot secrets doctor` to verify required items exist.
+- [x] Add `dot secrets render` helper.
+- [x] Ensure committed configs only reference secret names/1Password refs, never values.
+- [ ] Rotate any tokens that were exposed in shell config/history if needed.
+
+## Phase 5 — Vendor desired Pi extensions
+
+### Vendor from Davis
+
+- [ ] `/yeet` command.
+- [ ] `openai-codex-fast-mode` exactly: inject `service_tier: "priority"` for OpenAI Codex responses.
+- [ ] `zsh-user-bash` if current Pi setup does not already cover this cleanly.
+- [ ] Firecrawl `search` / `scrape` tools.
+- [ ] Evaluate Davis `pi-mcp` and likely vendor it instead of npm `pi-mcp-adapter`.
+- [ ] Consider adding:
+  - [ ] `/diff`
+  - [ ] `/usage`
+  - [ ] git status widget
+
+### Vendor from dmmulroy
+
+- [ ] `git-interceptor`:
+  - [ ] set `GIT_EDITOR=true`
+  - [ ] set `GIT_SEQUENCE_EDITOR=true`
+  - [ ] set `GIT_MERGE_AUTOEDIT=no`
+  - [ ] block `--no-verify`
+- [ ] `whimsical` integration.
+- [ ] `pi-cloak` secret masking.
+- [ ] `pi-skill-toggle`.
+- [ ] `todos` file-based todo management.
+- [ ] Evaluate dmmulroy `web-tools` vs Davis Firecrawl.
+
+## Phase 6 — Web tools decision
+
+- [ ] Compare Davis Firecrawl:
+  - [ ] Pros: clean search/scrape API, simple, good page extraction.
+  - [ ] Cons: paid/API-key dependency, external SaaS.
+- [ ] Compare dmmulroy web-tools:
+  - [ ] Pros: broader local extension architecture, webfetch/websearch, more controllable.
+  - [ ] Cons: more code to maintain; provider/API dependency still likely.
+- [ ] Recommendation to validate: use dmmulroy-style `web-tools` as primary `webfetch/websearch`, and optionally keep Firecrawl as `firecrawl_search/firecrawl_scrape` for high-quality scraping.
+
+## Phase 7 — Supply-chain / vendoring policy
+
+- [x] Dylan vendors his own custom Pi source in dotfiles, but still uses npm packages for Pi SDK/dependencies.
+- [x] Our policy: vendor non-official/custom Pi extensions; pin official runtime packages.
+- [x] Pin all package versions in lockfiles.
+- [ ] Add dependency provenance notes for vendored code.
+- [ ] Add update script/checklist for refreshing vendored code from upstream.
+- [ ] Add `dot pi add <owner/repo|git-url>`:
+  - [ ] download/fork the extension locally
+  - [ ] run a Pi cleanup/conversion pass over the repo
+  - [ ] adapt it to dotfiles dev tools and conventions
+  - [ ] add the local extension to Pi config
+- [ ] Add `npm audit`/lockfile review to `dot doctor` or CI.
+
+## Phase 8 — Test and publish
+
+- [x] Run `dot doctor` on current machine.
+- [ ] Test stow/unstow idempotency.
+- [ ] Test Pi starts with vendored extensions.
+- [ ] Test secret loading via 1Password.
+- [ ] Push sanitized dotfiles.
+  - [ ] Push as a fresh public root commit or filtered history; do not push the old `config` history as-is because it contains retired app-export/local-path blobs.
+- [ ] Document bootstrap instructions in README.
+
+## Immediate next step
+
+- [x] Add `.gitignore`, repo README/AGENTS, and initial `dot` CLI skeleton.
+- [x] Sign in to 1Password CLI and create/update the referenced secret items.
+- [x] Run `dot secrets render` once references resolve.
+- [x] Sanitize `cursor-profile.code-profile` and remove Cursor `globalState` from tracking.
+- [x] Create public remote `utopyin/.dotfiles` and point `origin` at it.
+- [x] Verify current tracked tree has no binary files, absolute user-home paths, Cursor account/global state, or common secret/token patterns.
+- [ ] Commit current tree as a fresh public-safe root (or filter history) before pushing.

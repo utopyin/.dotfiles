@@ -1,0 +1,39 @@
+import * as Console from "effect/Console";
+import * as Effect from "effect/Effect";
+
+import { DotfilesConfig } from "../Config.ts";
+import { AgentRuntime } from "../services/AgentRuntime/index.ts";
+import { FileVersioning } from "../services/FileVersioning/index.ts";
+import { PackageInstaller } from "../services/PackageInstaller/index.ts";
+import { applyConfig } from "./stow.ts";
+
+export const update = Effect.fn("update")(function* () {
+  const config = yield* DotfilesConfig;
+  const vcs = yield* FileVersioning;
+  const packages = yield* PackageInstaller;
+  const agent = yield* AgentRuntime;
+
+  yield* vcs
+    .pullFastForward(config.dotfilesDir)
+    .pipe(
+      Effect.catchCause((cause) =>
+        Console.log(`git pull skipped/failed: ${cause.toString()}`)
+      )
+    );
+
+  yield* packages.updateAll(config.brewfilePath);
+
+  if (yield* agent.isInstalled()) {
+    yield* agent
+      .update()
+      .pipe(
+        Effect.catchCause((cause) =>
+          Console.log(`pi update failed: ${cause.toString()}`)
+        )
+      );
+  }
+
+  yield* applyConfig();
+
+  yield* Console.log("Update complete");
+});

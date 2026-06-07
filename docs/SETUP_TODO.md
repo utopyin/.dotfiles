@@ -139,14 +139,14 @@ See `docs/EFFECT_CLI_PLAN.md`. The canonical CLI is Bun + Effect V4, using `effe
 - [x] Dylan vendors his own custom Pi source in dotfiles, but still uses npm packages for Pi SDK/dependencies.
 - [x] Our policy: vendor non-official/custom Pi extensions; pin official runtime packages.
 - [x] Pin all package versions in lockfiles.
-- [ ] Add dependency provenance notes for vendored code.
-- [ ] Add update script/checklist for refreshing vendored code from upstream.
+- [x] Add dependency provenance notes for vendored code.
+- [x] Add update script/checklist for refreshing vendored code from upstream.
 - [ ] Add `dot pi add <owner/repo|git-url>`:
   - [ ] download/fork the extension locally
   - [ ] run a Pi cleanup/conversion pass over the repo
   - [ ] adapt it to dotfiles dev tools and conventions
   - [ ] add the local extension to Pi config
-- [ ] Add `npm audit`/lockfile review to `dot doctor` or CI.
+- [x] Add `npm audit`/lockfile review to `dot doctor` or CI.
 
 ## Phase 8 — Test and publish
 

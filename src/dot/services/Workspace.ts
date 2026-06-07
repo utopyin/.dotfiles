@@ -19,6 +19,14 @@ export class Workspace extends Context.Service<Workspace>()("dot/Workspace", {
     const commands = yield* CommandExecutor;
     const vcs = yield* FileVersioning;
     return {
+      dependencyAudit: commands
+        .run("bun", ["audit", "--audit-level=high"], {
+          cwd: config.dotfilesDir,
+        })
+        .pipe(
+          Effect.as(true),
+          Effect.catchCause(() => Effect.succeed(false))
+        ),
       remoteSummary: vcs.remoteSummary(config.dotfilesDir),
       secretValueScan: commands.runText("/bin/sh", [
         "-lc",

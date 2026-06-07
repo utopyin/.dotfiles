@@ -91,6 +91,13 @@ export const doctor = Effect.fn("doctor")(function* () {
       ok: yield* fs.exists(config.piMcpConfigPath),
     })
   );
+  yield* Console.log(
+    line({
+      label: "dependency audit",
+      ok: yield* workspace.dependencyAudit,
+    })
+  );
+
   const scan = yield* workspace.secretValueScan;
   if (scan.trim().length > 0) {
     yield* Console.log("! potential inline exported secrets found:");

@@ -6,6 +6,9 @@ import type { CommandExecutionError } from "../CommandExecutor/index.ts";
 import { makePiAgentRuntime } from "./Pi.ts";
 
 export interface AgentRuntimeShape {
+  readonly installExtensionPackageDeps: (
+    extensionsDir: string
+  ) => Effect.Effect<void, CommandExecutionError>;
   readonly installPackageDeps: (
     packageDir: string
   ) => Effect.Effect<void, CommandExecutionError>;

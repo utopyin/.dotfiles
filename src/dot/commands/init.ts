@@ -19,9 +19,7 @@ export const init = Effect.fn("init")(function* () {
   yield* applyConfig();
   yield* agent.installSelfIfMissing();
   yield* agent.installPackageDeps(config.piPackageDir);
-  for (const packageDir of config.piExtensionPackageDirs) {
-    yield* agent.installPackageDeps(packageDir);
-  }
+  yield* agent.installExtensionPackageDeps(config.piExtensionsDir);
   yield* doctor();
   yield* Console.log("Init complete");
 });

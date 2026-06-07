@@ -1,0 +1,37 @@
+{
+  "lastChangelogVersion": "0.78.1",
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.5",
+  "defaultThinkingLevel": "high",
+  "shellCommandPrefix": "shopt -s expand_aliases\neval \"$(grep '^alias ' ~/.zshrc)\"",
+  "treeFilterMode": "no-tools",
+  "terminal": {
+    "showImages": true
+  },
+  "enableSkillCommands": true,
+  "showHardwareCursor": false,
+  "theme": "current-ide",
+  "packages": [
+    "npm:@zenobius/pi-worktrees",
+    "npm:pi-mcp-adapter",
+    {
+      "source": "npm:pi-btw",
+      "extensions": ["+extensions/btw.ts"]
+    },
+    {
+      "source": "npm:@neilurk12/pi-lazygit",
+      "extensions": ["+dist/index.js"]
+    },
+    {
+      "source": "npm:pi-lens",
+      "extensions": ["+index.ts"]
+    },
+    {
+      "source": "npm:@plannotator/pi-extension",
+      "skills": [],
+      "extensions": ["+"]
+    }
+  ],
+  "editorPaddingX": 3,
+  "quietStartup": true
+}

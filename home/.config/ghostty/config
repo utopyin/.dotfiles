@@ -1,0 +1,10 @@
+theme = current-ide
+font-family = Geist Mono
+font-style = medium
+window-inherit-working-directory = true
+custom-shader = ~/.config/ghostty/shaders/cursor_smear.glsl
+custom-shader = ~/.config/ghostty/shaders/cursor_blaze_tapered.glsl
+# background-blur = macos-glass-regular
+# background-opacity = 0
+macos-titlebar-style = tabs
+macos-option-as-alt = true

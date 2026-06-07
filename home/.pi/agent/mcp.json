@@ -1,0 +1,15 @@
+{
+  "imports": ["cursor"],
+  "mcpServers": {
+    "trigger": {
+      "args": ["trigger.dev@latest", "mcp"],
+      "command": "npx",
+      "directTools": false
+    },
+    "PlanetScale": {
+      "headers": {},
+      "url": "https://mcp.pscale.dev/mcp/planetscale",
+      "directTools": false
+    }
+  }
+}

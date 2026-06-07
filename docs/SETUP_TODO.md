@@ -22,32 +22,32 @@ Goal: turn this machine’s live setup into a reproducible, publishable dotfiles
 
 ## Phase 1 — Inventory current machine
 
-- [ ] Inventory shell setup:
-  - [ ] `~/.zshrc`
-  - [ ] `~/.p10k.zsh`
-  - [ ] Oh My Zsh plugins
-  - [ ] aliases/functions/PATH entries
-- [ ] Inventory Pi setup:
-  - [ ] `~/.pi/agent/settings.json`
-  - [ ] `~/.pi/agent/mcp.json`
-  - [ ] installed Pi packages
-  - [ ] local skills under `~/.agents/skills`
-  - [ ] pi-lens skills/extensions from npm
-- [ ] Inventory apps/tools:
-  - [ ] Homebrew formulae
-  - [ ] Homebrew casks
-  - [ ] npm/pnpm/bun global tools
-  - [ ] Ghostty/Git config
-- [ ] Identify secrets currently embedded in shell/config files.
+- [x] Inventory shell setup:
+  - [x] `~/.zshrc`
+  - [x] `~/.p10k.zsh`
+  - [x] Oh My Zsh plugins
+  - [x] aliases/functions/PATH entries
+- [x] Inventory Pi setup:
+  - [x] `~/.pi/agent/settings.json`
+  - [x] `~/.pi/agent/mcp.json`
+  - [x] installed Pi packages
+  - [x] local skills under `~/.agents/skills`
+  - [x] pi-lens skills/extensions from npm
+- [x] Inventory apps/tools:
+  - [x] Homebrew formulae
+  - [x] Homebrew casks
+  - [x] npm/pnpm/bun global tools
+  - [x] Ghostty/Git config
+- [x] Identify secrets currently embedded in shell/config files.
 
 ## Phase 2 — Convert repo to stow layout
 
 - [ ] Move tracked dotfiles into `home/`:
   - [x] `.zshrc` -> `home/.zshrc` sanitized from live config
   - [x] `.p10k.zsh` -> `home/.p10k.zsh`
-  - [ ] current Git config -> `home/.config/git/config`
-  - [ ] current Ghostty config -> `home/.config/ghostty/config`
-  - [ ] Pi config -> `home/.pi/...`
+  - [x] current Git config -> `home/.config/git/config`
+  - [x] current Ghostty config -> `home/.config/ghostty/config`
+  - [x] Pi config -> `home/.pi/...`
 - [x] Keep package manifests in `packages/`:
   - [x] `Brewfile` -> `packages/Brewfile`
 - [ ] Add GNU Stow commands via `dot stow`.

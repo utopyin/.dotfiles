@@ -10,7 +10,12 @@ import {
 import { doctor } from "./commands/doctor.ts";
 import { init } from "./commands/init.ts";
 import { link, unlink } from "./commands/link.ts";
-import { packageList } from "./commands/package.ts";
+import {
+  packageAdd,
+  packageList,
+  packageRemove,
+  packageUpdate,
+} from "./commands/package.ts";
 import {
   secretsAdd,
   secretsDoctor,
@@ -77,6 +82,48 @@ export const cli = Command.make("dot").pipe(
     Command.make("package").pipe(
       Command.withDescription("Package helpers"),
       Command.withSubcommands([
+        Command.make("add", {
+          id: Flag.optional(Flag.integer("id")).pipe(
+            Flag.withDescription("Mac App Store id, required for --kind mas")
+          ),
+          kind: Flag.choice("kind", [
+            "brew",
+            "cask",
+            "mas",
+            "tap",
+          ] as const).pipe(
+            Flag.withDefault("brew"),
+            Flag.withDescription("Package manifest entry kind")
+          ),
+          name: Argument.string("NAME"),
+        }).pipe(
+          Command.withDescription("Add a package to the package manifest"),
+          Command.withHandler(({ id, kind, name }) =>
+            packageAdd(name, { id, kind })
+          )
+        ),
+        Command.make("remove", {
+          kind: Flag.choice("kind", [
+            "brew",
+            "cask",
+            "mas",
+            "tap",
+          ] as const).pipe(
+            Flag.withDefault("brew"),
+            Flag.withDescription("Package manifest entry kind")
+          ),
+          name: Argument.string("NAME"),
+        }).pipe(
+          Command.withAlias("rm"),
+          Command.withDescription("Remove a package from the package manifest"),
+          Command.withHandler(({ kind, name }) => packageRemove(name, { kind }))
+        ),
+        Command.make("update").pipe(
+          Command.withDescription(
+            "Update installed packages from the manifest"
+          ),
+          Command.withHandler(packageUpdate)
+        ),
         Command.make("list").pipe(Command.withHandler(packageList)),
       ])
     ),

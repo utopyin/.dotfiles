@@ -81,7 +81,7 @@ See `docs/EFFECT_CLI_PLAN.md`. The canonical CLI is Bun + Effect V4, using `effe
   - [ ] check Pi config
   - [ ] check required 1Password items exist
 - [x] Implement `dot stow` / `dot unstow`.
-- [ ] Implement `dot package add/remove/update`.
+- [x] Implement `dot package add/remove/update`.
 - [x] Implement `dot package list`.
 - [ ] Implement `dot edit`.
 - [x] Implement sanitized Cursor profile sync/apply flow (`dot cursor sync`, interactive `dot apply`, or `dot apply --cursor`).

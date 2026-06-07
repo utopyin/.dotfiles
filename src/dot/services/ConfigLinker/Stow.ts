@@ -1,22 +1,31 @@
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Path from "effect/Path";
 
 import { CommandExecutor } from "../CommandExecutor/index.ts";
 import type { ConfigLinkerShape } from "./index.ts";
 
 export const makeStowConfigLinker = Effect.gen(function* () {
   const command = yield* CommandExecutor;
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
   return {
     linkHome: (dotfilesDir: string, homeDir: string) =>
-      command
-        .run("stow", [
-          "--dir",
-          dotfilesDir,
-          "--target",
-          homeDir,
-          "--restow",
-          "home",
-        ])
-        .pipe(Effect.asVoid),
+      Effect.gen(function* () {
+        yield* backupConflicts(fs, path, dotfilesDir, homeDir);
+        yield* command
+          .run("stow", [
+            "--dir",
+            dotfilesDir,
+            "--target",
+            homeDir,
+            "--no-folding",
+            "--restow",
+            "home",
+          ])
+          .pipe(Effect.asVoid);
+      }),
     unlinkHome: (dotfilesDir: string, homeDir: string) =>
       command
         .run("stow", [
@@ -24,9 +33,86 @@ export const makeStowConfigLinker = Effect.gen(function* () {
           dotfilesDir,
           "--target",
           homeDir,
+          "--no-folding",
           "--delete",
           "home",
         ])
         .pipe(Effect.asVoid),
   } satisfies ConfigLinkerShape;
 });
+
+const hasSymlinkAncestor = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  homeDir: string,
+  entry: string
+) =>
+  Effect.gen(function* () {
+    const segments = entry
+      .split(path.sep)
+      .filter((segment) => segment.length > 0);
+    for (let index = 1; index <= segments.length; index += 1) {
+      const candidate = path.join(homeDir, ...segments.slice(0, index));
+      const isLink = yield* fs.readLink(candidate).pipe(
+        Effect.as(true),
+        Effect.catchCause(() => Effect.succeed(false))
+      );
+      if (isLink) {
+        return true;
+      }
+    }
+    return false;
+  });
+
+const backupConflicts = (
+  fs: FileSystem.FileSystem,
+  path: Path.Path,
+  dotfilesDir: string,
+  homeDir: string
+) =>
+  Effect.gen(function* () {
+    const sourceRoot = path.join(dotfilesDir, "home");
+    const entries = yield* fs.readDirectory(sourceRoot, { recursive: true });
+    const stamp = new Date().toISOString().replaceAll(/[^0-9A-Za-z]+/gu, "-");
+    const backupRoot = path.join(homeDir, ".dotfiles-backups", "stow", stamp);
+
+    for (const entry of entries) {
+      if (path.basename(entry) === ".DS_Store") {
+        continue;
+      }
+
+      const sourcePath = path.join(sourceRoot, entry);
+      const sourceInfo = yield* fs.stat(sourcePath);
+      if (sourceInfo.type !== "File") {
+        continue;
+      }
+
+      const targetPath = path.join(homeDir, entry);
+      const targetIsManagedThroughLink = yield* hasSymlinkAncestor(
+        fs,
+        path,
+        homeDir,
+        entry
+      );
+      if (targetIsManagedThroughLink) {
+        continue;
+      }
+
+      const targetExists = yield* fs.exists(targetPath);
+      if (!targetExists) {
+        continue;
+      }
+
+      const targetIsLink = yield* fs.readLink(targetPath).pipe(
+        Effect.as(true),
+        Effect.catchCause(() => Effect.succeed(false))
+      );
+      if (targetIsLink) {
+        continue;
+      }
+
+      const backupPath = path.join(backupRoot, entry);
+      yield* fs.makeDirectory(path.dirname(backupPath), { recursive: true });
+      yield* fs.rename(targetPath, backupPath);
+    }
+  });

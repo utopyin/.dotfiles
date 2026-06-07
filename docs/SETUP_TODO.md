@@ -50,8 +50,8 @@ Goal: turn this machine’s live setup into a reproducible, publishable dotfiles
   - [x] Pi config -> `home/.pi/...`
 - [x] Keep package manifests in `packages/`:
   - [x] `Brewfile` -> `packages/Brewfile`
-- [ ] Add GNU Stow commands via `dot stow`.
-- [ ] Make stow idempotent and safe with backups.
+- [x] Add GNU Stow commands via `dot stow`.
+- [x] Make stow idempotent and safe with backups.
 
 ## Phase 3 — Build your `dot` CLI
 
@@ -151,7 +151,7 @@ See `docs/EFFECT_CLI_PLAN.md`. The canonical CLI is Bun + Effect V4, using `effe
 ## Phase 8 — Test and publish
 
 - [x] Run `dot doctor` on current machine.
-- [ ] Test stow/unstow idempotency.
+- [x] Test stow/unstow idempotency.
 - [ ] Test Pi starts with vendored extensions.
 - [ ] Test secret loading via 1Password.
 - [x] Push sanitized dotfiles.

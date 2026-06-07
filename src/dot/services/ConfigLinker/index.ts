@@ -1,6 +1,7 @@
 import * as Context from "effect/Context";
 import type * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import type * as PlatformError from "effect/PlatformError";
 
 import type { CommandExecutionError } from "../CommandExecutor/index.ts";
 import { makeStowConfigLinker } from "./Stow.ts";
@@ -9,7 +10,7 @@ export interface ConfigLinkerShape {
   readonly linkHome: (
     dotfilesDir: string,
     homeDir: string
-  ) => Effect.Effect<void, CommandExecutionError>;
+  ) => Effect.Effect<void, CommandExecutionError | PlatformError.PlatformError>;
   readonly unlinkHome: (
     dotfilesDir: string,
     homeDir: string

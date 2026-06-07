@@ -53,16 +53,19 @@ const hasSymlinkAncestor = (
       .filter((segment) => segment.length > 0);
     for (let index = 1; index <= segments.length; index += 1) {
       const candidate = path.join(homeDir, ...segments.slice(0, index));
-      const isLink = yield* fs.readLink(candidate).pipe(
-        Effect.as(true),
-        Effect.catchCause(() => Effect.succeed(false))
-      );
+      const isLink = yield* pathIsSymlink(fs, candidate);
       if (isLink) {
         return true;
       }
     }
     return false;
   });
+
+const pathIsSymlink = (fs: FileSystem.FileSystem, filePath: string) =>
+  fs.readLink(filePath).pipe(
+    Effect.as(true),
+    Effect.catchCause(() => Effect.succeed(false))
+  );
 
 const backupConflicts = (
   fs: FileSystem.FileSystem,
@@ -103,10 +106,7 @@ const backupConflicts = (
         continue;
       }
 
-      const targetIsLink = yield* fs.readLink(targetPath).pipe(
-        Effect.as(true),
-        Effect.catchCause(() => Effect.succeed(false))
-      );
+      const targetIsLink = yield* pathIsSymlink(fs, targetPath);
       if (targetIsLink) {
         continue;
       }

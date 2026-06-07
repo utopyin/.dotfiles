@@ -152,8 +152,8 @@ See `docs/EFFECT_CLI_PLAN.md`. The canonical CLI is Bun + Effect V4, using `effe
 
 - [x] Run `dot doctor` on current machine.
 - [x] Test stow/unstow idempotency.
-- [ ] Test Pi starts with vendored extensions.
-- [ ] Test secret loading via 1Password.
+- [x] Test Pi starts with vendored extensions.
+- [x] Test secret loading via 1Password.
 - [x] Push sanitized dotfiles.
   - [x] Push as a fresh public root commit or filtered history; do not push the old `config` history as-is because it contains retired app-export/local-path blobs.
 - [x] Document bootstrap instructions in README.

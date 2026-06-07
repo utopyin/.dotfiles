@@ -14,11 +14,5 @@
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*",
     "@earendil-works/pi-tui": "*"
-  },
-  "devDependencies": {
-    "@earendil-works/pi-coding-agent": "0.78.1",
-    "@earendil-works/pi-tui": "0.78.1",
-    "@types/node": "^24.5.2",
-    "typescript": "^5.9.2"
   }
 }

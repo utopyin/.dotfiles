@@ -2,9 +2,11 @@
 
 Public-safe vendored Pi extension source lives under `home/.pi/agent/extensions`.
 Runtime state, OAuth tokens, caches, sessions, and generated node_modules remain
-ignored. The root TypeScript project stays scoped to the dot CLI (`bin/` and
-`src/`). Vendored extensions that need npm dependencies keep their own
-extension-local `package.json` and lockfile under `home/.pi/agent/extensions/`.
+ignored. This follows the official Pi extension layout: simple extensions are
+single `.ts` files under `~/.pi/agent/extensions/`, and extensions with npm
+dependencies keep their own `package.json`, lockfile, and ignored
+`node_modules/` directory beside the extension code. The root TypeScript project
+stays scoped to the dot CLI (`bin/` and `src/`).
 
 ## Source allowlist
 

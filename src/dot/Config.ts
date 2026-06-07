@@ -51,10 +51,7 @@ export const DotfilesConfig = Config.all({
       editorCommand,
       homeDir,
       localBinDotPath: `${homeDir}/.local/bin/dot`,
-      piExtensionPackageDirs: [
-        `${homeDir}/.pi/agent/extensions/pi-mcp`,
-        `${homeDir}/.pi/agent/extensions/pi-skill-toggle`,
-      ],
+      piExtensionPackageDirs: [`${homeDir}/.pi/agent/extensions/pi-mcp`],
       piMcpConfigPath: `${homeDir}/.pi/agent/mcp.json`,
       piNpmPackage,
       piPackageDir: `${homeDir}/.pi/agent/npm`,

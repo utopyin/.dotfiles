@@ -22,6 +22,7 @@ export interface PackageInstallerShape {
   readonly applyManifest: (
     manifestPath: string
   ) => Effect.Effect<void, CommandExecutionError>;
+  readonly checkManifest: (manifestPath: string) => Effect.Effect<boolean>;
   readonly installSelfIfMissing: () => Effect.Effect<
     void,
     CommandExecutionError

@@ -10,6 +10,12 @@ import { SecretNameError } from "./SecretsErrors.ts";
 import { SecretValueInput } from "./SecretValueInput/index.ts";
 
 const envNamePattern = /^[A-Z_][A-Z0-9_]*$/u;
+const onePasswordRefPattern = /op:\/\/([^/]+)\/([^/]+)\/password/gu;
+
+interface SecretRef {
+  readonly title: string;
+  readonly vault: string;
+}
 
 export interface SecretsShape {
   readonly add: (
@@ -82,25 +88,49 @@ export class Secrets extends Context.Service<Secrets>()("dot/Secrets", {
       doctor: () =>
         Effect.gen(function* () {
           const installed = yield* manager.isInstalled();
-          let sessionLine: string | null = null;
-
-          if (installed) {
-            sessionLine = (yield* manager.isSignedIn())
-              ? "1Password session: signed in"
-              : "1Password session: not signed in";
-          }
+          const signedIn = installed ? yield* manager.isSignedIn() : false;
+          const templateExists = yield* fs.exists(config.secretsTemplatePath);
+          const outputExists = yield* fs.exists(config.secretsOutputPath);
+          const refs: readonly SecretRef[] = templateExists
+            ? secretRefs(yield* fs.readFileString(config.secretsTemplatePath))
+            : [];
+          const itemLines: readonly string[] = signedIn
+            ? yield* Effect.all(
+                refs.map(({ title, vault }) =>
+                  manager
+                    .itemExists(title, vault)
+                    .pipe(
+                      Effect.map((exists) =>
+                        exists
+                          ? `1Password item exists: ${vault}/${title}`
+                          : `1Password item missing: ${vault}/${title}`
+                      )
+                    )
+                )
+              )
+            : refs.map(
+                ({ title, vault }) =>
+                  `1Password item not checked: ${vault}/${title}`
+              );
 
           return [
             installed ? "1Password CLI: installed" : "1Password CLI: missing",
-            ...(sessionLine ? [sessionLine] : []),
+            ...(installed
+              ? [
+                  signedIn
+                    ? "1Password session: signed in"
+                    : "1Password session: not signed in",
+                ]
+              : []),
             `Secrets template: ${config.secretsTemplatePath}`,
             `Secrets output: ${config.secretsOutputPath}`,
-            (yield* fs.exists(config.secretsTemplatePath))
+            templateExists
               ? "Secrets template exists"
               : "Secrets template missing",
-            (yield* fs.exists(config.secretsOutputPath))
+            outputExists
               ? "Rendered secrets file exists"
               : "Rendered secrets file missing",
+            ...itemLines,
           ];
         }),
 
@@ -149,6 +179,12 @@ const removeTemplateLine = (current: string, name: string) =>
     .split("\n")
     .filter((line) => !line.startsWith(`export ${name}=`))
     .join("\n");
+
+const secretRefs = (template: string): readonly SecretRef[] =>
+  [...template.matchAll(onePasswordRefPattern)].map((match) => ({
+    title: decodeURIComponent(match[2] ?? ""),
+    vault: decodeURIComponent(match[1] ?? ""),
+  }));
 
 const titleFor = (name: string) => `Dotfiles ${name}`;
 

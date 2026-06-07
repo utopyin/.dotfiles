@@ -26,6 +26,11 @@ export const makeHomebrewPackageInstaller = Effect.gen(function* () {
       command
         .run("brew", ["bundle", "--file", manifestPath])
         .pipe(Effect.asVoid),
+    checkManifest: (manifestPath: string) =>
+      command.run("brew", ["bundle", "check", "--file", manifestPath]).pipe(
+        Effect.as(true),
+        Effect.catchCause(() => Effect.succeed(false))
+      ),
     installSelfIfMissing: () =>
       command
         .exists("brew")

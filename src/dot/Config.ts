@@ -8,9 +8,13 @@ export interface DotfilesConfigShape {
   readonly editorCommand: string;
   readonly homeDir: string;
   readonly localBinDotPath: string;
+  readonly piMcpConfigPath: string;
+  readonly piSettingsPath: string;
+  readonly promptConfigPath: string;
   readonly secretsOutputPath: string;
   readonly secretsTemplatePath: string;
   readonly secretsVault: string;
+  readonly shellConfigPath: string;
 }
 
 export const DotfilesConfig = Config.all({
@@ -38,9 +42,13 @@ export const DotfilesConfig = Config.all({
       editorCommand,
       homeDir,
       localBinDotPath: `${homeDir}/.local/bin/dot`,
+      piMcpConfigPath: `${homeDir}/.pi/agent/mcp.json`,
+      piSettingsPath: `${homeDir}/.pi/agent/settings.json`,
+      promptConfigPath: `${homeDir}/.p10k.zsh`,
       secretsOutputPath: `${homeDir}/.config/secrets/env.zsh`,
       secretsTemplatePath: `${dotfilesDir}/home/.config/zsh/secrets.template.zsh`,
       secretsVault,
+      shellConfigPath: `${homeDir}/.zshrc`,
     })
   )
 );

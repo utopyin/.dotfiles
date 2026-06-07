@@ -75,11 +75,11 @@ See `docs/EFFECT_CLI_PLAN.md`. The canonical CLI is Bun + Effect V4, using `effe
   - [x] restow
   - [x] update Pi/packages
 - [x] Implement first-pass `dot doctor`:
-  - [ ] check symlinks
-  - [ ] check Homebrew packages
-  - [ ] check shell config
-  - [ ] check Pi config
-  - [ ] check required 1Password items exist
+  - [x] check symlinks
+  - [x] check Homebrew packages
+  - [x] check shell config
+  - [x] check Pi config
+  - [x] check required 1Password items exist
 - [x] Implement `dot stow` / `dot unstow`.
 - [x] Implement `dot package add/remove/update`.
 - [x] Implement `dot package list`.

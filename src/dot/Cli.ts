@@ -8,6 +8,7 @@ import {
   syncCursorProfile,
 } from "./commands/cursor.ts";
 import { doctor } from "./commands/doctor.ts";
+import { edit } from "./commands/edit.ts";
 import { init } from "./commands/init.ts";
 import { link, unlink } from "./commands/link.ts";
 import {
@@ -72,6 +73,15 @@ export const cli = Command.make("dot").pipe(
     Command.make("link").pipe(
       Command.withDescription("Install dot command into ~/.local/bin"),
       Command.withHandler(link)
+    ),
+
+    Command.make("edit", {
+      target: Argument.optional(Argument.path("TARGET")),
+    }).pipe(
+      Command.withDescription(
+        "Open the dotfiles repo or a tracked path in $VISUAL/$EDITOR"
+      ),
+      Command.withHandler(({ target }) => edit({ target }))
     ),
 
     Command.make("unlink").pipe(

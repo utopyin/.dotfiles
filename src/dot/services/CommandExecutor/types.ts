@@ -17,6 +17,11 @@ export interface CommandExecutorShape {
     args?: readonly string[],
     options?: { readonly cwd?: string }
   ) => Effect.Effect<CommandResult, CommandExecutionError>;
+  readonly runInteractive: (
+    command: string,
+    args?: readonly string[],
+    options?: { readonly cwd?: string }
+  ) => Effect.Effect<void, CommandExecutionError>;
   readonly runText: (
     command: string,
     args?: readonly string[],

@@ -83,7 +83,7 @@ See `docs/EFFECT_CLI_PLAN.md`. The canonical CLI is Bun + Effect V4, using `effe
 - [x] Implement `dot stow` / `dot unstow`.
 - [x] Implement `dot package add/remove/update`.
 - [x] Implement `dot package list`.
-- [ ] Implement `dot edit`.
+- [x] Implement `dot edit`.
 - [x] Implement sanitized Cursor profile sync/apply flow (`dot cursor sync`, interactive `dot apply`, or `dot apply --cursor`).
 - [x] Implement generic zsh completion installer (`dot completions add <command>` reads stdin).
 

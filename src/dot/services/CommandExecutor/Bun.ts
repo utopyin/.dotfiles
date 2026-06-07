@@ -81,6 +81,58 @@ export const makeBunCommandExecutor = Effect.gen(function* () {
     return result.stdout.trimEnd();
   });
 
+  const runInteractive = Effect.fn("CommandExecutor.runInteractive")(function* (
+    command: string,
+    args: readonly string[] = [],
+    options: { readonly cwd?: string } = {}
+  ) {
+    return yield* Effect.scoped(
+      Effect.gen(function* () {
+        const process = ChildProcess.make(command, args, {
+          ...(options.cwd === undefined ? {} : { cwd: options.cwd }),
+          stderr: "inherit",
+          stdin: "inherit",
+          stdout: "inherit",
+        });
+        const handle = yield* spawner.spawn(process).pipe(
+          Effect.mapError(
+            (cause) =>
+              new CommandExecutionError({
+                args,
+                cause,
+                command,
+                stderr: "",
+                stdout: "",
+              })
+          )
+        );
+        const exitCode = Number(
+          yield* handle.exitCode.pipe(
+            Effect.mapError(
+              (cause) =>
+                new CommandExecutionError({
+                  args,
+                  cause,
+                  command,
+                  stderr: "",
+                  stdout: "",
+                })
+            )
+          )
+        );
+        if (exitCode !== 0) {
+          return yield* new CommandExecutionError({
+            args,
+            command,
+            exitCode,
+            stderr: "",
+            stdout: "",
+          });
+        }
+      })
+    );
+  });
+
   const exists = Effect.fn("CommandExecutor.exists")(function* (
     command: string
   ) {
@@ -93,7 +145,12 @@ export const makeBunCommandExecutor = Effect.gen(function* () {
     );
   });
 
-  return { exists, run, runText } satisfies CommandExecutorShape;
+  return {
+    exists,
+    run,
+    runInteractive,
+    runText,
+  } satisfies CommandExecutorShape;
 });
 
 const collectStream = (stream: Stream.Stream<Uint8Array, unknown>) =>

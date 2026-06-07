@@ -20,6 +20,7 @@ _dot() {
     'apply:Apply home/ config links into $HOME'
     'unapply:Remove home/ config links from $HOME'
     'link:Install dot command into ~/.local/bin'
+    'edit:Open the dotfiles repo or a tracked path in $VISUAL/$EDITOR'
     'unlink:Remove ~/.local/bin/dot'
     'package:Package helpers'
     'cursor:Manage the sanitized Cursor profile'
@@ -58,6 +59,9 @@ _dot() {
           ;;
         link)
           _dot_link
+          ;;
+        edit)
+          _dot_edit
           ;;
         unlink)
           _dot_unlink
@@ -105,6 +109,14 @@ _dot_unapply() {
 }
 
 _dot_link() {
+}
+
+_dot_edit() {
+  local -a specs
+  specs=(
+    ':TARGET:_files'
+  )
+  _arguments "${specs[@]}"
 }
 
 _dot_unlink() {

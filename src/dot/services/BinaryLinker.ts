@@ -24,22 +24,11 @@ export class BinaryLinker extends Context.Service<BinaryLinker>()(
             recursive: true,
           });
 
-          const exists = yield* fs.exists(config.localBinDotPath);
-
-          if (exists) {
-            yield* fs.remove(config.localBinDotPath);
-          }
-
+          yield* fs.remove(config.localBinDotPath, { force: true });
           yield* fs.symlink(target, config.localBinDotPath);
         }),
 
-        unlinkDot: Effect.gen(function* () {
-          const exists = yield* fs.exists(config.localBinDotPath);
-
-          if (exists) {
-            yield* fs.remove(config.localBinDotPath);
-          }
-        }),
+        unlinkDot: fs.remove(config.localBinDotPath, { force: true }),
       } as const;
     }),
   }

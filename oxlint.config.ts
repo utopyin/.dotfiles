@@ -4,7 +4,10 @@ import vitest from "ultracite/oxlint/vitest";
 
 export default defineConfig({
   extends: [core, vitest],
-  ignorePatterns: core.ignorePatterns,
+  ignorePatterns: [
+    ...(core.ignorePatterns ?? []),
+    "home/.pi/agent/extensions/**",
+  ],
   rules: {
     "func-names": "off",
     "max-classes-per-file": "off",

@@ -27,6 +27,9 @@ Use `dot pi add <owner/repo|git-url> [--ref <ref>]` to clone a package into
 `vendor/pi/`, remove VCS/dependency/cache/local-env artifacts, write provenance,
 and add the local package path to tracked Pi settings.
 
+For extensions vendored directly into the Pi user extension directory, see
+[`docs/PI_EXTENSIONS.md`](PI_EXTENSIONS.md).
+
 ## Refresh checklist for vendored Pi code
 
 1. Record the upstream URL and commit/release before importing.

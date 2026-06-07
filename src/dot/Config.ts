@@ -8,6 +8,7 @@ export interface DotfilesConfigShape {
   readonly editorCommand: string;
   readonly homeDir: string;
   readonly localBinDotPath: string;
+  readonly piExtensionPackageDirs: readonly string[];
   readonly piMcpConfigPath: string;
   readonly piNpmPackage: string;
   readonly piPackageDir: string;
@@ -50,6 +51,10 @@ export const DotfilesConfig = Config.all({
       editorCommand,
       homeDir,
       localBinDotPath: `${homeDir}/.local/bin/dot`,
+      piExtensionPackageDirs: [
+        `${homeDir}/.pi/agent/extensions/pi-mcp`,
+        `${homeDir}/.pi/agent/extensions/pi-skill-toggle`,
+      ],
       piMcpConfigPath: `${homeDir}/.pi/agent/mcp.json`,
       piNpmPackage,
       piPackageDir: `${homeDir}/.pi/agent/npm`,

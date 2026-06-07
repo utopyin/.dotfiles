@@ -31,6 +31,10 @@ Tracked sanitized Pi config:
 - `home/.pi/agent/themes/current-ide.json`
 - `home/.pi/agent/npm/package.json`
 - `home/.pi/agent/npm/package-lock.json`
+- `home/.pi/agent/extensions/**` for reviewed, approved, public-safe local extensions.
+- extension-local `package.json` and `package-lock.json` files for extensions that need npm dependencies.
+
+See `docs/PI_EXTENSIONS.md` for extension provenance.
 
 Ignored Pi state/auth/cache:
 
@@ -39,9 +43,10 @@ Ignored Pi state/auth/cache:
 - `home/.pi/agent/mcp-npx-cache.json`
 - `home/.pi/agent/mcp-oauth/**`
 - `home/.pi/agent/sessions/**`
+- `home/.pi/agent/extensions/**/node_modules/**`
 - `home/.pi/agent/npm/node_modules/**`
 
-Installed Pi package dependencies are represented by the tracked npm manifest and lockfile.
+Installed Pi package and extension-local dependencies are represented by the tracked npm manifests and lockfiles.
 
 ## Apps and tools
 

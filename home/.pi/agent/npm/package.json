@@ -6,7 +6,6 @@
     "@plannotator/pi-extension": "^0.19.27",
     "@zenobius/pi-worktrees": "^0.5.1",
     "pi-btw": "^0.4.0",
-    "pi-lens": "^3.8.50",
-    "pi-mcp-adapter": "^2.9.0"
+    "pi-lens": "^3.8.50"
   }
 }

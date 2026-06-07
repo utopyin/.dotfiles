@@ -13,7 +13,6 @@
   "theme": "current-ide",
   "packages": [
     "npm:@zenobius/pi-worktrees",
-    "npm:pi-mcp-adapter",
     {
       "source": "npm:pi-btw",
       "extensions": ["+extensions/btw.ts"]

@@ -101,28 +101,25 @@ See `docs/EFFECT_CLI_PLAN.md`. The canonical CLI is Bun + Effect V4, using `effe
 
 ### Vendor from Davis
 
-- [ ] `/yeet` command.
-- [ ] `openai-codex-fast-mode` exactly: inject `service_tier: "priority"` for OpenAI Codex responses.
-- [ ] `zsh-user-bash` if current Pi setup does not already cover this cleanly.
-- [ ] Firecrawl `search` / `scrape` tools.
-- [ ] Evaluate Davis `pi-mcp` and likely vendor it instead of npm `pi-mcp-adapter`.
-- [ ] Consider adding:
-  - [ ] `/diff`
-  - [ ] `/usage`
-  - [ ] git status widget
+- [x] `/yeet` command.
+- [x] `openai-codex-fast-mode` exactly: inject `service_tier: "priority"` for OpenAI Codex responses.
+- [x] `zsh-user-bash` if current Pi setup does not already cover this cleanly.
+- [x] Defer Firecrawl `search` / `scrape` tools unless SaaS scraping quality becomes worth the extra API key.
+- [x] Evaluate Davis `pi-mcp` and vendor it instead of npm `pi-mcp-adapter`.
+- [x] Consider adding git status widget.
 
 ### Vendor from dmmulroy
 
-- [ ] `git-interceptor`:
-  - [ ] set `GIT_EDITOR=true`
-  - [ ] set `GIT_SEQUENCE_EDITOR=true`
-  - [ ] set `GIT_MERGE_AUTOEDIT=no`
-  - [ ] block `--no-verify`
-- [ ] `whimsical` integration.
-- [ ] `pi-cloak` secret masking.
-- [ ] `pi-skill-toggle`.
-- [ ] `todos` file-based todo management.
-- [ ] Evaluate dmmulroy `web-tools` vs Davis Firecrawl.
+- [x] `git-interceptor`:
+  - [x] set `GIT_EDITOR=true`
+  - [x] set `GIT_SEQUENCE_EDITOR=true`
+  - [x] set `GIT_MERGE_AUTOEDIT=no`
+  - [x] block `--no-verify`
+- [x] `whimsical` integration.
+- [x] `pi-cloak` secret masking.
+- [x] `pi-skill-toggle`.
+- [x] `todos` file-based todo management.
+- [x] Evaluate dmmulroy `web-tools` vs Davis Firecrawl.
 
 ## Phase 6 — Web tools decision
 

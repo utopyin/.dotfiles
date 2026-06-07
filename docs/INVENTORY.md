@@ -16,6 +16,11 @@ not included.
 - PATH additions are kept home-relative where possible.
 - Secret exports are delegated to the generated, ignored `~/.config/secrets/env.zsh`.
 
+## Agent skills
+
+Local user skills are public and tracked under `home/.agents/skills` so a fresh
+machine gets the same skill library through the stow layout.
+
 ## Pi
 
 Tracked sanitized Pi config:

@@ -154,9 +154,9 @@ See `docs/EFFECT_CLI_PLAN.md`. The canonical CLI is Bun + Effect V4, using `effe
 - [ ] Test stow/unstow idempotency.
 - [ ] Test Pi starts with vendored extensions.
 - [ ] Test secret loading via 1Password.
-- [ ] Push sanitized dotfiles.
-  - [ ] Push as a fresh public root commit or filtered history; do not push the old `config` history as-is because it contains retired app-export/local-path blobs.
-- [ ] Document bootstrap instructions in README.
+- [x] Push sanitized dotfiles.
+  - [x] Push as a fresh public root commit or filtered history; do not push the old `config` history as-is because it contains retired app-export/local-path blobs.
+- [x] Document bootstrap instructions in README.
 
 ## Immediate next step
 
@@ -166,4 +166,4 @@ See `docs/EFFECT_CLI_PLAN.md`. The canonical CLI is Bun + Effect V4, using `effe
 - [x] Sanitize `cursor-profile.code-profile` and remove Cursor `globalState` from tracking.
 - [x] Create public remote `utopyin/.dotfiles` and point `origin` at it.
 - [x] Verify current tracked tree has no binary files, absolute user-home paths, Cursor account/global state, or common secret/token patterns.
-- [ ] Commit current tree as a fresh public-safe root (or filter history) before pushing.
+- [x] Commit current tree as a fresh public-safe root (or filter history) before pushing.

@@ -15,6 +15,40 @@ not secret values.
 
 See [`docs/SETUP_TODO.md`](docs/SETUP_TODO.md).
 
+## Bootstrap
+
+Clone the repo, install dependencies, build the local `dot` binary, then link it
+into `~/.local/bin`:
+
+```bash
+git clone https://github.com/utopyin/.dotfiles ~/.dotfiles
+cd ~/.dotfiles
+bun install
+bun run build
+bun run dot link
+dot doctor
+```
+
+Apply the tracked home-directory configuration with Stow:
+
+```bash
+dot apply
+```
+
+Render local secrets only after signing in to 1Password CLI:
+
+```bash
+op signin
+dot secrets doctor
+dot secrets render
+```
+
+For a first-pass full bootstrap on a machine with Bun available:
+
+```bash
+bun run dot init
+```
+
 ## Usage
 
 The canonical CLI is Bun + Effect V4.

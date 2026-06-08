@@ -47,7 +47,7 @@
     "thinkingText": "muted",
 
     "selectedBg": "surfaceRaised",
-    "userMessageBg": "surfaceMuted",
+    "userMessageBg": "selectedSoft",
     "userMessageText": "text",
     "customMessageBg": "surfaceMuted",
     "customMessageText": "text",

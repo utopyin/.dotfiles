@@ -21,6 +21,8 @@ export const makeStowConfigLinker = Effect.gen(function* () {
             "--target",
             homeDir,
             "--no-folding",
+            "--ignore",
+            "\\.DS_Store$",
             "--restow",
             "home",
           ])
@@ -34,6 +36,8 @@ export const makeStowConfigLinker = Effect.gen(function* () {
           "--target",
           homeDir,
           "--no-folding",
+          "--ignore",
+          "\\.DS_Store$",
           "--delete",
           "home",
         ])

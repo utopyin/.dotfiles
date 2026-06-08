@@ -33,6 +33,7 @@ Commands depend on capability services (`PackageInstaller`, `ConfigLinker`, `Sec
 - Never print or commit secret values.
 - Before editing shell config, check whether the value belongs in 1Password instead.
 - Prefer exact edits and keep repo publishable.
+- Use commit messages in the form `action(scope?/subscope?): description`, with the description capped at 80 characters.
 - Do not vendor official Pi runtime packages (`@earendil-works/pi-*`, Pi TUI/coding-agent runtime). Pin them in lockfiles.
 - Vendor small/custom/non-official Pi extensions when behavior matters or supply-chain risk is a concern.
 - Add a future `dot pi add <owner/repo|git-url>` command that downloads a Pi extension, runs a Pi cleanup/conversion pass, adapts it to this repo's dev tooling, and wires it into Pi config.

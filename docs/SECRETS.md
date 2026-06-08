@@ -31,10 +31,13 @@ The template references Password-category items in the `Personal` vault:
 
 ## Commands
 
+Use the linked `dot` command after running `bun run build && bun run dot link` or `dot init`.
+During early bootstrap, `bun run dot ...` from the repo works too.
+
 ```bash
 op signin
-~/.dotfiles/dot secrets doctor
-~/.dotfiles/dot secrets render
+dot secrets doctor
+dot secrets render
 ```
 
 `dot secrets render` uses `op inject` and writes `~/.config/secrets/env.zsh` with mode `600`.
@@ -44,13 +47,13 @@ op signin
 Preferred form prompts without echoing the value:
 
 ```bash
-~/.dotfiles/dot secrets add SOME_API_KEY
+dot secrets add SOME_API_KEY
 ```
 
 Non-interactive form reads from stdin:
 
 ```bash
-printf %s "$SECRET_VALUE" | ~/.dotfiles/dot secrets add SOME_API_KEY --value-stdin
+printf %s "$SECRET_VALUE" | dot secrets add SOME_API_KEY --value-stdin
 ```
 
 `dot secrets add SOME_API_KEY value` is intentionally unsupported in the Effect CLI because it can leak into shell history/process logs.
@@ -60,7 +63,7 @@ This creates/updates a 1Password item named `Dotfiles SOME_API_KEY`, updates `se
 ## Remove a secret
 
 ```bash
-~/.dotfiles/dot secrets remove SOME_API_KEY
+dot secrets remove SOME_API_KEY
 ```
 
 This removes the export from `secrets.template.zsh`, archives the 1Password item named `Dotfiles SOME_API_KEY`, and re-renders `~/.config/secrets/env.zsh`.

@@ -448,18 +448,24 @@ CLI handlers should map domain errors to useful messages and exit non-zero.
 
 ### Phase 3 — Replace shell CLI
 
-- [ ] Build Bun binary during bootstrap.
+- [x] Build Bun binary during bootstrap.
 - [x] Change `~/.local/bin/dot` to point to built binary.
 - [x] Remove Bash CLI fallback.
 - [x] Update docs to present TypeScript CLI as canonical.
 
 ### Phase 4 — Expand CLI
 
-- [ ] Port `doctor` fully.
-- [ ] Port `stow`/`unstow`.
-- [ ] Port `init`/`update`.
-- [ ] Port package helpers.
-- [ ] Add vendored Pi-extension management commands.
+- [x] Port first-pass `doctor`.
+- [x] Port `stow`/`unstow`.
+- [x] Port `init`/`update`.
+- [x] Port package helpers.
+- [x] Add vendored Pi-extension management commands.
+
+## Current follow-up backlog
+
+- Add tests for service implementations and CLI command handlers.
+- Expand package management beyond the Homebrew implementation when Linux support is needed.
+- Add richer `dot doctor` remediation output instead of boolean-only checks.
 
 ## Decisions from review
 

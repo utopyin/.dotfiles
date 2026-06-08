@@ -43,7 +43,7 @@ dot secrets doctor
 dot secrets render
 ```
 
-For a first-pass full bootstrap on a machine with Bun available:
+For a first-pass full bootstrap on a machine with Bun available, `init` installs packages, builds `dist/dot`, links `~/.local/bin/dot`, applies config, and checks the result:
 
 ```bash
 bun run dot init

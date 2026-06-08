@@ -35,7 +35,7 @@ For extensions vendored directly into the Pi user extension directory, see
 1. Record the upstream URL and commit/release before importing.
 2. Copy only source/config needed by this repo; omit `.git`, generated build
    output, caches, sessions, auth files, and local environment files.
-3. Run the Pi cleanup/conversion pass planned for `dot pi add` once available.
+3. Use `dot pi add <owner/repo|git-url> [--ref <ref>]` for new imports so the cleanup/conversion pass removes VCS metadata, dependency installs, caches, and local environment files before wiring the local package into tracked Pi settings.
 4. Adapt formatting, TypeScript, Effect services, and public-safety conventions.
 5. Update this document or a colocated `PROVENANCE.md` with local changes.
 6. Run:

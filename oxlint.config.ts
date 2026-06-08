@@ -6,6 +6,9 @@ export default defineConfig({
   extends: [core, vitest],
   ignorePatterns: [
     ...(core.ignorePatterns ?? []),
+    // Pi extension files live under a hidden path that oxfmt skips by default.
+    // They are linted/formatted through scripts/pi-extension-pipeline.ts,
+    // which calls oxlint with --no-ignore and oxfmt via stdin.
     "home/.pi/agent/extensions/**",
   ],
   rules: {

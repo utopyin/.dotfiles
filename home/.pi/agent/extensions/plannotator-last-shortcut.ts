@@ -3,134 +3,255 @@ import type {
 	ExtensionContext,
 } from "@earendil-works/pi-coding-agent";
 
-import {
-	findAssistantMessageByEntryId,
-	getLastAssistantMessageSnapshot,
-	getRecentAssistantMessages,
-	hasSessionMovedPastEntry,
-} from "/Users/utopy/.pi/agent/npm/node_modules/@plannotator/pi-extension/assistant-message.ts";
-import { parseAnnotateArgs } from "/Users/utopy/.pi/agent/npm/node_modules/@plannotator/pi-extension/generated/annotate-args.ts";
-import { loadConfig } from "/Users/utopy/.pi/agent/npm/node_modules/@plannotator/pi-extension/generated/config.ts";
-import { getAnnotateMessageFeedbackPrompt } from "/Users/utopy/.pi/agent/npm/node_modules/@plannotator/pi-extension/generated/prompts.ts";
-import {
-	getPiSessionIdentity,
-	isCurrentPiSessionDifferentFrom,
-	notifyCurrentPiSession,
-	registerCurrentPiSession,
-	sendUserMessageToCurrentPiSession,
-	type PiSessionIdentity,
-	withCurrentPiSessionFallbackHeader,
-} from "/Users/utopy/.pi/agent/npm/node_modules/@plannotator/pi-extension/current-pi-session.ts";
-import {
-	getStartupErrorMessage,
-	hasPlanBrowserHtml,
-	startLastMessageAnnotationSession,
-} from "/Users/utopy/.pi/agent/npm/node_modules/@plannotator/pi-extension/plannotator-events.ts";
-
 const COMMAND_NAME = "plannotator-last";
+const PLANNOTATOR_ROOT = `${process.env.HOME ?? "/Users/utopy"}/.pi/agent/npm/node_modules/@plannotator/pi-extension`;
 
-function excerptText(text: string, maxChars = 1000): string {
-	const trimmed = text.trim();
-	if (trimmed.length <= maxChars) return trimmed;
-	return `${trimmed.slice(0, maxChars).trimEnd()}...`;
+interface PiSessionIdentity {
+	cwd?: string;
+	sessionFile?: string;
+	sessionId?: string;
+	sessionName?: string;
 }
 
-function blockquote(text: string): string {
-	return text
+interface AssistantMessageSnapshot {
+	entryId: string;
+	text: string;
+}
+
+interface AnnotationDecision {
+	approved?: boolean;
+	exit?: boolean;
+	feedback?: string;
+	feedbackScope?: "message" | "messages";
+	selectedMessageId?: string;
+}
+
+interface AnnotationSession {
+	waitForDecision: () => Promise<AnnotationDecision>;
+}
+
+interface CurrentPiSessionRegistration {
+	clear: () => void;
+	update: (ctx: ExtensionContext) => void;
+}
+
+type SendUserMessageContent = Parameters<ExtensionAPI["sendUserMessage"]>[0];
+type SendUserMessageOptions = Parameters<ExtensionAPI["sendUserMessage"]>[1];
+
+type CurrentSessionSendResult =
+	| { ok: true }
+	| {
+			error: unknown;
+			ok: false;
+			reason: "no-current" | "same-session" | "send-failed";
+		};
+
+interface PlannotatorModules {
+	findAssistantMessageByEntryId: (
+		ctx: ExtensionContext,
+		entryId: string,
+	) => AssistantMessageSnapshot | undefined;
+	getAnnotateMessageFeedbackPrompt: (
+		runtime: "pi",
+		config: unknown,
+		options: { feedback: string },
+	) => string;
+	getLastAssistantMessageSnapshot: (
+		ctx: ExtensionContext,
+	) => AssistantMessageSnapshot | undefined;
+	getPiSessionIdentity: (ctx: ExtensionContext) => PiSessionIdentity;
+	getRecentAssistantMessages: (ctx: ExtensionContext, limit: number) => unknown[];
+	getStartupErrorMessage: (error: unknown) => string;
+	hasPlanBrowserHtml: () => boolean;
+	hasSessionMovedPastEntry: (ctx: ExtensionContext, entryId: string) => boolean;
+	isCurrentPiSessionDifferentFrom: (origin: PiSessionIdentity) => boolean;
+	loadConfig: () => unknown;
+	notifyCurrentPiSession: (
+		message: string,
+		type: "info" | "warning" | "error",
+		origin?: PiSessionIdentity,
+	) => boolean;
+	parseAnnotateArgs: (args: string) => { gate?: boolean };
+	registerCurrentPiSession: (pi: ExtensionAPI) => CurrentPiSessionRegistration;
+	sendUserMessageToCurrentPiSession: (
+		content: SendUserMessageContent,
+		options?: SendUserMessageOptions,
+		origin?: PiSessionIdentity,
+	) => CurrentSessionSendResult;
+	startLastMessageAnnotationSession: (
+		ctx: ExtensionContext,
+		text: string,
+		gate: boolean | undefined,
+		pickerMessages: unknown[] | undefined,
+	) => Promise<AnnotationSession>;
+	withCurrentPiSessionFallbackHeader: (
+		content: SendUserMessageContent,
+	) => SendUserMessageContent;
+}
+
+let plannotatorModulesPromise: Promise<PlannotatorModules> | undefined;
+
+const loadPlannotatorModules = (): Promise<PlannotatorModules> => {
+	plannotatorModulesPromise ??= (async () => {
+		const [assistantMessage, annotateArgs, config, prompts, currentPiSession, events] =
+			await Promise.all([
+				import(`${PLANNOTATOR_ROOT}/assistant-message.ts`),
+				import(`${PLANNOTATOR_ROOT}/generated/annotate-args.ts`),
+				import(`${PLANNOTATOR_ROOT}/generated/config.ts`),
+				import(`${PLANNOTATOR_ROOT}/generated/prompts.ts`),
+				import(`${PLANNOTATOR_ROOT}/current-pi-session.ts`),
+				import(`${PLANNOTATOR_ROOT}/plannotator-events.ts`),
+			]);
+
+		return {
+			findAssistantMessageByEntryId: assistantMessage.findAssistantMessageByEntryId,
+			getAnnotateMessageFeedbackPrompt: prompts.getAnnotateMessageFeedbackPrompt,
+			getLastAssistantMessageSnapshot: assistantMessage.getLastAssistantMessageSnapshot,
+			getPiSessionIdentity: currentPiSession.getPiSessionIdentity,
+			getRecentAssistantMessages: assistantMessage.getRecentAssistantMessages,
+			getStartupErrorMessage: events.getStartupErrorMessage,
+			hasPlanBrowserHtml: events.hasPlanBrowserHtml,
+			hasSessionMovedPastEntry: assistantMessage.hasSessionMovedPastEntry,
+			isCurrentPiSessionDifferentFrom:
+				currentPiSession.isCurrentPiSessionDifferentFrom,
+			loadConfig: config.loadConfig,
+			notifyCurrentPiSession: currentPiSession.notifyCurrentPiSession,
+			parseAnnotateArgs: annotateArgs.parseAnnotateArgs,
+			registerCurrentPiSession: currentPiSession.registerCurrentPiSession,
+			sendUserMessageToCurrentPiSession:
+				currentPiSession.sendUserMessageToCurrentPiSession,
+			startLastMessageAnnotationSession:
+				events.startLastMessageAnnotationSession,
+			withCurrentPiSessionFallbackHeader:
+				currentPiSession.withCurrentPiSessionFallbackHeader,
+		} satisfies PlannotatorModules;
+	})();
+
+	return plannotatorModulesPromise;
+};
+
+const excerptText = (text: string, maxChars = 1000): string => {
+	const trimmed = text.trim();
+	if (trimmed.length <= maxChars) {
+		return trimmed;
+	}
+	return `${trimmed.slice(0, maxChars).trimEnd()}...`;
+};
+
+const blockquote = (text: string): string =>
+	text
 		.split("\n")
 		.map((line) => `> ${line}`)
 		.join("\n");
-}
 
-function anchorMessageFeedback(feedback: string, originalMessage: string): string {
-	return `This feedback applies to the earlier assistant response excerpted below:
+const anchorMessageFeedback = (
+	feedback: string,
+	originalMessage: string,
+): string => `This feedback applies to the earlier assistant response excerpted below:
 
 ${blockquote(excerptText(originalMessage))}
 
 User feedback:
 ${feedback}`;
-}
 
-function safeNotify(
+const safeNotify = (
+	modules: PlannotatorModules,
 	ctx: ExtensionContext,
 	message: string,
 	type: "info" | "warning" | "error" = "info",
 	origin?: PiSessionIdentity,
-): void {
+): void => {
 	try {
 		ctx.ui.notify(message, type);
-	} catch (err) {
-		if (notifyCurrentPiSession(message, type, origin)) return;
+	} catch (error) {
+		if (modules.notifyCurrentPiSession(message, type, origin)) {
+			return;
+		}
 		console.error(
 			`Plannotator notification failed: ${
-				err instanceof Error ? err.message : String(err)
+				error instanceof Error ? error.message : String(error)
 			}`,
 		);
 	}
-}
+};
 
-function reportBackgroundError(
+const reportBackgroundError = (
+	modules: PlannotatorModules,
 	ctx: ExtensionContext,
 	message: string,
-	err: unknown,
+	error: unknown,
 	origin?: PiSessionIdentity,
-): void {
-	const detail = getStartupErrorMessage(err);
+): void => {
+	const detail = modules.getStartupErrorMessage(error);
 	console.error(`${message}: ${detail}`);
-	safeNotify(ctx, `${message}: ${detail}`, "error", origin);
-}
+	safeNotify(modules, ctx, `${message}: ${detail}`, "error", origin);
+};
 
-function shouldAnchorLastMessageFeedback(
+const shouldAnchorLastMessageFeedback = (
+	modules: PlannotatorModules,
 	ctx: ExtensionContext,
 	entryId: string,
 	origin: PiSessionIdentity,
-): boolean {
-	if (isCurrentPiSessionDifferentFrom(origin)) return true;
+): boolean => {
+	if (modules.isCurrentPiSessionDifferentFrom(origin)) {
+		return true;
+	}
 	try {
-		return hasSessionMovedPastEntry(ctx, entryId);
+		return modules.hasSessionMovedPastEntry(ctx, entryId);
 	} catch {
 		return true;
 	}
-}
+};
 
-function reportCurrentSessionSendFailure(
+const reportCurrentSessionSendFailure = (
+	modules: PlannotatorModules,
 	errorMessage: string,
-	err: unknown,
+	error: unknown,
 	origin: PiSessionIdentity,
-): void {
-	const detail = getStartupErrorMessage(err);
+): void => {
+	const detail = modules.getStartupErrorMessage(error);
 	console.error(`${errorMessage}: ${detail}`);
-	notifyCurrentPiSession(`${errorMessage}: ${detail}`, "error", origin);
-}
+	modules.notifyCurrentPiSession(`${errorMessage}: ${detail}`, "error", origin);
+};
 
-function trySendUserMessageToDifferentCurrentSession(
-	content: Parameters<ExtensionAPI["sendUserMessage"]>[0],
-	options: Parameters<ExtensionAPI["sendUserMessage"]>[1],
+const trySendUserMessageToDifferentCurrentSession = (
+	modules: PlannotatorModules,
+	content: SendUserMessageContent,
+	options: SendUserMessageOptions,
 	errorMessage: string,
 	origin: PiSessionIdentity,
-): boolean {
-	const result = sendUserMessageToCurrentPiSession(
-		withCurrentPiSessionFallbackHeader(content),
+): boolean => {
+	const result = modules.sendUserMessageToCurrentPiSession(
+		modules.withCurrentPiSessionFallbackHeader(content),
 		options,
 		origin,
 	);
-	if (result.ok) return true;
+	if (result.ok) {
+		return true;
+	}
 	if (result.reason === "send-failed") {
-		reportCurrentSessionSendFailure(errorMessage, result.error, origin);
+		reportCurrentSessionSendFailure(
+			modules,
+			errorMessage,
+			result.error,
+			origin,
+		);
 		return true;
 	}
 	return false;
-}
+};
 
-function sendUserMessageWithCurrentSessionFallback(
+const sendUserMessageWithCurrentSessionFallback = (
+	modules: PlannotatorModules,
 	pi: ExtensionAPI,
-	content: Parameters<ExtensionAPI["sendUserMessage"]>[0],
-	options: Parameters<ExtensionAPI["sendUserMessage"]>[1],
+	content: SendUserMessageContent,
+	options: SendUserMessageOptions,
 	errorMessage: string,
 	origin: PiSessionIdentity,
-): void {
+): void => {
 	if (
 		trySendUserMessageToDifferentCurrentSession(
+			modules,
 			content,
 			options,
 			errorMessage,
@@ -142,10 +263,10 @@ function sendUserMessageWithCurrentSessionFallback(
 
 	try {
 		pi.sendUserMessage(content, options);
-		return;
-	} catch (err) {
+	} catch (error) {
 		if (
 			trySendUserMessageToDifferentCurrentSession(
+				modules,
 				content,
 				options,
 				errorMessage,
@@ -154,18 +275,63 @@ function sendUserMessageWithCurrentSessionFallback(
 		) {
 			return;
 		}
-		throw err;
+		throw error;
 	}
-}
+};
 
-async function openLastAssistantMessageAnnotation(
+const handleAnnotationDecision = (
+	modules: PlannotatorModules,
+	pi: ExtensionAPI,
+	ctx: ExtensionContext,
+	origin: PiSessionIdentity,
+	snapshot: AssistantMessageSnapshot,
+	result: AnnotationDecision,
+): void => {
+	if (result.exit) {
+		safeNotify(modules, ctx, "Annotation session closed.", "info", origin);
+		return;
+	}
+	if (result.approved) {
+		safeNotify(modules, ctx, "Message approved.", "info", origin);
+		return;
+	}
+	if (!result.feedback) {
+		safeNotify(modules, ctx, "Annotation closed (no feedback).", "info", origin);
+		return;
+	}
+
+	const target =
+		result.selectedMessageId && result.selectedMessageId !== snapshot.entryId
+			? modules.findAssistantMessageByEntryId(ctx, result.selectedMessageId) ??
+				snapshot
+			: snapshot;
+	const feedback =
+		result.feedbackScope !== "messages" &&
+		shouldAnchorLastMessageFeedback(modules, ctx, target.entryId, origin)
+			? anchorMessageFeedback(result.feedback, target.text)
+			: result.feedback;
+
+	sendUserMessageWithCurrentSessionFallback(
+		modules,
+		pi,
+		modules.getAnnotateMessageFeedbackPrompt("pi", modules.loadConfig(), {
+			feedback,
+		}),
+		{ deliverAs: "followUp" },
+		"Plannotator message annotation feedback could not be sent",
+		origin,
+	);
+};
+
+const openLastAssistantMessageAnnotation = async (
+	modules: PlannotatorModules,
 	pi: ExtensionAPI,
 	args: string,
 	ctx: ExtensionContext,
-): Promise<void> {
-	const { gate } = parseAnnotateArgs(args);
+): Promise<void> => {
+	const { gate } = modules.parseAnnotateArgs(args);
 
-	if (!hasPlanBrowserHtml()) {
+	if (!modules.hasPlanBrowserHtml()) {
 		ctx.ui.notify(
 			"Annotation UI not available. Run 'bun run build' in the pi-extension directory.",
 			"error",
@@ -173,20 +339,20 @@ async function openLastAssistantMessageAnnotation(
 		return;
 	}
 
-	const origin = getPiSessionIdentity(ctx);
-	const snapshot = getLastAssistantMessageSnapshot(ctx);
+	const origin = modules.getPiSessionIdentity(ctx);
+	const snapshot = modules.getLastAssistantMessageSnapshot(ctx);
 	if (!snapshot) {
 		ctx.ui.notify("No assistant message found in session.", "error");
 		return;
 	}
 
-	const recent = getRecentAssistantMessages(ctx, 25);
+	const recent = modules.getRecentAssistantMessages(ctx, 25);
 	const pickerMessages = recent.length > 1 ? recent : undefined;
 
 	ctx.ui.notify("Opening annotation UI for last message...", "info");
 
 	try {
-		const session = await startLastMessageAnnotationSession(
+		const session = await modules.startLastMessageAnnotationSession(
 			ctx,
 			snapshot.text,
 			gate,
@@ -196,67 +362,32 @@ async function openLastAssistantMessageAnnotation(
 			"Last-message annotation opened. You can keep chatting while it runs.",
 			"info",
 		);
-		void session
-			.waitForDecision()
-			.then((result) => {
-				try {
-					if (result.exit) {
-						safeNotify(ctx, "Annotation session closed.", "info", origin);
-						return;
-					}
-					if (result.approved) {
-						safeNotify(ctx, "Message approved.", "info", origin);
-						return;
-					}
-					if (!result.feedback) {
-						safeNotify(ctx, "Annotation closed (no feedback).", "info", origin);
-						return;
-					}
 
-					const target =
-						result.selectedMessageId && result.selectedMessageId !== snapshot.entryId
-							? findAssistantMessageByEntryId(ctx, result.selectedMessageId) ?? snapshot
-							: snapshot;
-					const feedback =
-						result.feedbackScope !== "messages" &&
-						shouldAnchorLastMessageFeedback(ctx, target.entryId, origin)
-							? anchorMessageFeedback(result.feedback, target.text)
-							: result.feedback;
-
-					sendUserMessageWithCurrentSessionFallback(
-						pi,
-						getAnnotateMessageFeedbackPrompt("pi", loadConfig(), { feedback }),
-						{ deliverAs: "followUp" },
-						"Plannotator message annotation feedback could not be sent",
-						origin,
-					);
-				} catch (err) {
-					reportBackgroundError(
-						ctx,
-						"Plannotator message annotation feedback could not be sent",
-						err,
-						origin,
-					);
-				}
-			})
-			.catch((err) => {
+		void (async () => {
+			try {
+				const result = await session.waitForDecision();
+				handleAnnotationDecision(modules, pi, ctx, origin, snapshot, result);
+			} catch (error) {
 				reportBackgroundError(
+					modules,
 					ctx,
 					"Plannotator message annotation session failed",
-					err,
+					error,
 					origin,
 				);
-			});
-	} catch (err) {
+			}
+		})();
+	} catch (error) {
 		ctx.ui.notify(
-			`Failed to start annotation UI: ${getStartupErrorMessage(err)}`,
+			`Failed to start annotation UI: ${modules.getStartupErrorMessage(error)}`,
 			"error",
 		);
 	}
-}
+};
 
-export default function plannotatorLastShortcut(pi: ExtensionAPI) {
-	const currentPiSession = registerCurrentPiSession(pi);
+export default async function plannotatorLastShortcut(pi: ExtensionAPI) {
+	const modules = await loadPlannotatorModules();
+	const currentPiSession = modules.registerCurrentPiSession(pi);
 
 	pi.on("session_start", (_event, ctx) => {
 		currentPiSession.update(ctx);
@@ -278,7 +409,7 @@ export default function plannotatorLastShortcut(pi: ExtensionAPI) {
 				return;
 			}
 
-			await openLastAssistantMessageAnnotation(pi, "", ctx);
+			await openLastAssistantMessageAnnotation(modules, pi, "", ctx);
 		},
 	});
 }

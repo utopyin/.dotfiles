@@ -3,9 +3,6 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "scripts": {
-    "typecheck": "tsc --noEmit"
-  },
   "pi": {
     "extensions": [
       "./src/index.ts"

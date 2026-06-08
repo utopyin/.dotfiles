@@ -4,11 +4,13 @@
   "type": "module",
   "scripts": {
     "dot": "bun run bin/dot.ts",
-    "check": "bun run check:types && bun run check:lint",
+    "check": "bun run check:types && bun run check:lint && bun run check:pi-extensions",
     "check:types": "tsc --noEmit",
     "check:lint": "ultracite check",
+    "check:pi-extensions": "bun run scripts/pi-extension-pipeline.ts check",
     "build": "bun build ./bin/dot.ts --compile --outfile ./dist/dot",
-    "fix": "ultracite fix"
+    "fix": "ultracite fix && bun run fix:pi-extensions",
+    "fix:pi-extensions": "bun run scripts/pi-extension-pipeline.ts fix"
   },
   "dependencies": {
     "@effect/platform-bun": "4.0.0-beta.78",

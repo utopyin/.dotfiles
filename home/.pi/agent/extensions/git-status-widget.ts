@@ -6,7 +6,7 @@ import type {
 } from "@earendil-works/pi-coding-agent";
 
 const execFileAsync = promisify(execFile);
-const UPDATE_INTERVAL_MS = 2_000;
+const UPDATE_INTERVAL_MS = 2000;
 const WIDGET_ID = "git-status-widget";
 
 const countUnstagedFiles = (statusOutput: string) => {
@@ -44,8 +44,8 @@ const getUnstagedCount = async (cwd: string) => {
 const runGit = async (args: string[], cwd: string) => {
 	const { stdout } = await execFileAsync("git", args, {
 		cwd,
-		maxBuffer: 1024 * 1024,
-		timeout: 2_000,
+		maxBuffer: 1_048_576,
+		timeout: 2000,
 	});
 	return stdout.trimEnd();
 };

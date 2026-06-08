@@ -18,8 +18,10 @@ runtime packages.
 
 - Dot CLI dependencies: `package.json` + `bun.lock`
 - System/app dependencies: `packages/Brewfile`
-- Pi extension package dependencies: `home/.pi/agent/npm/package.json` +
+- Pi package dependencies: `home/.pi/agent/npm/package.json` +
   `home/.pi/agent/npm/package-lock.json`
+- Extension-local dependencies: colocated `package.json` + lockfiles under
+  `home/.pi/agent/extensions/<extension>/` when an extension needs npm packages
 
 ## Vendoring Pi code
 

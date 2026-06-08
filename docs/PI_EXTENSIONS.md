@@ -29,10 +29,8 @@ Only these upstreams are approved for the current vendoring pass:
 | `pi-cloak`               | dmmulroy | `f1d259292fb07e08745484c546b789d9584959b6` | `home/.pi/agent/extensions/pi-cloak/`                 | Secret masking extension.                                                                                                                 |
 | `pi-skill-toggle`        | dmmulroy | `f1d259292fb07e08745484c546b789d9584959b6` | `home/.pi/agent/extensions/pi-skill-toggle/`          | Skill toggle UI and frontmatter patching.                                                                                                 |
 | `todos`                  | dmmulroy | `f1d259292fb07e08745484c546b789d9584959b6` | `home/.pi/agent/extensions/todos/`                    | File-backed todo management.                                                                                                              |
+| `web-tools`              | dmmulroy | `f1d259292fb07e08745484c546b789d9584959b6` | `home/.pi/agent/extensions/web-tools/`                | Registers `websearch` and `webfetch`; uses Exa MCP for search and blocks private/local hosts for fetch by default.                        |
 
 ## Web tools decision
 
-Prefer dmmulroy-style `web-tools` as the primary future `webfetch/websearch`
-shape because it is more controllable, blocks private/local hosts by default,
-and keeps fetch/search behavior inspectable in repo source. Defer Davis Firecrawl
-unless SaaS scraping quality becomes worth an additional API-key dependency.
+Use dmmulroy-style `web-tools` as the primary `webfetch/websearch` shape because it is more controllable, blocks private/local hosts by default, and keeps fetch/search behavior inspectable in repo source. Defer Davis Firecrawl unless SaaS scraping quality becomes worth an additional API-key dependency.

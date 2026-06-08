@@ -15,20 +15,22 @@
     "npm:@zenobius/pi-worktrees",
     {
       "source": "npm:pi-btw",
-      "extensions": ["+extensions/btw.ts"]
+      "extensions": [
+        "+extensions/btw.ts"
+      ]
     },
     {
       "source": "npm:@neilurk12/pi-lazygit",
-      "extensions": ["+dist/index.js"]
-    },
-    {
-      "source": "npm:pi-lens",
-      "extensions": ["+index.ts"]
+      "extensions": [
+        "+dist/index.js"
+      ]
     },
     {
       "source": "npm:@plannotator/pi-extension",
       "skills": [],
-      "extensions": ["+"]
+      "extensions": [
+        "+"
+      ]
     }
   ],
   "editorPaddingX": 3,

@@ -66,10 +66,11 @@ bun run dot link --dev      # install a shim that runs bin/dot.ts via Bun
 keybindings, and extension IDs, but excludes Cursor `globalState`, account data,
 local file history, and absolute project paths.
 
-Sync it from the current Cursor install with:
+Sync it from a Cursor user data profile with:
 
 ```bash
-bun run dot cursor sync
+bun run dot cursor sync                 # uses saved profile name, or sole profile
+bun run dot cursor sync cursor-profile  # explicit Cursor profile name or id
 ```
 
 Apply it to Cursor through the normal config apply flow:

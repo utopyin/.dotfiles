@@ -151,11 +151,15 @@ export const cli = Command.make("dot").pipe(
     Command.make("cursor").pipe(
       Command.withDescription("Manage the sanitized Cursor profile"),
       Command.withSubcommands([
-        Command.make("sync").pipe(
+        Command.make("sync", {
+          profileName: Argument.optional(Argument.string("PROFILE")),
+        }).pipe(
           Command.withDescription(
-            "Sync cursor-profile.code-profile from Cursor's current config"
+            "Sync cursor-profile.code-profile from a Cursor user data profile"
           ),
-          Command.withHandler(syncCursorProfile)
+          Command.withHandler(({ profileName }) =>
+            syncCursorProfile({ profileName })
+          )
         ),
         Command.make("paths").pipe(Command.withHandler(showCursorProfilePaths)),
       ])

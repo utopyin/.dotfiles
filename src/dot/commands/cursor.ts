@@ -209,20 +209,21 @@ export const showCursorProfilePaths = Effect.fn("showCursorProfilePaths")(
   }
 );
 
-const extractSettingsText = (profile: CursorProfile) =>
-  Effect.gen(function* () {
-    if (!profile.settings) {
-      return null;
-    }
+const extractSettingsText = Effect.fn("cursor.extractSettingsText")(function* (
+  profile: CursorProfile
+) {
+  if (!profile.settings) {
+    return null;
+  }
 
-    const settingsExport = yield* Schema.decodeUnknownEffect(
-      Schema.fromJsonString(CursorSettingsExportSchema)
-    )(profile.settings);
-    return settingsExport.settings ?? null;
-  });
+  const settingsExport = yield* Schema.decodeUnknownEffect(
+    Schema.fromJsonString(CursorSettingsExportSchema)
+  )(profile.settings);
+  return settingsExport.settings ?? null;
+});
 
-const extractKeybindingsText = (profile: CursorProfile) =>
-  Effect.gen(function* () {
+const extractKeybindingsText = Effect.fn("cursor.extractKeybindingsText")(
+  function* (profile: CursorProfile) {
     if (!profile.keybindings) {
       return null;
     }
@@ -231,33 +232,36 @@ const extractKeybindingsText = (profile: CursorProfile) =>
       Schema.fromJsonString(CursorKeybindingsExportSchema)
     )(profile.keybindings);
     return keybindingsExport.keybindings ?? null;
-  });
+  }
+);
 
-const extractExtensions = (profile: CursorProfile) =>
-  Effect.gen(function* () {
-    if (!profile.extensions) {
-      return [] as readonly CursorExtension[];
-    }
+const extractExtensions = Effect.fn("cursor.extractExtensions")(function* (
+  profile: CursorProfile
+) {
+  if (!profile.extensions) {
+    return [] as readonly CursorExtension[];
+  }
 
-    return yield* Schema.decodeUnknownEffect(
-      Schema.fromJsonString(CursorExtensionsExportSchema)
-    )(profile.extensions);
-  });
+  return yield* Schema.decodeUnknownEffect(
+    Schema.fromJsonString(CursorExtensionsExportSchema)
+  )(profile.extensions);
+});
 
-const extractExtensionIds = (profile: CursorProfile) =>
-  Effect.gen(function* () {
-    const extensions = yield* extractExtensions(profile);
-    return extensions
-      .map((extension) => extension.identifier?.id)
-      .filter((id): id is string => typeof id === "string");
-  });
+const extractExtensionIds = Effect.fn("cursor.extractExtensionIds")(function* (
+  profile: CursorProfile
+) {
+  const extensions = yield* extractExtensions(profile);
+  return extensions
+    .map((extension) => extension.identifier?.id)
+    .filter((id): id is string => typeof id === "string");
+});
 
-const resolveCursorSyncSource = (input: {
-  readonly cursorPaths: CursorPaths;
-  readonly requestedProfileName: string | undefined;
-  readonly savedProfileName: string | undefined;
-}) =>
-  Effect.gen(function* () {
+const resolveCursorSyncSource = Effect.fn("cursor.resolveCursorSyncSource")(
+  function* (input: {
+    readonly cursorPaths: CursorPaths;
+    readonly requestedProfileName: string | undefined;
+    readonly savedProfileName: string | undefined;
+  }) {
     const profiles = yield* readCursorUserDataProfiles(input.cursorPaths);
     const profile = yield* selectCursorProfile({
       profiles,
@@ -311,20 +315,22 @@ const resolveCursorSyncSource = (input: {
       "Cursor profile extensions"
     );
     return source;
-  });
+  }
+);
 
-const readCursorUserDataProfiles = (cursorPaths: CursorPaths) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    if (!(yield* fs.exists(cursorPaths.globalStorage))) {
-      return [] as readonly CursorStoredProfile[];
-    }
+const readCursorUserDataProfiles = Effect.fn(
+  "cursor.readCursorUserDataProfiles"
+)(function* (cursorPaths: CursorPaths) {
+  const fs = yield* FileSystem.FileSystem;
+  if (!(yield* fs.exists(cursorPaths.globalStorage))) {
+    return [] as readonly CursorStoredProfile[];
+  }
 
-    const storage = yield* Schema.decodeUnknownEffect(
-      Schema.fromJsonString(CursorGlobalStorageSchema)
-    )(yield* fs.readFileString(cursorPaths.globalStorage));
-    return storage.userDataProfiles ?? [];
-  });
+  const storage = yield* Schema.decodeUnknownEffect(
+    Schema.fromJsonString(CursorGlobalStorageSchema)
+  )(yield* fs.readFileString(cursorPaths.globalStorage));
+  return storage.userDataProfiles ?? [];
+});
 
 class CursorProfileSelectionError extends Data.TaggedError(
   "CursorProfileSelectionError"
@@ -342,12 +348,12 @@ class CursorProfileSelectionError extends Data.TaggedError(
   }
 }
 
-const selectCursorProfile = (input: {
-  readonly profiles: readonly CursorStoredProfile[];
-  readonly requestedProfileName: string | undefined;
-  readonly savedProfileName: string | undefined;
-}) =>
-  Effect.gen(function* () {
+const selectCursorProfile = Effect.fn("cursor.selectCursorProfile")(
+  function* (input: {
+    readonly profiles: readonly CursorStoredProfile[];
+    readonly requestedProfileName: string | undefined;
+    readonly savedProfileName: string | undefined;
+  }) {
     const requestedProfileName = input.requestedProfileName?.trim();
     if (requestedProfileName) {
       if (isDefaultProfileName(requestedProfileName)) {
@@ -362,13 +368,11 @@ const selectCursorProfile = (input: {
         return requestedProfile;
       }
 
-      return yield* Effect.fail(
-        new CursorProfileSelectionError({
-          availableProfiles: input.profiles,
-          reason: "profile-not-found",
-          requestedProfileName,
-        })
-      );
+      return yield* new CursorProfileSelectionError({
+        availableProfiles: input.profiles,
+        reason: "profile-not-found",
+        requestedProfileName,
+      });
     }
 
     const savedProfileName = input.savedProfileName?.trim();
@@ -390,13 +394,12 @@ const selectCursorProfile = (input: {
       return "default" as const;
     }
 
-    return yield* Effect.fail(
-      new CursorProfileSelectionError({
-        availableProfiles: input.profiles,
-        reason: "multiple-profiles",
-      })
-    );
-  });
+    return yield* new CursorProfileSelectionError({
+      availableProfiles: input.profiles,
+      reason: "multiple-profiles",
+    });
+  }
+);
 
 const findProfile = (
   profiles: readonly CursorStoredProfile[],
@@ -417,6 +420,44 @@ const formatAvailableProfiles = (profiles: readonly CursorStoredProfile[]) =>
     : profiles
         .map((profile) => `${profile.name} (${profile.location})`)
         .join(", ");
+
+class CursorProfileSanitizationError extends Data.TaggedError(
+  "CursorProfileSanitizationError"
+)<{
+  readonly finding: string;
+  readonly label: string;
+}> {
+  override get message(): string {
+    return `Cursor profile ${this.label} contains ${this.finding}; refusing to sync`;
+  }
+}
+
+class CursorProfileSourceError extends Data.TaggedError(
+  "CursorProfileSourceError"
+)<{
+  readonly description?: string;
+  readonly path: string;
+  readonly reason: "invalid-extensions-list" | "missing-file";
+}> {
+  override get message(): string {
+    if (this.reason === "invalid-extensions-list") {
+      return `Cursor extensions source is not a list: ${this.path}`;
+    }
+
+    return `${this.description ?? "Cursor source file"} not found: ${this.path}`;
+  }
+}
+
+class CursorProfileJsonParseError extends Data.TaggedError(
+  "CursorProfileJsonParseError"
+)<{
+  readonly cause: unknown;
+  readonly path: string;
+}> {
+  override get message(): string {
+    return `Failed to parse JSON at ${this.path}: ${formatUnknown(this.cause)}`;
+  }
+}
 
 const SENSITIVE_CURSOR_PROFILE_PATTERNS = [
   {
@@ -449,39 +490,43 @@ const SENSITIVE_CURSOR_PROFILE_PATTERNS = [
   },
 ] as const;
 
-const assertSanitizedCursorProfileText = (
+const assertSanitizedCursorProfileText = Effect.fn(
+  "cursor.assertSanitizedCursorProfileText"
+)(function* (
   chunks: readonly { readonly label: string; readonly text: string }[]
-) =>
-  Effect.gen(function* () {
-    for (const chunk of chunks) {
-      const hit = SENSITIVE_CURSOR_PROFILE_PATTERNS.find(({ pattern }) =>
-        pattern.test(chunk.text)
-      );
-      if (hit) {
-        return yield* Effect.fail(
-          new Error(
-            `Cursor profile ${chunk.label} contains ${hit.label}; refusing to sync`
-          )
-        );
-      }
+) {
+  for (const chunk of chunks) {
+    const hit = SENSITIVE_CURSOR_PROFILE_PATTERNS.find(({ pattern }) =>
+      pattern.test(chunk.text)
+    );
+    if (hit) {
+      return yield* new CursorProfileSanitizationError({
+        finding: hit.label,
+        label: chunk.label,
+      });
     }
-  });
+  }
+});
 
-const requireExistingFile = (filePath: string, description: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    if (!(yield* fs.exists(filePath))) {
-      return yield* Effect.fail(
-        new Error(`${description} not found: ${filePath}`)
-      );
-    }
-  });
+const requireExistingFile = Effect.fn("cursor.requireExistingFile")(function* (
+  filePath: string,
+  description: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  if (!(yield* fs.exists(filePath))) {
+    return yield* new CursorProfileSourceError({
+      description,
+      path: filePath,
+      reason: "missing-file",
+    });
+  }
+});
 
-const readCursorExtensions = (input: {
-  readonly existingExtensions: readonly CursorExtension[];
-  readonly source: CursorExtensionSource;
-}) =>
-  Effect.gen(function* () {
+const readCursorExtensions = Effect.fn("cursor.readCursorExtensions")(
+  function* (input: {
+    readonly existingExtensions: readonly CursorExtension[];
+    readonly source: CursorExtensionSource;
+  }) {
     const rawExtensions = yield* readJsonFile(input.source.path);
     const extensionEntries =
       input.source._tag === "extensions-cache"
@@ -489,24 +534,24 @@ const readCursorExtensions = (input: {
         : rawExtensions;
 
     if (!Array.isArray(extensionEntries)) {
-      return yield* Effect.fail(
-        new Error(
-          `Cursor extensions source is not a list: ${input.source.path}`
-        )
-      );
+      return yield* new CursorProfileSourceError({
+        path: input.source.path,
+        reason: "invalid-extensions-list",
+      });
     }
 
     return yield* sanitizeCursorExtensions({
       existingExtensions: input.existingExtensions,
       rawExtensions: extensionEntries,
     });
-  });
+  }
+);
 
-const sanitizeCursorExtensions = (input: {
-  readonly existingExtensions: readonly CursorExtension[];
-  readonly rawExtensions: readonly unknown[];
-}) =>
-  Effect.gen(function* () {
+const sanitizeCursorExtensions = Effect.fn("cursor.sanitizeCursorExtensions")(
+  function* (input: {
+    readonly existingExtensions: readonly CursorExtension[];
+    readonly rawExtensions: readonly unknown[];
+  }) {
     const displayNames = new Map(
       input.existingExtensions.flatMap((extension) => {
         const id = extension.identifier?.id;
@@ -541,14 +586,15 @@ const sanitizeCursorExtensions = (input: {
     return [...extensionById.values()].toSorted((left, right) =>
       (left.identifier?.id ?? "").localeCompare(right.identifier?.id ?? "")
     );
-  });
+  }
+);
 
-const sanitizeCursorExtension = (input: {
-  readonly displayNames: ReadonlyMap<string, string>;
-  readonly preReleaseIds: ReadonlySet<string>;
-  readonly rawExtension: unknown;
-}) =>
-  Effect.gen(function* () {
+const sanitizeCursorExtension = Effect.fn("cursor.sanitizeCursorExtension")(
+  function* (input: {
+    readonly displayNames: ReadonlyMap<string, string>;
+    readonly preReleaseIds: ReadonlySet<string>;
+    readonly rawExtension: unknown;
+  }) {
     const rawExtension = asRecord(input.rawExtension);
     if (!rawExtension) {
       return null;
@@ -580,7 +626,8 @@ const sanitizeCursorExtension = (input: {
         ? { preRelease: true }
         : {}),
     } satisfies CursorExtension;
-  });
+  }
+);
 
 const getExtensionDisplayName = (input: {
   readonly displayNames: ReadonlyMap<string, string>;
@@ -613,48 +660,44 @@ const isExtensionPreRelease = (input: {
   );
 };
 
-const readExtensionPackageDisplayName = (input: {
-  readonly rawExtension: Record<string, unknown>;
-}) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const path = yield* Path.Path;
-    const location = asRecord(input.rawExtension.location);
-    const locationPath = getString(location?.path);
-    if (!locationPath) {
-      return null;
-    }
+const readExtensionPackageDisplayName = Effect.fn(
+  "cursor.readExtensionPackageDisplayName"
+)(function* (input: { readonly rawExtension: Record<string, unknown> }) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const location = asRecord(input.rawExtension.location);
+  const locationPath = getString(location?.path);
+  if (!locationPath) {
+    return null;
+  }
 
-    const packageJsonPath = path.join(locationPath, "package.json");
-    if (!(yield* fs.exists(packageJsonPath))) {
-      return null;
-    }
+  const packageJsonPath = path.join(locationPath, "package.json");
+  if (!(yield* fs.exists(packageJsonPath))) {
+    return null;
+  }
 
-    const packageJson = yield* readJsonFile(packageJsonPath).pipe(
-      Effect.catch(() => Effect.succeed(null))
-    );
-    const packageRecord = asRecord(packageJson);
-    const displayName = getString(packageRecord?.displayName);
-    const localizedDisplayName = displayName
-      ? yield* readPackageNlsString({
-          packageDir: locationPath,
-          value: displayName,
-        })
-      : null;
+  const packageJson = yield* readJsonFile(packageJsonPath).pipe(
+    Effect.catch(() => Effect.succeed(null))
+  );
+  const packageRecord = asRecord(packageJson);
+  const displayName = getString(packageRecord?.displayName);
+  const localizedDisplayName = displayName
+    ? yield* readPackageNlsString({
+        packageDir: locationPath,
+        value: displayName,
+      })
+    : null;
 
-    return (
-      localizedDisplayName ??
-      (isLocalizedPackageValue(displayName) ? null : displayName) ??
-      getString(packageRecord?.name) ??
-      null
-    );
-  });
+  return (
+    localizedDisplayName ??
+    (isLocalizedPackageValue(displayName) ? null : displayName) ??
+    getString(packageRecord?.name) ??
+    null
+  );
+});
 
-const readPackageNlsString = (input: {
-  readonly packageDir: string;
-  readonly value: string;
-}) =>
-  Effect.gen(function* () {
+const readPackageNlsString = Effect.fn("cursor.readPackageNlsString")(
+  function* (input: { readonly packageDir: string; readonly value: string }) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
     const key = getLocalizedPackageKey(input.value);
@@ -671,7 +714,8 @@ const readPackageNlsString = (input: {
       Effect.catch(() => Effect.succeed(null))
     );
     return getString(asRecord(packageNls)?.[key]) ?? null;
-  });
+  }
+);
 
 const getLocalizedPackageKey = (value: string) =>
   value.startsWith("%") && value.endsWith("%") ? value.slice(1, -1) : null;
@@ -679,21 +723,20 @@ const getLocalizedPackageKey = (value: string) =>
 const isLocalizedPackageValue = (value: string | undefined) =>
   value ? getLocalizedPackageKey(value) !== null : false;
 
-const readJsonFile = (filePath: string) =>
-  Effect.gen(function* () {
-    const fs = yield* FileSystem.FileSystem;
-    const text = yield* fs.readFileString(filePath);
-    return yield* Effect.try({
-      catch: (error) =>
-        new Error(
-          `Failed to parse JSON at ${filePath}: ${toError(error).message}`
-        ),
-      try: () => JSON.parse(text) as unknown,
-    });
+const readJsonFile = Effect.fn("cursor.readJsonFile")(function* (
+  filePath: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const text = yield* fs.readFileString(filePath);
+  return yield* Effect.try({
+    catch: (error) =>
+      new CursorProfileJsonParseError({ cause: error, path: filePath }),
+    try: () => JSON.parse(text) as unknown,
   });
+});
 
-const toError = (error: unknown) =>
-  error instanceof Error ? error : new Error(String(error));
+const formatUnknown = (value: unknown) =>
+  value instanceof Error ? value.message : String(value);
 
 const asRecord = (value: unknown): Record<string, unknown> | undefined =>
   typeof value === "object" && value !== null && !Array.isArray(value)

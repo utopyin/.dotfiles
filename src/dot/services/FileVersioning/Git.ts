@@ -6,11 +6,22 @@ import type { FileVersioningShape } from "./index.ts";
 export const makeGitFileVersioning = Effect.gen(function* () {
   const command = yield* CommandExecutor;
   return {
-    pullFastForward: (cwd: string) =>
-      command.run("git", ["pull", "--ff-only"], { cwd }).pipe(Effect.asVoid),
-    remoteSummary: (cwd: string) =>
-      command.runText("git", ["remote", "-v"], { cwd }),
-    status: (cwd: string) =>
-      command.runText("git", ["status", "--short", "--branch"], { cwd }),
+    pullFastForward: Effect.fn("GitFileVersioning.pullFastForward")(function* (
+      cwd: string
+    ) {
+      yield* command
+        .run("git", ["pull", "--ff-only"], { cwd })
+        .pipe(Effect.asVoid);
+    }),
+    remoteSummary: Effect.fn("GitFileVersioning.remoteSummary")(function* (
+      cwd: string
+    ) {
+      return yield* command.runText("git", ["remote", "-v"], { cwd });
+    }),
+    status: Effect.fn("GitFileVersioning.status")(function* (cwd: string) {
+      return yield* command.runText("git", ["status", "--short", "--branch"], {
+        cwd,
+      });
+    }),
   } satisfies FileVersioningShape;
 });

@@ -3,7 +3,6 @@ import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 
 import { DotfilesConfig } from "../Config.ts";
-import type { CommandExecutorShape } from "../services/CommandExecutor/index.ts";
 import { CommandExecutor } from "../services/CommandExecutor/index.ts";
 import { PackageInstaller } from "../services/PackageInstaller/index.ts";
 import { Secrets } from "../services/Secrets.ts";
@@ -50,7 +49,9 @@ export const doctor = Effect.fn("doctor")(function* () {
       ok: yield* packages.checkManifest(config.brewfilePath),
     })
   );
-  const dotLinkTarget = yield* currentDotLinkTarget(fs, config.localBinDotPath);
+  const dotLinkTarget = yield* currentDotLinkTarget(
+    config.localBinDotPath
+  ).pipe(Effect.provideService(FileSystem.FileSystem, fs));
   yield* Console.log(
     line({
       detail: dotLinkTarget,
@@ -73,10 +74,10 @@ export const doctor = Effect.fn("doctor")(function* () {
   yield* Console.log(
     line({
       label: "zsh syntax",
-      ok: yield* zshSyntaxOk(commands, [
+      ok: yield* zshSyntaxOk([
         config.shellConfigPath,
         config.promptConfigPath,
-      ]),
+      ]).pipe(Effect.provideService(CommandExecutor, commands)),
     })
   );
   yield* Console.log(
@@ -111,23 +112,29 @@ export const doctor = Effect.fn("doctor")(function* () {
   }
 });
 
-const currentDotLinkTarget = (fs: FileSystem.FileSystem, linkPath: string) =>
-  fs
-    .readLink(linkPath)
-    .pipe(Effect.catchCause(() => Effect.succeed("missing")));
+const currentDotLinkTarget = Effect.fn("doctor.currentDotLinkTarget")(
+  function* (linkPath: string) {
+    const fs = yield* FileSystem.FileSystem;
+    return yield* fs
+      .readLink(linkPath)
+      .pipe(Effect.catchCause(() => Effect.succeed("missing")));
+  }
+);
 
-const zshSyntaxOk = (
-  commands: CommandExecutorShape,
+const zshSyntaxOk = Effect.fn("doctor.zshSyntaxOk")(function* (
   files: readonly string[]
-) =>
-  Effect.all(
+) {
+  const commands = yield* CommandExecutor;
+  const results = yield* Effect.all(
     files.map((file) =>
       commands.run("zsh", ["-n", file]).pipe(
         Effect.as(true),
         Effect.catchCause(() => Effect.succeed(false))
       )
     )
-  ).pipe(Effect.map((results) => results.every(Boolean)));
+  );
+  return results.every(Boolean);
+});
 
 const line = (input: {
   readonly detail?: string;

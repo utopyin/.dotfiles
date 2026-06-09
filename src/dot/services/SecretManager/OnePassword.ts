@@ -8,18 +8,27 @@ export const makeOnePasswordSecretManager = Effect.gen(function* () {
   const command = yield* CommandExecutor;
 
   return {
-    accountList: () =>
-      command
-        .runText("op", ["account", "list"])
-        .pipe(Effect.mapError(mapOpError("account list"))),
+    accountList: Effect.fn("OnePasswordSecretManager.accountList")(
+      function* () {
+        return yield* command
+          .runText("op", ["account", "list"])
+          .pipe(Effect.mapError(mapOpError("account list")));
+      }
+    ),
 
-    archiveItem: (title: string, vault: string) =>
-      command
+    archiveItem: Effect.fn("OnePasswordSecretManager.archiveItem")(function* (
+      title: string,
+      vault: string
+    ) {
+      yield* command
         .run("op", ["item", "delete", title, "--vault", vault, "--archive"])
-        .pipe(Effect.asVoid, Effect.mapError(mapOpError("item delete"))),
+        .pipe(Effect.asVoid, Effect.mapError(mapOpError("item delete")));
+    }),
 
-    createPasswordItem: (title: string, value: string, vault: string) =>
-      command
+    createPasswordItem: Effect.fn(
+      "OnePasswordSecretManager.createPasswordItem"
+    )(function* (title: string, value: string, vault: string) {
+      yield* command
         .run("op", [
           "item",
           "create",
@@ -31,10 +40,14 @@ export const makeOnePasswordSecretManager = Effect.gen(function* () {
           title,
           `password=${value}`,
         ])
-        .pipe(Effect.asVoid, Effect.mapError(mapOpError("item create"))),
+        .pipe(Effect.asVoid, Effect.mapError(mapOpError("item create")));
+    }),
 
-    inject: (templatePath: string, outputPath: string) =>
-      command
+    inject: Effect.fn("OnePasswordSecretManager.inject")(function* (
+      templatePath: string,
+      outputPath: string
+    ) {
+      yield* command
         .run("op", [
           "inject",
           "--force",
@@ -43,24 +56,38 @@ export const makeOnePasswordSecretManager = Effect.gen(function* () {
           "--out-file",
           outputPath,
         ])
-        .pipe(Effect.asVoid, Effect.mapError(mapOpError("inject"))),
+        .pipe(Effect.asVoid, Effect.mapError(mapOpError("inject")));
+    }),
 
-    isInstalled: () => command.exists("op"),
+    isInstalled: Effect.fn("OnePasswordSecretManager.isInstalled")(
+      function* () {
+        return yield* command.exists("op");
+      }
+    ),
 
-    isSignedIn: () =>
-      command.run("op", ["whoami"]).pipe(
+    isSignedIn: Effect.fn("OnePasswordSecretManager.isSignedIn")(function* () {
+      return yield* command.run("op", ["whoami"]).pipe(
         Effect.as(true),
         Effect.catchCause(() => Effect.succeed(false))
-      ),
+      );
+    }),
 
-    itemExists: (title: string, vault: string) =>
-      command.run("op", ["item", "get", title, "--vault", vault]).pipe(
-        Effect.as(true),
-        Effect.catchCause(() => Effect.succeed(false))
-      ),
+    itemExists: Effect.fn("OnePasswordSecretManager.itemExists")(function* (
+      title: string,
+      vault: string
+    ) {
+      return yield* command
+        .run("op", ["item", "get", title, "--vault", vault])
+        .pipe(
+          Effect.as(true),
+          Effect.catchCause(() => Effect.succeed(false))
+        );
+    }),
 
-    updatePasswordItem: (title: string, value: string, vault: string) =>
-      command
+    updatePasswordItem: Effect.fn(
+      "OnePasswordSecretManager.updatePasswordItem"
+    )(function* (title: string, value: string, vault: string) {
+      yield* command
         .run("op", [
           "item",
           "edit",
@@ -69,7 +96,8 @@ export const makeOnePasswordSecretManager = Effect.gen(function* () {
           vault,
           `password=${value}`,
         ])
-        .pipe(Effect.asVoid, Effect.mapError(mapOpError("item edit"))),
+        .pipe(Effect.asVoid, Effect.mapError(mapOpError("item edit")));
+    }),
   } satisfies SecretManagerShape;
 });
 

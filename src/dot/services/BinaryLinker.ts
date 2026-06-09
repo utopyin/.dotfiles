@@ -32,18 +32,19 @@ exec bun ${shellQuote(devTarget)} "$@"
       return {
         currentDotResolution: Effect.sync(() => config.localBinDotPath),
 
-        linkDot: (mode: DotLinkMode = "release") =>
-          Effect.gen(function* () {
-            yield* prepareLinkPath;
+        linkDot: Effect.fn("BinaryLinker.linkDot")(function* (
+          mode: DotLinkMode = "release"
+        ) {
+          yield* prepareLinkPath;
 
-            if (mode === "dev") {
-              yield* fs.writeFileString(config.localBinDotPath, makeDevShim());
-              yield* fs.chmod(config.localBinDotPath, 0o755);
-              return;
-            }
+          if (mode === "dev") {
+            yield* fs.writeFileString(config.localBinDotPath, makeDevShim());
+            yield* fs.chmod(config.localBinDotPath, 0o755);
+            return;
+          }
 
-            yield* fs.symlink(releaseTarget, config.localBinDotPath);
-          }),
+          yield* fs.symlink(releaseTarget, config.localBinDotPath);
+        }),
 
         unlinkDot: fs.remove(config.localBinDotPath, { force: true }),
       } as const;

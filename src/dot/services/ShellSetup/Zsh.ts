@@ -3,7 +3,6 @@ import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 
 import { DotfilesConfig } from "../../Config.ts";
-import type { CommandExecutorShape } from "../CommandExecutor/index.ts";
 import { CommandExecutor } from "../CommandExecutor/index.ts";
 import type { ShellSetupShape } from "./index.ts";
 
@@ -31,36 +30,42 @@ export const makeZshShellSetup = Effect.gen(function* () {
   const customDir = path.join(ohMyZshDir, "custom");
 
   return {
-    installIntegrations: () =>
-      Effect.gen(function* () {
-        yield* installOhMyZshIfMissing(command, fs, ohMyZshDir);
+    installIntegrations: Effect.fn("ZshShellSetup.installIntegrations")(
+      function* () {
+        yield* installOhMyZshIfMissing(ohMyZshDir).pipe(
+          Effect.provideService(CommandExecutor, command),
+          Effect.provideService(FileSystem.FileSystem, fs)
+        );
         for (const plugin of plugins) {
           yield* cloneIfMissing(
-            command,
-            fs,
             path.join(customDir, "plugins", plugin.name),
             plugin.url
+          ).pipe(
+            Effect.provideService(CommandExecutor, command),
+            Effect.provideService(FileSystem.FileSystem, fs)
           );
         }
         yield* cloneIfMissing(
-          command,
-          fs,
           path.join(customDir, "themes", "powerlevel10k"),
           "https://github.com/romkatv/powerlevel10k.git",
           ["--depth=1"]
+        ).pipe(
+          Effect.provideService(CommandExecutor, command),
+          Effect.provideService(FileSystem.FileSystem, fs)
         );
-      }),
+      }
+    ),
   } satisfies ShellSetupShape;
 });
 
-const cloneIfMissing = (
-  command: CommandExecutorShape,
-  fs: FileSystem.FileSystem,
+const cloneIfMissing = Effect.fn("ZshShellSetup.cloneIfMissing")(function* (
   destination: string,
   url: string,
   extraArgs: readonly string[] = []
-) =>
-  fs
+) {
+  const command = yield* CommandExecutor;
+  const fs = yield* FileSystem.FileSystem;
+  return yield* fs
     .exists(destination)
     .pipe(
       Effect.flatMap((exists) =>
@@ -71,13 +76,14 @@ const cloneIfMissing = (
               .pipe(Effect.asVoid)
       )
     );
+});
 
-const installOhMyZshIfMissing = (
-  command: CommandExecutorShape,
-  fs: FileSystem.FileSystem,
-  ohMyZshDir: string
-) =>
-  fs
+const installOhMyZshIfMissing = Effect.fn(
+  "ZshShellSetup.installOhMyZshIfMissing"
+)(function* (ohMyZshDir: string) {
+  const command = yield* CommandExecutor;
+  const fs = yield* FileSystem.FileSystem;
+  return yield* fs
     .exists(ohMyZshDir)
     .pipe(
       Effect.flatMap((exists) =>
@@ -91,3 +97,4 @@ const installOhMyZshIfMissing = (
               .pipe(Effect.asVoid)
       )
     );
+});

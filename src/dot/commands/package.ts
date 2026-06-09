@@ -1,4 +1,5 @@
 import * as Console from "effect/Console";
+import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 
@@ -15,6 +16,16 @@ export interface PackageRemoveOptions {
   readonly kind: PackageKind;
 }
 
+class PackageCommandError extends Data.TaggedError("PackageCommandError")<{
+  readonly reason: "missing-mas-id";
+}> {
+  override get message(): string {
+    return this.reason === "missing-mas-id"
+      ? "dot package add --kind mas requires --id"
+      : this.reason;
+  }
+}
+
 export const packageAdd = Effect.fn("packageAdd")(function* (
   name: string,
   options: PackageAddOptions
@@ -22,9 +33,7 @@ export const packageAdd = Effect.fn("packageAdd")(function* (
   const config = yield* DotfilesConfig;
   const installer = yield* PackageInstaller;
   if (options.kind === "mas" && Option.isNone(options.id)) {
-    return yield* Effect.fail(
-      new Error("dot package add --kind mas requires --id")
-    );
+    return yield* new PackageCommandError({ reason: "missing-mas-id" });
   }
   const id = Option.getOrUndefined(options.id);
   yield* installer.addToManifest(config.brewfilePath, {

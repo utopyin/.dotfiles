@@ -37,3 +37,10 @@ Commands depend on capability services (`PackageInstaller`, `ConfigLinker`, `Sec
 - Do not vendor official Pi runtime packages (`@earendil-works/pi-*`, Pi TUI/coding-agent runtime). Pin them in lockfiles.
 - Vendor small/custom/non-official Pi extensions when behavior matters or supply-chain risk is a concern.
 - Add a future `dot pi add <owner/repo|git-url>` command that downloads a Pi extension, runs a Pi cleanup/conversion pass, adapts it to this repo's dev tooling, and wires it into Pi config.
+
+## Effect code hygiene
+
+- Do not pass Effect services or yielded context values through input props or helper parameters. Make the helper effectful and `yield*` the service locally at the point of use. Then provide the service in the topmost caller where the actual service implementation is yielded.
+- Input props should carry domain data only: strings, options, decoded records, paths-as-data, and command options. They should not carry yieldable contexts.
+- Any function that returns an `Effect` must be declared with `Effect.fn("spanName")(function* (...) { ... })`. Do not write `const helper = (...) => Effect.gen(...)`, `=> Effect.try(...)`, `=> Effect.all(...)`, or `=> service.method(...).pipe(...)`. Pure non-Effect helpers stay plain functions.
+- Do not `throw` from command/service Effect code. Model failures as yieldable typed errors (usually `Data.TaggedError`) and return them with `yield* new DomainTaggedError({...})` so errors travel through the Effect error channel across the call stack.

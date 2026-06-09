@@ -5,8 +5,10 @@ import type { SecretValueInputShape } from "./index.ts";
 export const makeBunSecretValueInput = Effect.sync(
   () =>
     ({
-      promptHidden: (name: string) =>
-        Effect.promise(async () => {
+      promptHidden: Effect.fn("BunSecretValueInput.promptHidden")(function* (
+        name: string
+      ) {
+        return yield* Effect.promise(async () => {
           // Bun has no stable cross-terminal hidden prompt API here yet; use shell `read -s`.
           const proc = Bun.spawn(
             [
@@ -22,12 +24,12 @@ export const makeBunSecretValueInput = Effect.sync(
           const text = await new Response(proc.stdout).text();
 
           return text.trimEnd();
-        }),
-      readStdin: () =>
-        Effect.promise(async () => {
-          const text = await Bun.stdin.text();
+        });
+      }),
+      readStdin: Effect.fn("BunSecretValueInput.readStdin")(function* () {
+        const text = yield* Effect.promise(() => Bun.stdin.text());
 
-          return text.trimEnd();
-        }),
+        return text.trimEnd();
+      }),
     }) satisfies SecretValueInputShape
 );

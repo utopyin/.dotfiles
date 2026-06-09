@@ -11,25 +11,33 @@ export const makeStowConfigLinker = Effect.gen(function* () {
   const path = yield* Path.Path;
 
   return {
-    linkHome: (dotfilesDir: string, homeDir: string) =>
-      Effect.gen(function* () {
-        yield* backupConflicts(fs, path, dotfilesDir, homeDir);
-        yield* command
-          .run("stow", [
-            "--dir",
-            dotfilesDir,
-            "--target",
-            homeDir,
-            "--no-folding",
-            "--ignore",
-            "\\.DS_Store$",
-            "--restow",
-            "home",
-          ])
-          .pipe(Effect.asVoid);
-      }),
-    unlinkHome: (dotfilesDir: string, homeDir: string) =>
-      command
+    linkHome: Effect.fn("StowConfigLinker.linkHome")(function* (
+      dotfilesDir: string,
+      homeDir: string
+    ) {
+      yield* backupConflicts(dotfilesDir, homeDir).pipe(
+        Effect.provideService(FileSystem.FileSystem, fs),
+        Effect.provideService(Path.Path, path)
+      );
+      yield* command
+        .run("stow", [
+          "--dir",
+          dotfilesDir,
+          "--target",
+          homeDir,
+          "--no-folding",
+          "--ignore",
+          "\\.DS_Store$",
+          "--restow",
+          "home",
+        ])
+        .pipe(Effect.asVoid);
+    }),
+    unlinkHome: Effect.fn("StowConfigLinker.unlinkHome")(function* (
+      dotfilesDir: string,
+      homeDir: string
+    ) {
+      yield* command
         .run("stow", [
           "--dir",
           dotfilesDir,
@@ -41,43 +49,42 @@ export const makeStowConfigLinker = Effect.gen(function* () {
           "--delete",
           "home",
         ])
-        .pipe(Effect.asVoid),
+        .pipe(Effect.asVoid);
+    }),
   } satisfies ConfigLinkerShape;
 });
 
-const hasSymlinkAncestor = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
-  homeDir: string,
-  entry: string
-) =>
-  Effect.gen(function* () {
+const hasSymlinkAncestor = Effect.fn("StowConfigLinker.hasSymlinkAncestor")(
+  function* (homeDir: string, entry: string) {
+    const path = yield* Path.Path;
     const segments = entry
       .split(path.sep)
       .filter((segment) => segment.length > 0);
     for (let index = 1; index <= segments.length; index += 1) {
       const candidate = path.join(homeDir, ...segments.slice(0, index));
-      const isLink = yield* pathIsSymlink(fs, candidate);
+      const isLink = yield* pathIsSymlink(candidate);
       if (isLink) {
         return true;
       }
     }
     return false;
-  });
+  }
+);
 
-const pathIsSymlink = (fs: FileSystem.FileSystem, filePath: string) =>
-  fs.readLink(filePath).pipe(
+const pathIsSymlink = Effect.fn("StowConfigLinker.pathIsSymlink")(function* (
+  filePath: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  return yield* fs.readLink(filePath).pipe(
     Effect.as(true),
     Effect.catchCause(() => Effect.succeed(false))
   );
+});
 
-const backupConflicts = (
-  fs: FileSystem.FileSystem,
-  path: Path.Path,
-  dotfilesDir: string,
-  homeDir: string
-) =>
-  Effect.gen(function* () {
+const backupConflicts = Effect.fn("StowConfigLinker.backupConflicts")(
+  function* (dotfilesDir: string, homeDir: string) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
     const sourceRoot = path.join(dotfilesDir, "home");
     const entries = yield* fs.readDirectory(sourceRoot, { recursive: true });
     const stamp = new Date().toISOString().replaceAll(/[^0-9A-Za-z]+/gu, "-");
@@ -96,8 +103,6 @@ const backupConflicts = (
 
       const targetPath = path.join(homeDir, entry);
       const targetIsManagedThroughLink = yield* hasSymlinkAncestor(
-        fs,
-        path,
         homeDir,
         entry
       );
@@ -110,7 +115,7 @@ const backupConflicts = (
         continue;
       }
 
-      const targetIsLink = yield* pathIsSymlink(fs, targetPath);
+      const targetIsLink = yield* pathIsSymlink(targetPath);
       if (targetIsLink) {
         continue;
       }
@@ -119,4 +124,5 @@ const backupConflicts = (
       yield* fs.makeDirectory(path.dirname(backupPath), { recursive: true });
       yield* fs.rename(targetPath, backupPath);
     }
-  });
+  }
+);

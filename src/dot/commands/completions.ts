@@ -1,4 +1,5 @@
 import * as Console from "effect/Console";
+import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
@@ -8,14 +9,30 @@ import { applyConfig } from "./stow.ts";
 
 const commandNamePattern = /^[a-zA-Z0-9][a-zA-Z0-9._-]*$/u;
 
+class CompletionCommandError extends Data.TaggedError(
+  "CompletionCommandError"
+)<{
+  readonly name?: string;
+  readonly reason: "empty-stdin" | "invalid-command-name";
+}> {
+  override get message(): string {
+    if (this.reason === "invalid-command-name") {
+      return `Completion name must look like a command name: ${this.name}`;
+    }
+
+    return "No completion content received on stdin";
+  }
+}
+
 export const installCompletion = Effect.fn("installCompletion")(function* (
   name: string,
   options: { readonly apply: boolean; readonly shell: "zsh" }
 ) {
   if (!commandNamePattern.test(name)) {
-    return yield* Effect.fail(
-      new Error(`Completion name must look like a command name: ${name}`)
-    );
+    return yield* new CompletionCommandError({
+      name,
+      reason: "invalid-command-name",
+    });
   }
 
   const config = yield* DotfilesConfig;
@@ -34,9 +51,7 @@ export const installCompletion = Effect.fn("installCompletion")(function* (
   const normalized = content.endsWith("\n") ? content : `${content}\n`;
 
   if (content.trim().length === 0) {
-    return yield* Effect.fail(
-      new Error("No completion content received on stdin")
-    );
+    return yield* new CompletionCommandError({ reason: "empty-stdin" });
   }
 
   yield* fs.makeDirectory(completionsDir, { recursive: true });

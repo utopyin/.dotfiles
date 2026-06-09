@@ -6,7 +6,7 @@ import * as Path from "effect/Path";
 
 import { DotfilesConfig } from "../Config.ts";
 import { SecretManager } from "./SecretManager/index.ts";
-import { SecretNameError } from "./SecretsErrors.ts";
+import { SecretNameError, SecretValueError } from "./SecretsErrors.ts";
 import { SecretValueInput } from "./SecretValueInput/index.ts";
 
 const envNamePattern = /^[A-Z_][A-Z0-9_]*$/u;
@@ -35,7 +35,7 @@ export class Secrets extends Context.Service<Secrets>()("dot/Secrets", {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
 
-    const render = Effect.gen(function* () {
+    const render = Effect.fn("Secrets.render")(function* () {
       yield* fs.makeDirectory(path.dirname(config.secretsOutputPath), {
         recursive: true,
       });
@@ -47,127 +47,128 @@ export class Secrets extends Context.Service<Secrets>()("dot/Secrets", {
     });
 
     return {
-      add: (name: string, source: "prompt" | "stdin") =>
-        Effect.gen(function* () {
-          yield* ensureName(name);
+      add: Effect.fn("Secrets.add")(function* (
+        name: string,
+        source: "prompt" | "stdin"
+      ) {
+        yield* ensureName(name);
 
-          const value =
-            source === "stdin"
-              ? yield* input.readStdin()
-              : yield* input.promptHidden(name);
+        const value =
+          source === "stdin"
+            ? yield* input.readStdin()
+            : yield* input.promptHidden(name);
 
-          if (value.length === 0) {
-            return yield* Effect.fail(
-              new Error("Secret value cannot be empty")
+        if (value.length === 0) {
+          return yield* new SecretValueError({ reason: "empty" });
+        }
+
+        const title = titleFor(name);
+        const exists = yield* manager.itemExists(title, config.secretsVault);
+
+        yield* exists
+          ? manager.updatePasswordItem(title, value, config.secretsVault)
+          : manager.createPasswordItem(title, value, config.secretsVault);
+
+        yield* fs.makeDirectory(path.dirname(config.secretsTemplatePath), {
+          recursive: true,
+        });
+
+        const current = (yield* fs.exists(config.secretsTemplatePath))
+          ? yield* fs.readFileString(config.secretsTemplatePath)
+          : "";
+        const line = exportLine(name, refFor(config.secretsVault, name));
+
+        yield* fs.writeFileString(
+          config.secretsTemplatePath,
+          upsertTemplateLine(current, name, line)
+        );
+        yield* render();
+      }),
+
+      doctor: Effect.fn("Secrets.doctor")(function* () {
+        const installed = yield* manager.isInstalled();
+        const signedIn = installed ? yield* manager.isSignedIn() : false;
+        const templateExists = yield* fs.exists(config.secretsTemplatePath);
+        const outputExists = yield* fs.exists(config.secretsOutputPath);
+        const refs: readonly SecretRef[] = templateExists
+          ? secretRefs(yield* fs.readFileString(config.secretsTemplatePath))
+          : [];
+        const itemLines: readonly string[] = signedIn
+          ? yield* Effect.all(
+              refs.map(({ title, vault }) =>
+                manager
+                  .itemExists(title, vault)
+                  .pipe(
+                    Effect.map((exists) =>
+                      exists
+                        ? `1Password item exists: ${vault}/${title}`
+                        : `1Password item missing: ${vault}/${title}`
+                    )
+                  )
+              )
+            )
+          : refs.map(
+              ({ title, vault }) =>
+                `1Password item not checked: ${vault}/${title}`
             );
-          }
 
-          const title = titleFor(name);
-          const exists = yield* manager.itemExists(title, config.secretsVault);
+        return [
+          installed ? "1Password CLI: installed" : "1Password CLI: missing",
+          ...(installed
+            ? [
+                signedIn
+                  ? "1Password session: signed in"
+                  : "1Password session: not signed in",
+              ]
+            : []),
+          `Secrets template: ${config.secretsTemplatePath}`,
+          `Secrets output: ${config.secretsOutputPath}`,
+          templateExists
+            ? "Secrets template exists"
+            : "Secrets template missing",
+          outputExists
+            ? "Rendered secrets file exists"
+            : "Rendered secrets file missing",
+          ...itemLines,
+        ];
+      }),
 
-          yield* exists
-            ? manager.updatePasswordItem(title, value, config.secretsVault)
-            : manager.createPasswordItem(title, value, config.secretsVault);
+      remove: Effect.fn("Secrets.remove")(function* (name: string) {
+        yield* ensureName(name);
 
-          yield* fs.makeDirectory(path.dirname(config.secretsTemplatePath), {
-            recursive: true,
-          });
-
-          const current = (yield* fs.exists(config.secretsTemplatePath))
-            ? yield* fs.readFileString(config.secretsTemplatePath)
-            : "";
-          const line = exportLine(name, refFor(config.secretsVault, name));
-
+        if (yield* fs.exists(config.secretsTemplatePath)) {
           yield* fs.writeFileString(
             config.secretsTemplatePath,
-            upsertTemplateLine(current, name, line)
+            removeTemplateLine(
+              yield* fs.readFileString(config.secretsTemplatePath),
+              name
+            )
           );
-          yield* render;
-        }),
+        }
 
-      doctor: () =>
-        Effect.gen(function* () {
-          const installed = yield* manager.isInstalled();
-          const signedIn = installed ? yield* manager.isSignedIn() : false;
-          const templateExists = yield* fs.exists(config.secretsTemplatePath);
-          const outputExists = yield* fs.exists(config.secretsOutputPath);
-          const refs: readonly SecretRef[] = templateExists
-            ? secretRefs(yield* fs.readFileString(config.secretsTemplatePath))
-            : [];
-          const itemLines: readonly string[] = signedIn
-            ? yield* Effect.all(
-                refs.map(({ title, vault }) =>
-                  manager
-                    .itemExists(title, vault)
-                    .pipe(
-                      Effect.map((exists) =>
-                        exists
-                          ? `1Password item exists: ${vault}/${title}`
-                          : `1Password item missing: ${vault}/${title}`
-                      )
-                    )
-                )
-              )
-            : refs.map(
-                ({ title, vault }) =>
-                  `1Password item not checked: ${vault}/${title}`
-              );
+        const title = titleFor(name);
 
-          return [
-            installed ? "1Password CLI: installed" : "1Password CLI: missing",
-            ...(installed
-              ? [
-                  signedIn
-                    ? "1Password session: signed in"
-                    : "1Password session: not signed in",
-                ]
-              : []),
-            `Secrets template: ${config.secretsTemplatePath}`,
-            `Secrets output: ${config.secretsOutputPath}`,
-            templateExists
-              ? "Secrets template exists"
-              : "Secrets template missing",
-            outputExists
-              ? "Rendered secrets file exists"
-              : "Rendered secrets file missing",
-            ...itemLines,
-          ];
-        }),
+        if (yield* manager.itemExists(title, config.secretsVault)) {
+          yield* manager.archiveItem(title, config.secretsVault);
+        }
 
-      remove: (name: string) =>
-        Effect.gen(function* () {
-          yield* ensureName(name);
+        yield* render();
+      }),
 
-          if (yield* fs.exists(config.secretsTemplatePath)) {
-            yield* fs.writeFileString(
-              config.secretsTemplatePath,
-              removeTemplateLine(
-                yield* fs.readFileString(config.secretsTemplatePath),
-                name
-              )
-            );
-          }
-
-          const title = titleFor(name);
-
-          if (yield* manager.itemExists(title, config.secretsVault)) {
-            yield* manager.archiveItem(title, config.secretsVault);
-          }
-
-          yield* render;
-        }),
-
-      render: () => render,
+      render,
     } satisfies SecretsShape;
   }),
 }) {
   static readonly Live = Layer.effect(this, this.make);
 }
 
-const ensureName = (name: string) =>
-  envNamePattern.test(name)
-    ? Effect.succeed(name)
-    : Effect.fail(new SecretNameError({ name }));
+const ensureName = Effect.fn("Secrets.ensureName")(function* (name: string) {
+  if (envNamePattern.test(name)) {
+    return name;
+  }
+
+  return yield* new SecretNameError({ name });
+});
 
 const exportLine = (name: string, ref: string) => `export ${name}="${ref}"`;
 

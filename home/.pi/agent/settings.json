@@ -2,7 +2,7 @@
   "lastChangelogVersion": "0.78.1",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
-  "defaultThinkingLevel": "xhigh",
+  "defaultThinkingLevel": "high",
   "shellCommandPrefix": "for config_file in \"$HOME\"/.config/zsh/conf.d/{20-paths,30-aliases}.zsh; do [ -r \"$config_file\" ] && . \"$config_file\"; done",
   "treeFilterMode": "no-tools",
   "terminal": {
@@ -15,16 +15,22 @@
     "npm:@zenobius/pi-worktrees",
     {
       "source": "npm:pi-btw",
-      "extensions": ["+extensions/btw.ts"]
+      "extensions": [
+        "+extensions/btw.ts"
+      ]
     },
     {
       "source": "npm:@neilurk12/pi-lazygit",
-      "extensions": ["+dist/index.js"]
+      "extensions": [
+        "+dist/index.js"
+      ]
     },
     {
       "source": "npm:@plannotator/pi-extension",
       "skills": [],
-      "extensions": ["+"]
+      "extensions": [
+        "+"
+      ]
     }
   ],
   "editorPaddingX": 3,

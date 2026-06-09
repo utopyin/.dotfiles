@@ -26,29 +26,37 @@ export interface McpOAuthCallbacks {
 
 export class McpOAuthProvider implements OAuthClientProvider {
   private callbackPort: number | undefined;
+  private callbacks: McpOAuthCallbacks;
+  private config: McpOAuthConfig;
+  private serverName: string;
+  private serverUrl: string;
 
   constructor(
-    private serverName: string,
-    private serverUrl: string,
-    private config: McpOAuthConfig,
-    private callbacks: McpOAuthCallbacks,
+    serverName: string,
+    serverUrl: string,
+    config: McpOAuthConfig,
+    callbacks: McpOAuthCallbacks,
     callbackPort?: number,
   ) {
     this.callbackPort = callbackPort;
+    this.callbacks = callbacks;
+    this.config = config;
+    this.serverName = serverName;
+    this.serverUrl = serverUrl;
   }
 
   get redirectUrl(): string {
     // Use the provided port, or read from the running server, or fall back to preferred
-    const port = this.callbackPort ?? McpOAuthCallback.getPort() ?? 19876;
+    const port = this.callbackPort ?? McpOAuthCallback.getPort() ?? 19_876;
     return `http://127.0.0.1:${port}${CALLBACK_PATH}`;
   }
 
   get clientMetadata(): OAuthClientMetadata {
     return {
-      redirect_uris: [this.redirectUrl],
       client_name: "Pi Coding Agent",
       client_uri: "https://github.com/badlogic/pi-mono",
       grant_types: ["authorization_code", "refresh_token"],
+      redirect_uris: [this.redirectUrl],
       response_types: ["code"],
       token_endpoint_auth_method: this.config.clientSecret ? "client_secret_post" : "none",
     };
@@ -89,8 +97,8 @@ export class McpOAuthProvider implements OAuthClientProvider {
       this.serverName,
       {
         clientId: info.client_id,
-        clientSecret: info.client_secret,
         clientIdIssuedAt: info.client_id_issued_at,
+        clientSecret: info.client_secret,
         clientSecretExpiresAt: info.client_secret_expires_at,
       },
       this.serverUrl,
@@ -100,16 +108,16 @@ export class McpOAuthProvider implements OAuthClientProvider {
 
   async tokens(): Promise<OAuthTokens | undefined> {
     const entry = McpAuth.getForUrl(this.serverName, this.serverUrl);
-    if (!entry?.tokens) return undefined;
+    if (!entry?.tokens) {return undefined;}
 
     return {
       access_token: entry.tokens.accessToken,
-      token_type: "Bearer",
-      refresh_token: entry.tokens.refreshToken,
       expires_in: entry.tokens.expiresAt
         ? Math.max(0, Math.floor(entry.tokens.expiresAt - Date.now() / 1000))
         : undefined,
+      refresh_token: entry.tokens.refreshToken,
       scope: entry.tokens.scope,
+      token_type: "Bearer",
     };
   }
 
@@ -118,8 +126,8 @@ export class McpOAuthProvider implements OAuthClientProvider {
       this.serverName,
       {
         accessToken: tokens.access_token,
-        refreshToken: tokens.refresh_token,
         expiresAt: tokens.expires_in ? Date.now() / 1000 + tokens.expires_in : undefined,
+        refreshToken: tokens.refresh_token,
         scope: tokens.scope,
       },
       this.serverUrl,
@@ -165,20 +173,26 @@ export class McpOAuthProvider implements OAuthClientProvider {
   async invalidateCredentials(type: "all" | "client" | "tokens"): Promise<void> {
     logger.debug(`${this.serverName}: invalidating credentials (${type})`);
     const entry = McpAuth.get(this.serverName);
-    if (!entry) return;
+    if (!entry) {return;}
 
     switch (type) {
-      case "all":
+      case "all": {
         McpAuth.remove(this.serverName);
         break;
-      case "client":
+      }
+      case "client": {
         delete entry.clientInfo;
         McpAuth.set(this.serverName, entry);
         break;
-      case "tokens":
+      }
+      case "tokens": {
         delete entry.tokens;
         McpAuth.set(this.serverName, entry);
         break;
+      }
+      default: {
+        throw new Error(`Unknown credential type: ${type satisfies never}`);
+      }
     }
   }
 }

@@ -1,34 +1,47 @@
 import { keyHint } from "@earendil-works/pi-coding-agent";
+import type { Theme } from "@earendil-works/pi-coding-agent";
 
-export function getTextContent(content: Array<{ type: string; text?: string }> | undefined): string {
-	if (!content) return "";
-	return content
-		.filter((item): item is { type: "text"; text: string } => item.type === "text" && typeof item.text === "string")
-		.map((item) => item.text)
-		.join("\n");
+interface TextContentLike {
+	text?: string;
+	type: string;
 }
 
-export function appendExpandedPreview(
+type RenderTheme = Pick<Theme, "fg">;
+
+export const getTextContent = (
+	content: TextContentLike[] | undefined,
+): string => {
+	if (content) {
+		return content
+			.filter(
+				(item): item is { text: string; type: "text" } =>
+					item.type === "text" && typeof item.text === "string",
+			)
+			.map((item) => item.text)
+			.join("\n");
+	}
+	return "";
+};
+
+export const appendExpandedPreview = (
 	base: string,
 	text: string,
-	theme: {
-		fg: (name: string, value: string) => string;
-	},
-	options: { maxLines?: number; maxColumns?: number } = {},
-): string {
-	const maxLines = options.maxLines ?? 12;
+	theme: RenderTheme,
+	options: { maxColumns?: number; maxLines?: number } = {},
+): string => {
 	const maxColumns = options.maxColumns ?? 200;
+	const maxLines = options.maxLines ?? 12;
 	const lines = text.split("\n");
-	for (const line of lines.slice(0, maxLines)) {
-		base += `\n${theme.fg("dim", line.slice(0, maxColumns))}`;
-	}
-	if (lines.length > maxLines) {
-		base += `\n${theme.fg("muted", "...")}`;
-	}
-	return base;
-}
+	const preview = lines
+		.slice(0, maxLines)
+		.map((line) => theme.fg("dim", line.slice(0, maxColumns)));
+	const ellipsis = lines.length > maxLines ? [theme.fg("muted", "...")] : [];
+	return [base, ...preview, ...ellipsis].join("\n");
+};
 
-export function appendExpandHint(base: string, expanded: boolean): string {
-	if (expanded) return base;
-	return `${base} ${keyHint("app.tools.expand" as any, "for details")}`;
-}
+export const appendExpandHint = (base: string, expanded: boolean): string => {
+	if (expanded) {
+		return base;
+	}
+	return `${base} ${keyHint("app.tools.expand", "for details")}`;
+};

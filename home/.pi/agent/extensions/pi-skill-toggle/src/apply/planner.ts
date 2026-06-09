@@ -1,47 +1,66 @@
-import type { FileSystem } from "../ports/fs.ts";
 import type { FrontmatterCodec } from "../frontmatter/parser.ts";
 import type { FrontmatterPatcher } from "../frontmatter/patcher.ts";
-import type { SkillChange, SkillDraft, SkillRecord } from "../types.ts";
 import { classifyInvocationMode } from "../inventory/classifier.ts";
+import type { FileSystem } from "../ports/fs.ts";
+import type { SkillChange, SkillDraft, SkillRecord } from "../types.ts";
 
 export interface SkillTogglePlanner {
-  plan(records: SkillRecord[], drafts: SkillDraft[]): Promise<SkillChange[]>;
+	plan(records: SkillRecord[], drafts: SkillDraft[]): Promise<SkillChange[]>;
 }
 
 export class DefaultSkillTogglePlanner implements SkillTogglePlanner {
-  constructor(
-    private readonly fs: FileSystem,
-    private readonly codec: FrontmatterCodec,
-    private readonly patcher: FrontmatterPatcher,
-  ) {}
+	private readonly codec: FrontmatterCodec;
+	private readonly fs: FileSystem;
+	private readonly patcher: FrontmatterPatcher;
 
-  async plan(records: SkillRecord[], drafts: SkillDraft[]): Promise<SkillChange[]> {
-    const recordById = new Map(records.map((record) => [record.id, record]));
-    const changes: SkillChange[] = [];
+	constructor(
+		fs: FileSystem,
+		codec: FrontmatterCodec,
+		patcher: FrontmatterPatcher,
+	) {
+		this.codec = codec;
+		this.fs = fs;
+		this.patcher = patcher;
+	}
 
-    for (const draft of drafts) {
-      const record = recordById.get(draft.skill.id);
-      if (!record || !record.editable) continue;
+	async plan(
+		records: SkillRecord[],
+		drafts: SkillDraft[],
+	): Promise<SkillChange[]> {
+		const recordById = new Map(records.map((record) => [record.id, record]));
+		const changes: SkillChange[] = [];
 
-      const raw = await this.fs.readFile(record.filePath);
-      const doc = this.codec.parse(raw);
-      if (!doc.hasFrontmatter) continue;
+		for (const draft of drafts) {
+			const record = recordById.get(draft.skill.id);
+			if (!record || !record.editable) {
+				continue;
+			}
 
-      const currentMode = classifyInvocationMode(doc);
-      if (currentMode === draft.desiredMode) continue;
+			const raw = await this.fs.readFile(record.filePath);
+			const doc = this.codec.parse(raw);
+			if (!doc.hasFrontmatter) {
+				continue;
+			}
 
-      const patch = this.patcher.patchInvocationMode(doc, draft.desiredMode);
-      if (patch.oldText === patch.newText) continue;
+			const currentMode = classifyInvocationMode(doc);
+			if (currentMode === draft.desiredMode) {
+				continue;
+			}
 
-      changes.push({
-        skill: { ...record, mode: currentMode },
-        filePath: record.filePath,
-        from: currentMode,
-        to: draft.desiredMode,
-        patch,
-      });
-    }
+			const patch = this.patcher.patchInvocationMode(doc, draft.desiredMode);
+			if (patch.oldText === patch.newText) {
+				continue;
+			}
 
-    return changes;
-  }
+			changes.push({
+				filePath: record.filePath,
+				from: currentMode,
+				patch,
+				skill: { ...record, mode: currentMode },
+				to: draft.desiredMode,
+			});
+		}
+
+		return changes;
+	}
 }

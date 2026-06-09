@@ -1,22 +1,32 @@
 import type { SkillInvocationMode, SkillRecord } from "../types.ts";
 
-export function modeLabel(mode: SkillInvocationMode): string {
-  return mode === "manual-only" ? "Manual-only" : "Agent-invocable";
-}
+export const modeLabel = (mode: SkillInvocationMode): string =>
+	mode === "manual-only" ? "Manual-only" : "Agent-invocable";
 
-export function toggleMode(mode: SkillInvocationMode): SkillInvocationMode {
-  return mode === "manual-only" ? "agent-invocable" : "manual-only";
-}
+export const toggleMode = (mode: SkillInvocationMode): SkillInvocationMode =>
+	mode === "manual-only" ? "agent-invocable" : "manual-only";
 
-export function skillSearchText(skill: SkillRecord): string {
-  return [skill.name, skill.description, skill.filePath, skill.source.kind, modeLabel(skill.mode)].join(" ").toLowerCase();
-}
+export const skillSearchText = (skill: SkillRecord): string =>
+	[
+		skill.name,
+		skill.description,
+		skill.filePath,
+		skill.source.kind,
+		modeLabel(skill.mode),
+	]
+		.join(" ")
+		.toLowerCase();
 
-export function filterSkills(skills: SkillRecord[], query: string): SkillRecord[] {
-  const tokens = query.trim().toLowerCase().split(/\s+/).filter(Boolean);
-  if (tokens.length === 0) return skills;
-  return skills.filter((skill) => {
-    const haystack = skillSearchText(skill);
-    return tokens.every((token) => haystack.includes(token));
-  });
-}
+export const filterSkills = (
+	skills: SkillRecord[],
+	query: string,
+): SkillRecord[] => {
+	const tokens = query.trim().toLowerCase().split(/\s+/u).filter(Boolean);
+	if (tokens.length === 0) {
+		return skills;
+	}
+	return skills.filter((skill) => {
+		const haystack = skillSearchText(skill);
+		return tokens.every((token) => haystack.includes(token));
+	});
+};

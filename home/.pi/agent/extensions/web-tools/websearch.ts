@@ -1,158 +1,130 @@
-import { StringEnum, type TextContent } from "@earendil-works/pi-ai";
+import type { Theme } from "@earendil-works/pi-coding-agent";
+import { StringEnum } from "@earendil-works/pi-ai";
+import type { TextContent } from "@earendil-works/pi-ai";
 import { Text } from "@earendil-works/pi-tui";
 import { Type } from "typebox";
 import { createOperationSignal, isAbortError } from "./network.ts";
 import { ExaSearchProvider } from "./providers/exa.ts";
 import type { SearchProvider } from "./providers/types.ts";
-import { appendExpandHint, appendExpandedPreview, getTextContent } from "./render.ts";
+import {
+	appendExpandedPreview,
+	appendExpandHint,
+	getTextContent,
+} from "./render.ts";
 import { getWebToolsSettings } from "./settings.ts";
 import { truncateTextOutput } from "./truncation.ts";
-import type { NormalizedSearchResult, SearchDepth, WebSearchDetails } from "./types.ts";
+import type {
+	NormalizedSearchResult,
+	SearchDepth,
+	WebSearchDetails,
+} from "./types.ts";
 
 const SEARCH_DEPTHS = ["auto", "fast", "deep"] as const;
 
-export function createWebSearchTool() {
-	return {
-		name: "websearch",
-		label: "Web Search",
-		description: "Search the public web for current information and candidate URLs to inspect with webfetch.",
-		promptSnippet: "Search the public web for current information and relevant URLs",
-		promptGuidelines: [
-			"Use this tool when the user needs current public-web information or when the right URL is not yet known.",
-			"After picking a promising result, use webfetch on that URL for deeper inspection.",
-		],
-		parameters: Type.Object({
-			query: Type.String({ description: "Search query." }),
-			maxResults: Type.Optional(
-				Type.Number({
-					description: "Maximum number of results to return. Overrides the web-tools search default max results setting.",
-				}),
-			),
-			depth: Type.Optional(
-				StringEnum([...SEARCH_DEPTHS], {
-					description:
-						"Search depth. Overrides the web-tools search default depth setting. 'deep' is accepted as a compatibility alias and mapped to 'fast' for the current Exa provider.",
-				}),
-			),
-		}),
+type RenderTheme = Pick<Theme, "bold" | "fg">;
 
-		async execute(
-			_toolCallId: string,
-			params: { query: string; maxResults?: number; depth?: SearchDepth },
-			signal?: AbortSignal,
-			onUpdate?: (...args: any[]) => void,
-		) {
-			const settings = getWebToolsSettings();
-			if (!settings.search.enabled) {
-				throw new Error("websearch is disabled in web-tools settings. Enable it to use this tool.");
-			}
-
-			const query = params.query.trim();
-			if (!query) {
-				throw new Error("Search query cannot be empty");
-			}
-
-			const maxResults = clampMaxResults(params.maxResults ?? settings.search.defaultMaxResults);
-			const depth = params.depth ?? settings.search.defaultDepth;
-			const timeoutSeconds = clampTimeoutSeconds(settings.search.timeoutSeconds);
-			const composed = createOperationSignal(timeoutSeconds * 1000, signal);
-
-			onUpdate?.({
-				content: [textContent(`Searching for ${JSON.stringify(query)}...`)],
-				details: {
-					query,
-					depth,
-					maxResults,
-					provider: settings.search.provider,
-					resultCount: 0,
-					results: [],
-				},
-			});
-
-			try {
-				const provider = createProvider();
-				const results = await provider.search({ query, maxResults, depth }, composed.signal);
-				const output = formatSearchResults(query, results);
-				const truncated = await truncateTextOutput(output, {
-					tempPrefix: "pi-websearch-",
-					fileName: "output.txt",
-				});
-
-				const details: WebSearchDetails = {
-					query,
-					depth,
-					maxResults,
-					provider: provider.name,
-					resultCount: results.length,
-					truncated: truncated.truncated,
-					fullOutputPath: truncated.fullOutputPath,
-					results,
-				};
-
-				return {
-					content: [textContent(truncated.text)],
-					details,
-				};
-			} catch (error) {
-				if (signal?.aborted) {
-					throw new Error("Web search cancelled");
-				}
-				if (isAbortError(error) || composed.signal.aborted) {
-					throw new Error(`Web search timed out after ${timeoutSeconds}s`);
-				}
-				throw error instanceof Error ? error : new Error(String(error));
-			} finally {
-				composed.cleanup();
-			}
-		},
-
-		renderCall(args: { query: string; depth?: SearchDepth; maxResults?: number }, theme: any) {
-			let text = theme.fg("toolTitle", theme.bold("websearch "));
-			text += theme.fg("accent", JSON.stringify(String(args.query)));
-			if (args.depth && args.depth !== "auto") {
-				text += theme.fg("muted", ` (${args.depth})`);
-			}
-			if (args.maxResults) {
-				text += theme.fg("dim", ` limit=${args.maxResults}`);
-			}
-			return new Text(text, 0, 0);
-		},
-
-		renderResult(
-			result: { content: Array<{ type: string; text?: string }>; details?: WebSearchDetails; isError?: boolean },
-			options: { expanded: boolean; isPartial: boolean },
-			theme: any,
-		) {
-			if (options.isPartial) {
-				return new Text(theme.fg("warning", "Searching..."), 0, 0);
-			}
-			if (result.isError) {
-				return new Text(theme.fg("error", `✗ ${getTextContent(result.content) || "Search failed"}`), 0, 0);
-			}
-
-			const details = result.details;
-			let text = theme.fg("success", `✓ ${details?.resultCount ?? 0} results`);
-			if (details?.provider) {
-				text += theme.fg("muted", ` (${details.provider})`);
-			}
-			if (details?.truncated) {
-				text += theme.fg("warning", " [truncated]");
-			}
-			text = appendExpandHint(text, options.expanded);
-
-			if (options.expanded) {
-				text = appendExpandedPreview(text, getTextContent(result.content), theme, { maxLines: 16, maxColumns: 220 });
-				if (details?.fullOutputPath) {
-					text += `\n${theme.fg("dim", `Full output: ${details.fullOutputPath}`)}`;
-				}
-			}
-
-			return new Text(text, 0, 0);
-		},
-	};
+interface ToolRenderOptions {
+	expanded: boolean;
+	isPartial: boolean;
 }
 
-export function formatSearchResults(query: string, results: NormalizedSearchResult[]): string {
+interface WebSearchResult {
+	content: { text?: string; type: string }[];
+	details?: WebSearchDetails;
+	isError?: boolean;
+}
+
+type WebSearchUpdate = (update: {
+	content: TextContent[];
+	details: WebSearchDetails;
+}) => void;
+
+export const createWebSearchTool = () => ({
+	description:
+		"Search the public web for current information and candidate URLs to inspect with webfetch.",
+	execute: (
+		_toolCallId: string,
+		params: { depth?: SearchDepth; maxResults?: number; query: string },
+		signal?: AbortSignal,
+		onUpdate?: WebSearchUpdate,
+	) => executeWebSearch(params, signal, onUpdate),
+	label: "Web Search",
+	name: "websearch",
+	parameters: Type.Object({
+		depth: Type.Optional(
+			StringEnum([...SEARCH_DEPTHS], {
+				description:
+					"Search depth. Overrides the web-tools search default depth setting. 'deep' is accepted as a compatibility alias and mapped to 'fast' for the current Exa provider.",
+			}),
+		),
+		maxResults: Type.Optional(
+			Type.Number({
+				description:
+					"Maximum number of results to return. Overrides the web-tools search default max results setting.",
+			}),
+		),
+		query: Type.String({ description: "Search query." }),
+	}),
+	promptGuidelines: [
+		"Use this tool when the user needs current public-web information or when the right URL is not yet known.",
+		"After picking a promising result, use webfetch on that URL for deeper inspection.",
+	],
+	promptSnippet: "Search the public web for current information and relevant URLs",
+	renderCall(args: { depth?: SearchDepth; maxResults?: number; query: string }, theme: RenderTheme) {
+		const { depth, maxResults, query } = args;
+		let text = theme.fg("toolTitle", theme.bold("websearch "));
+		text += theme.fg("accent", JSON.stringify(String(query)));
+		if (depth && depth !== "auto") {
+			text += theme.fg("muted", ` (${depth})`);
+		}
+		if (maxResults) {
+			text += theme.fg("dim", ` limit=${maxResults}`);
+		}
+		return new Text(text, 0, 0);
+	},
+	renderResult(result: WebSearchResult, options: ToolRenderOptions, theme: RenderTheme) {
+		if (options.isPartial) {
+			return new Text(theme.fg("warning", "Searching..."), 0, 0);
+		}
+		if (result.isError) {
+			return new Text(
+				theme.fg(
+					"error",
+					`✗ ${getTextContent(result.content) || "Search failed"}`,
+				),
+				0,
+				0,
+			);
+		}
+
+		const { details } = result;
+		let text = theme.fg("success", `✓ ${details?.resultCount ?? 0} results`);
+		if (details?.provider) {
+			text += theme.fg("muted", ` (${details.provider})`);
+		}
+		if (details?.truncated) {
+			text += theme.fg("warning", " [truncated]");
+		}
+		text = appendExpandHint(text, options.expanded);
+
+		if (options.expanded) {
+			text = appendExpandedPreview(text, getTextContent(result.content), theme, {
+				maxColumns: 220,
+				maxLines: 16,
+			});
+			if (details?.fullOutputPath) {
+				text += `\n${theme.fg("dim", `Full output: ${details.fullOutputPath}`)}`;
+			}
+		}
+
+		return new Text(text, 0, 0);
+	},
+});
+
+export const formatSearchResults = (
+	query: string,
+	results: NormalizedSearchResult[],
+): string => {
 	if (results.length === 0) {
 		return `Search results for: ${query}\n\nNo results found.`;
 	}
@@ -176,26 +148,128 @@ export function formatSearchResults(query: string, results: NormalizedSearchResu
 		lines.push("");
 	}
 	return lines.join("\n").trimEnd();
-}
+};
 
-function createProvider(): SearchProvider {
+const executeWebSearch = async (
+	params: { depth?: SearchDepth; maxResults?: number; query: string },
+	signal?: AbortSignal,
+	onUpdate?: WebSearchUpdate,
+) => {
+	const settings = getWebToolsSettings();
+	if (settings.search.enabled === false) {
+		throw new Error(
+			"websearch is disabled in web-tools settings. Enable it to use this tool.",
+		);
+	}
+
+	const query = params.query.trim();
+	if (query.length === 0) {
+		throw new Error("Search query cannot be empty");
+	}
+
+	const depth = params.depth ?? settings.search.defaultDepth;
+	const maxResults = clampMaxResults(
+		params.maxResults ?? settings.search.defaultMaxResults,
+	);
+	const timeoutSeconds = clampTimeoutSeconds(settings.search.timeoutSeconds);
+	const composed = createOperationSignal(timeoutSeconds * 1000, signal);
+
+	onUpdate?.({
+		content: [textContent(`Searching for ${JSON.stringify(query)}...`)],
+		details: {
+			depth,
+			maxResults,
+			provider: settings.search.provider,
+			query,
+			resultCount: 0,
+			results: [],
+		},
+	});
+
+	try {
+		const provider = createProvider();
+		const results = await provider.search(
+			{ depth, maxResults, query },
+			composed.signal,
+		);
+		const output = formatSearchResults(query, results);
+		const truncated = await truncateTextOutput(output, {
+			fileName: "output.txt",
+			tempPrefix: "pi-websearch-",
+		});
+		const details = createSearchDetails({
+			depth,
+			maxResults,
+			provider,
+			query,
+			results,
+			truncated,
+		});
+
+		return {
+			content: [textContent(truncated.text)],
+			details,
+		};
+	} catch (error) {
+		if (signal?.aborted) {
+			throw new Error("Web search cancelled", { cause: error });
+		}
+		if (isAbortError(error) || composed.signal.aborted) {
+			throw new Error(`Web search timed out after ${timeoutSeconds}s`, {
+				cause: error,
+			});
+		}
+		if (error instanceof Error) {
+			throw error;
+		}
+		throw new Error(String(error), { cause: error });
+	} finally {
+		composed.cleanup();
+	}
+};
+
+const createSearchDetails = (input: {
+	depth: SearchDepth;
+	maxResults: number;
+	provider: SearchProvider;
+	query: string;
+	results: NormalizedSearchResult[];
+	truncated: { fullOutputPath?: string; truncated: boolean };
+}): WebSearchDetails => ({
+	depth: input.depth,
+	fullOutputPath: input.truncated.fullOutputPath,
+	maxResults: input.maxResults,
+	provider: input.provider.name,
+	query: input.query,
+	resultCount: input.results.length,
+	results: input.results,
+	truncated: input.truncated.truncated,
+});
+
+const createProvider = (): SearchProvider => {
 	const settings = getWebToolsSettings();
 	switch (settings.search.provider) {
-		case "exa":
+		case "exa": {
 			return new ExaSearchProvider(settings.search.endpoint);
+		}
+		default: {
+			throw new Error(`Unsupported search provider: ${settings.search.provider}`);
+		}
 	}
-}
+};
 
-function clampMaxResults(value: number): number {
-	if (!Number.isFinite(value)) return 8;
-	return Math.max(1, Math.min(20, Math.round(value)));
-}
+const clampMaxResults = (value: number): number => {
+	if (Number.isFinite(value)) {
+		return Math.max(1, Math.min(20, Math.round(value)));
+	}
+	return 8;
+};
 
-function clampTimeoutSeconds(timeout: number): number {
-	if (!Number.isFinite(timeout)) return 25;
-	return Math.max(1, Math.min(120, Math.round(timeout)));
-}
+const clampTimeoutSeconds = (timeout: number): number => {
+	if (Number.isFinite(timeout)) {
+		return Math.max(1, Math.min(120, Math.round(timeout)));
+	}
+	return 25;
+};
 
-function textContent(text: string): TextContent {
-	return { type: "text", text };
-}
+const textContent = (text: string): TextContent => ({ text, type: "text" });

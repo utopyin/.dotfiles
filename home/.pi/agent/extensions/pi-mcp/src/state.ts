@@ -32,7 +32,8 @@ export interface McpExtensionState {
   toolMetadata: Map<string, ToolMetadata[]>;
   config: McpConfig;
   failureTracker: Map<string, number>;
-  needsAuth: Set<string>; // Servers that need OAuth authentication
+  // Servers that need OAuth authentication.
+  needsAuth: Set<string>;
   uiResourceHandler: UiResourceHandler;
   consentManager: ConsentManager;
   uiServer: UiServerHandle | null;

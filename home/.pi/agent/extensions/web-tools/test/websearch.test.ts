@@ -1,5 +1,5 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import { describe, test } from "vitest";
 import {
 	ExaSearchProvider,
 	extractSearchErrorFromResponse,
@@ -9,6 +9,14 @@ import {
 	parseSseDataLines,
 } from "../providers/exa.ts";
 import { formatSearchResults } from "../websearch.ts";
+
+interface SearchPayload {
+	params?: {
+		arguments?: {
+			type?: string;
+		};
+	};
+}
 
 const LEGACY_PROVIDER_TEXT = [
 	"Title: Example Domain",
@@ -52,37 +60,41 @@ const CURRENT_PROVIDER_TEXT = [
 ].join("\n");
 
 const SSE_RESPONSE = `event: message\ndata: ${JSON.stringify({
-	result: {
-		content: [{ type: "text", text: LEGACY_PROVIDER_TEXT }],
-	},
-	jsonrpc: "2.0",
 	id: 1,
+	jsonrpc: "2.0",
+	result: {
+		content: [{ text: LEGACY_PROVIDER_TEXT, type: "text" }],
+	},
 })}\n\n`;
 
 const SSE_ERROR_RESPONSE = `event: message\ndata: ${JSON.stringify({
+	id: 1,
+	jsonrpc: "2.0",
 	result: {
-		content: [{ type: "text", text: "MCP error -32602: Invalid enum value" }],
+		content: [{ text: "MCP error -32602: Invalid enum value", type: "text" }],
 		isError: true,
 	},
-	jsonrpc: "2.0",
-	id: 1,
 })}\n\n`;
 
+describe("websearch helpers", () => {
 test("parseSseDataLines extracts JSON payloads from event streams", () => {
 	const chunks = parseSseDataLines(SSE_RESPONSE);
 	assert.equal(chunks.length, 1);
-	assert.match(chunks[0] ?? "", /"jsonrpc":"2.0"/);
+	assert.match(chunks[0] ?? "", /"jsonrpc":"2.0"/u);
 });
 
 test("extractSearchTextFromResponse extracts the provider text blob", () => {
 	const text = extractSearchTextFromResponse(SSE_RESPONSE, "text/event-stream");
-	assert.match(text, /^Title: Example Domain/m);
-	assert.match(text, /^Title: Another Example/m);
+	assert.match(text, /^Title: Example Domain/mu);
+	assert.match(text, /^Title: Another Example/mu);
 });
 
 test("extractSearchErrorFromResponse extracts provider-side MCP errors", () => {
 	assert.equal(extractSearchTextFromResponse(SSE_ERROR_RESPONSE, "text/event-stream"), "");
-	assert.equal(extractSearchErrorFromResponse(SSE_ERROR_RESPONSE, "text/event-stream"), "MCP error -32602: Invalid enum value");
+	assert.equal(
+		extractSearchErrorFromResponse(SSE_ERROR_RESPONSE, "text/event-stream"),
+		"MCP error -32602: Invalid enum value",
+	);
 });
 
 test("parseExaSearchText converts legacy provider text into normalized results", () => {
@@ -90,12 +102,13 @@ test("parseExaSearchText converts legacy provider text into normalized results",
 	const results = parseExaSearchText(text);
 	assert.equal(results.length, 2);
 	assert.deepEqual(results[0], {
+		publishedAt: undefined,
+		score: undefined,
+		snippet:
+			"This domain is for use in documentation examples without needing permission.",
+		source: undefined,
 		title: "Example Domain",
 		url: "https://example.com/",
-		snippet: "This domain is for use in documentation examples without needing permission.",
-		publishedAt: undefined,
-		source: undefined,
-		score: undefined,
 	});
 	assert.equal(results[1]?.publishedAt, "2024-01-01T00:00:00.000Z");
 });
@@ -104,12 +117,12 @@ test("parseExaSearchText supports current Exa search labels and strips boilerpla
 	const results = parseExaSearchText(CURRENT_PROVIDER_TEXT);
 	assert.equal(results.length, 2);
 	assert.deepEqual(results[0], {
+		publishedAt: undefined,
+		score: undefined,
+		snippet: "Use env from cloudflare:test with app.request().",
+		source: undefined,
 		title: "Cloudflare Testing - Hono",
 		url: "https://hono.dev/examples/cloudflare-vitest",
-		snippet: "Use env from cloudflare:test with app.request().",
-		publishedAt: undefined,
-		source: undefined,
-		score: undefined,
 	});
 	assert.equal(results[1]?.publishedAt, "2026-03-18T20:14:02.561Z");
 	assert.equal(results[1]?.source, undefined);
@@ -126,46 +139,50 @@ test("ExaSearchProvider sends fast when deep is requested", async () => {
 	const originalFetch = globalThis.fetch;
 	let requestBody = "";
 
-	globalThis.fetch = async (_input, init) => {
+	globalThis.fetch = (_input, init) => {
 		requestBody = String(init?.body ?? "");
-		return new Response(
-			JSON.stringify({
-				result: {
-					content: [{ type: "text", text: LEGACY_PROVIDER_TEXT }],
+		return Promise.resolve(
+			Response.json(
+				{
+					result: {
+						content: [{ text: LEGACY_PROVIDER_TEXT, type: "text" }],
+					},
 				},
-			}),
-			{
-				status: 200,
-				headers: { "content-type": "application/json" },
-			},
+				{
+					headers: { "content-type": "application/json" },
+					status: 200,
+				},
+			),
 		);
 	};
 
 	try {
 		const provider = new ExaSearchProvider("https://example.test/mcp");
-		const results = await provider.search({ query: "example", maxResults: 5, depth: "deep" });
+		const results = await provider.search({ depth: "deep", maxResults: 5, query: "example" });
 		assert.equal(results.length, 2);
-		const payload = JSON.parse(requestBody) as { params?: { arguments?: { type?: string } } };
+		const payload = JSON.parse(requestBody) as SearchPayload;
 		assert.equal(payload.params?.arguments?.type, "fast");
 	} finally {
 		globalThis.fetch = originalFetch;
 	}
 });
 
-test("ExaSearchProvider throws provider-side errors instead of treating them as empty results", async () => {
+test("ExaSearchProvider throws provider-side errors instead of empty results", async () => {
 	const originalFetch = globalThis.fetch;
 
-	globalThis.fetch = async () =>
-		new Response(SSE_ERROR_RESPONSE, {
-			status: 200,
-			headers: { "content-type": "text/event-stream" },
-		});
+	globalThis.fetch = () =>
+		Promise.resolve(
+			new Response(SSE_ERROR_RESPONSE, {
+				headers: { "content-type": "text/event-stream" },
+				status: 200,
+			}),
+		);
 
 	try {
 		const provider = new ExaSearchProvider("https://example.test/mcp");
 		await assert.rejects(
-			provider.search({ query: "example", maxResults: 5, depth: "fast" }),
-			/MCP error -32602: Invalid enum value/,
+			provider.search({ depth: "fast", maxResults: 5, query: "example" }),
+			/MCP error -32602: Invalid enum value/u,
 		);
 	} finally {
 		globalThis.fetch = originalFetch;
@@ -175,9 +192,9 @@ test("ExaSearchProvider throws provider-side errors instead of treating them as 
 test("formatSearchResults renders deterministic URL-forward output", () => {
 	const output = formatSearchResults("example query", [
 		{
+			snippet: "Documentation-safe example domain.",
 			title: "Example Domain",
 			url: "https://example.com/",
-			snippet: "Documentation-safe example domain.",
 		},
 	]);
 	assert.equal(
@@ -190,4 +207,5 @@ test("formatSearchResults renders deterministic URL-forward output", () => {
 			"   Snippet: Documentation-safe example domain.",
 		].join("\n"),
 	);
+});
 });

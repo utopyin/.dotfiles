@@ -51,7 +51,7 @@ export class McpLifecycleManager {
     this.onNeedsAuth = callback;
   }
 
-  startHealthChecks(intervalMs = 30000): void {
+  startHealthChecks(intervalMs = 30_000): void {
     this.healthCheckInterval = setInterval(() => {
       this.checkConnections();
     }, intervalMs);
@@ -71,7 +71,7 @@ export class McpLifecycleManager {
         } catch (error) {
           if (error instanceof NeedsAuthError) {
             // Clean up the transport and stop retrying until user authenticates
-            await error.transport.close().catch(() => {});
+            await error.transport.close().catch(() => null);
             this.keepAliveServers.delete(name);
             this.onNeedsAuth?.(name);
             logger.debug(`${name}: removed from keep-alive (needs auth)`);
@@ -83,7 +83,7 @@ export class McpLifecycleManager {
     }
 
     for (const [name] of this.allServers) {
-      if (this.keepAliveServers.has(name)) continue;
+      if (this.keepAliveServers.has(name)) {continue;}
       const timeout = this.getIdleTimeout(name);
       if (timeout > 0 && this.manager.isIdle(name, timeout)) {
         await this.manager.close(name);
@@ -94,7 +94,7 @@ export class McpLifecycleManager {
 
   private getIdleTimeout(name: string): number {
     const perServer = this.serverSettings.get(name)?.idleTimeout;
-    if (perServer !== undefined) return perServer * 60 * 1000;
+    if (perServer !== undefined) {return perServer * 60 * 1000;}
     return this.globalIdleTimeout;
   }
 

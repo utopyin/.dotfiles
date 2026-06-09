@@ -1,7 +1,8 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import { describe, test } from "vitest";
 import { classifyMimeType, isPrivateOrLocalIp, parseContentType } from "../network.ts";
 
+describe("network helpers", () => {
 test("parseContentType normalizes html and xhtml content types", () => {
 	assert.equal(parseContentType("TEXT/HTML; charset=UTF-8").kind, "html");
 	assert.equal(parseContentType("TEXT/HTML; charset=UTF-8").mime, "text/html");
@@ -23,4 +24,5 @@ test("isPrivateOrLocalIp detects local and private IP ranges", () => {
 	assert.equal(isPrivateOrLocalIp("::1"), true);
 	assert.equal(isPrivateOrLocalIp("fc00::1"), true);
 	assert.equal(isPrivateOrLocalIp("8.8.8.8"), false);
+});
 });

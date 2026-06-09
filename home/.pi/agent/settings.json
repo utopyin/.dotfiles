@@ -2,7 +2,7 @@
   "lastChangelogVersion": "0.78.1",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
-  "defaultThinkingLevel": "high",
+  "defaultThinkingLevel": "xhigh",
   "shellCommandPrefix": "for config_file in \"$HOME\"/.config/zsh/conf.d/{20-paths,30-aliases}.zsh; do [ -r \"$config_file\" ] && . \"$config_file\"; done",
   "treeFilterMode": "no-tools",
   "terminal": {

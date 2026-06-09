@@ -1,5 +1,5 @@
-import test from "node:test";
 import assert from "node:assert/strict";
+import { describe, test } from "vitest";
 import {
 	createWebFetchHeaders,
 	getFallbackUserAgent,
@@ -8,6 +8,7 @@ import {
 	shouldRetryWithFallbackUserAgent,
 } from "../webfetch.ts";
 
+describe("webfetch helpers", () => {
 test("createWebFetchHeaders uses the OpenCode browser-like default user agent", () => {
 	const headers = createWebFetchHeaders("text/html");
 	assert.equal(headers["User-Agent"], OPENCODE_WEBFETCH_DEFAULT_USER_AGENT);
@@ -15,34 +16,35 @@ test("createWebFetchHeaders uses the OpenCode browser-like default user agent", 
 	assert.equal(headers["Accept-Language"], "en-US,en;q=0.9");
 });
 
-test("getFallbackUserAgent prefers the configured setting and otherwise falls back to opencode", () => {
+test("getFallbackUserAgent prefers configured setting and otherwise falls back", () => {
 	assert.equal(getFallbackUserAgent("my-agent/1.0"), "my-agent/1.0");
 	assert.equal(getFallbackUserAgent("  custom-agent  "), "custom-agent");
 	assert.equal(getFallbackUserAgent(""), OPENCODE_WEBFETCH_FALLBACK_USER_AGENT);
 	assert.equal(getFallbackUserAgent("   "), OPENCODE_WEBFETCH_FALLBACK_USER_AGENT);
-	assert.equal(getFallbackUserAgent(undefined), OPENCODE_WEBFETCH_FALLBACK_USER_AGENT);
+	assert.equal(getFallbackUserAgent(), OPENCODE_WEBFETCH_FALLBACK_USER_AGENT);
 });
 
-test("shouldRetryWithFallbackUserAgent only retries the Cloudflare challenge case", () => {
+test("shouldRetryWithFallbackUserAgent only retries Cloudflare challenge case", () => {
 	assert.equal(
 		shouldRetryWithFallbackUserAgent({
-			status: 403,
 			headers: new Headers({ "cf-mitigated": "challenge" }),
+			status: 403,
 		}),
 		true,
 	);
 	assert.equal(
 		shouldRetryWithFallbackUserAgent({
-			status: 403,
 			headers: new Headers(),
+			status: 403,
 		}),
 		false,
 	);
 	assert.equal(
 		shouldRetryWithFallbackUserAgent({
-			status: 429,
 			headers: new Headers({ "cf-mitigated": "challenge" }),
+			status: 429,
 		}),
 		false,
 	);
+});
 });

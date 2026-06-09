@@ -2,7 +2,9 @@ import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import { createWebFetchTool } from "./webfetch.ts";
 import { createWebSearchTool } from "./websearch.ts";
 
-export default function webToolsExtension(pi: ExtensionAPI) {
+const webToolsExtension = (pi: ExtensionAPI): void => {
 	pi.registerTool(createWebFetchTool());
 	pi.registerTool(createWebSearchTool());
-}
+};
+
+export default webToolsExtension;

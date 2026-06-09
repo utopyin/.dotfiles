@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
+    "target": "ES2023",
+    "lib": ["ES2023", "DOM", "DOM.Iterable"],
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "strict": true,
     "skipLibCheck": true,
-    "types": ["node"]
+    "types": ["node", "vitest"]
   },
   "include": [
     "./index.ts",

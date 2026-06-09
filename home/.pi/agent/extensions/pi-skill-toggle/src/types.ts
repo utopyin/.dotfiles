@@ -63,8 +63,8 @@ export interface SkillChange {
 
 export interface ApplyResult {
   applied: SkillChange[];
-  skipped: Array<{ skill: SkillRecord; reason: string }>;
-  errors: Array<{ skill?: SkillRecord; message: string }>;
+  skipped: { skill: SkillRecord; reason: string }[];
+  errors: { skill?: SkillRecord; message: string }[];
 }
 
 export interface SkillToggleUiResult {

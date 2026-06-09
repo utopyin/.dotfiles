@@ -24,7 +24,7 @@ export const init = Effect.fn("init")(function* () {
     ["build", "./bin/dot.ts", "--compile", "--outfile", "./dist/dot"],
     { cwd: config.dotfilesDir }
   );
-  yield* linker.linkDot;
+  yield* linker.linkDot("release");
   yield* shell.installIntegrations();
   yield* applyConfig();
   yield* agent.installSelfIfMissing();

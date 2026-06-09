@@ -71,9 +71,18 @@ export const cli = Command.make("dot").pipe(
       Command.withHandler(unapplyConfig)
     ),
 
-    Command.make("link").pipe(
+    Command.make("link", {
+      dev: Flag.boolean("dev").pipe(
+        Flag.withDescription(
+          "Install a Bun shim that runs the current TypeScript source"
+        )
+      ),
+      release: Flag.boolean("release").pipe(
+        Flag.withDescription("Install the compiled dist/dot binary (default)")
+      ),
+    }).pipe(
       Command.withDescription("Install dot command into ~/.local/bin"),
-      Command.withHandler(link)
+      Command.withHandler(({ dev, release }) => link({ dev, release }))
     ),
 
     Command.make("edit", {

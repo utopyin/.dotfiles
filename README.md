@@ -55,8 +55,9 @@ The canonical CLI is Bun + Effect V4.
 
 ```bash
 bun run dot doctor  # inspect current setup
-bun run build       # build dist/dot, not committed
-bun run dot link    # install ~/.local/bin/dot -> ~/.dotfiles/dist/dot
+bun run build               # build dist/dot, not committed
+bun run dot link            # install ~/.local/bin/dot -> ~/.dotfiles/dist/dot
+bun run dot link --dev      # install a shim that runs bin/dot.ts via Bun
 ```
 
 ### Cursor profile

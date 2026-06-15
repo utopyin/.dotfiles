@@ -1,0 +1,100 @@
+#compdef hitch hitch-dev
+
+_hitch() {
+  local context state state_descr line
+  typeset -A opt_args
+
+  local -a commands
+  commands=(
+    'on:Share this terminal with agents'
+    'off:Stop sharing this terminal'
+    'status:Show whether this terminal is being shared'
+    'setup:Run setup wizard or install shell integration / agent skill'
+    'context:Show shared terminals and compact context'
+    'capture:Print a faithful terminal transcript'
+    'send-keys:Send input to a shared terminal'
+    'kill:Kill a shared terminal'
+    'help:Print help for a command'
+  )
+
+  _arguments -C \
+    '(-h --help)'{-h,--help}'[Print help]' \
+    '(-v --version)'{-v,--version}'[Print version]' \
+    '--skill[Print agent instructions]' \
+    '1:command:->command' \
+    '*::arg:->args'
+
+  case "$state" in
+    command)
+      _describe -t commands 'hitch commands' commands
+      ;;
+    args)
+      case "${words[1]}" in
+        status)
+          _arguments \
+            '--debug[Show debug status information]' \
+            '(-h --help)'{-h,--help}'[Print help]'
+          ;;
+        setup)
+          local -a setup_commands
+          setup_commands=(
+            'shell:Install shell integration'
+            'skill:Install the optional agent skill'
+            'help:Print help for setup commands'
+          )
+          _arguments -C \
+            '(-h --help)'{-h,--help}'[Print help]' \
+            '1:setup command:->setup_command' \
+            '*::arg:->setup_args'
+          case "$state" in
+            setup_command) _describe -t commands 'setup commands' setup_commands ;;
+            setup_args) _message 'no more arguments' ;;
+          esac
+          ;;
+        context)
+          _arguments \
+            '--all[Show all shared terminals]' \
+            '--dir[Filter by working directory]:directory:_directories' \
+            '--head[Show first N lines]:lines:' \
+            '--tail[Show last N lines]:lines:' \
+            '--no-output[Hide captured terminal output]' \
+            '(-h --help)'{-h,--help}'[Print help]' \
+            ':terminal id:'
+          ;;
+        capture)
+          _arguments \
+            '(-t --target)'{-t,--target}'[Terminal id]:terminal id:' \
+            '-p[]' \
+            '-S[Start position]:start:' \
+            '-E[End position]:end:' \
+            '-e[]' \
+            '--raw[Print raw transcript]' \
+            '(-h --help)'{-h,--help}'[Print help]'
+          ;;
+        send-keys)
+          _arguments \
+            '(-t --target)'{-t,--target}'[Terminal id]:terminal id:' \
+            '--wait[Wait mode]:mode:(output finish quiet\: time\:)' \
+            '--timeout[Maximum wait duration, e.g. 500ms, 5s, 1m]:duration:' \
+            '--tail[Print this many new visible output lines after sending]:lines:' \
+            '--force[Send input even when a process is running]' \
+            '(-h --help)'{-h,--help}'[Print help]' \
+            '*:keys or text:'
+          ;;
+        kill)
+          _arguments \
+            '(-h --help)'{-h,--help}'[Print help]' \
+            ':terminal id:'
+          ;;
+        help)
+          _describe -t commands 'hitch commands' commands
+          ;;
+        on|off)
+          _arguments '(-h --help)'{-h,--help}'[Print help]'
+          ;;
+      esac
+      ;;
+  esac
+}
+
+_hitch "$@"

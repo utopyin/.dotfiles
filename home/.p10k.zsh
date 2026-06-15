@@ -39,6 +39,7 @@ function _dotfiles_p10k_config() {
     dirr     # custom directory override
     vcs                     # git status
     # prompt_char           # prompt symbol
+    hitch                   # hitch terminal id
   )
 
 
@@ -1674,6 +1675,12 @@ function _dotfiles_p10k_config() {
   # typeset -g POWERLEVEL9K_TIME_VISUAL_IDENTIFIER_EXPANSION='⭐'
   # Custom prefix.
   typeset -g POWERLEVEL9K_TIME_PREFIX='%244Fat '
+
+  # >>> hitch shell integration >>>
+  function prompt_hitch() {
+    [[ -n "${HITCH_SESSION:-}" ]] && p10k segment -f 2 -t "#${HITCH_SESSION}"
+  }
+  # <<< hitch shell integration <<<
 
   # Example of a user-defined prompt segment. Function prompt_example will be called on every
   # prompt if `example` prompt segment is added to POWERLEVEL9K_LEFT_PROMPT_ELEMENTS or

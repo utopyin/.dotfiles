@@ -1,4 +1,5 @@
 tap "oven-sh/bun"
+tap "rjyo/moshi"
 
 cask "cursor"
 cask "1password"
@@ -57,3 +58,5 @@ brew "worktrunk"
 brew "d2"
 brew "stow"
 brew "herdr"
+brew "moshi-hook"
+brew "mosh"

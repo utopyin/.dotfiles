@@ -12,5 +12,5 @@
     "allowImportingTsExtensions": true,
     "noEmit": true
   },
-  "include": ["bin/**/*.ts", "src/**/*.ts"]
+  "include": ["bin/**/*.ts", "src/**/*.ts", "./home/.pi/agent/extensions/*.ts"]
 }

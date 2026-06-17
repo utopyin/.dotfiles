@@ -22,6 +22,7 @@ If `bodyColor` is not set, the email body does not get a separate card/backgroun
 Set horizontal padding deliberately. Most production emails should not leave content pressed against the body edges. Use `bodyXPadding` for the default left/right breathing room instead of adding `paddingLeft` and `paddingRight` to every block.
 
 Default approach:
+
 - `bodyXPadding="24"` and `bodyYPadding="24"` for most polished emails
 - `bodyXPadding="32"` when the design is sparse, premium, or card-like
 - `bodyXPadding="16"` or `"20"` only for compact transactional emails or dense tables/checklists
@@ -53,19 +54,23 @@ Always infer sensible defaults for `bodyXPadding` and `bodyYPadding` (typically 
 Never place text, icons, or UI elements in the same color (or near-same color) as their background. Common failure modes to check:
 
 **Text vs block/body background:**
+
 - If `bodyColor` is white (`#ffffff`), `textBaseColor` must be dark (e.g. `#0f172a`, `#1e293b`).
 - If you set `blockColor` on a `<Paragraph>` or heading, the text inside must have sufficient contrast against that `blockColor`, not just the body.
 - Never use `textColor="#ffffff"` on a block with `blockColor="#ffffff"` or a light `bodyColor`.
 
 **Buttons:**
+
 - `bgColor` and `textColor` on `<Button>` must contrast. Dark backgrounds need light text. Light backgrounds need dark text.
 - If no explicit `textColor` is set on a `<Button>`, assume the document's `textBaseColor` will be used; ensure that still contrasts against the button `bgColor`.
 
 **CodeBlock:**
+
 - `<CodeBlock>` has its own `blockColor`. If you set a custom `blockColor` on a `<CodeBlock>`, also ensure the surrounding `bodyColor` and the code text color are visually distinct from that block. A good default is a slightly darker or muted tint of the body color (e.g. `#f1f5f9` on a white body).
 - If you change `<CodeBlock blockColor="...">` to a dark color, you must also visually account for the code text; note that there is no explicit text color attribute on `<CodeBlock>`, so use `blockColor` values that contrast with the inherited text color.
 
 **Icons:**
+
 - `<Icons color="...">` sets the icon color. If the `<Icons>` block sits on a `bodyColor` background, the icon color must contrast against the body. White icons on a white body are invisible.
 - If you set `blockColor` on the `<Icons>` element, icon color must contrast against that, not the body.
 
@@ -76,6 +81,7 @@ Never place text, icons, or UI elements in the same color (or near-same color) a
 Use `bodyXPadding` on `<Style />` for global left/right breathing room, and use `paddingTop` and `paddingBottom` on block elements for vertical rhythm. Emails without spacing feel dense and hard to scan.
 
 Default approach:
+
 - Global body padding: start with `bodyXPadding="24" bodyYPadding="24"` unless the theme already defines good padding.
 - Headings (`<H1>`, `<H2>`, `<H3>`): add `paddingTop="24"` or `paddingTop="32"` unless they are the first element.
 - `<Paragraph>` after a heading: `paddingBottom="8"` to `"16"` is typical.
@@ -102,6 +108,7 @@ Use block-level `paddingLeft` and `paddingRight` for local insets only, such as 
 Design for a narrow email preview, not a landing page. A good LMX email should feel readable around a 600px-wide body, with clear hierarchy and enough whitespace to scan quickly.
 
 Default heading scale for designed emails:
+
 - `heading1FontSize`: usually `26`
 - `heading2FontSize`: usually `20` to `24`
 - `heading3FontSize`: usually `15` to `17`
@@ -109,6 +116,7 @@ Default heading scale for designed emails:
 Use larger heading sizes only when the surrounding design is sparse enough for them. Most email headers should stay at `heading1FontSize="26"` instead of using landing-page-scale type.
 
 Keep body copy readable:
+
 - Body text is usually `15` to `18` px with comfortable line height.
 - Avoid lines that feel too wide or too close to the body edge.
 - Prefer whitespace, grouping, alignment, typography, and hierarchy before adding decorative surfaces.
@@ -123,6 +131,7 @@ Avoid hero-scale type, decorative complexity, or many floating cards unless the 
 When converting a visual reference, screenshot, existing email, or detailed design notes into LMX, preserve the reference's structure instead of flattening it into generic centered text.
 
 Translate the design into email-safe LMX:
+
 - Use `Style` for global body colors, X/Y padding, typography, and button defaults.
 - Use `Section` for real grouped panels, cards, callouts, or linked groups.
 - Use `Columns` for compact comparative groups, checklist rows, and stat groups.

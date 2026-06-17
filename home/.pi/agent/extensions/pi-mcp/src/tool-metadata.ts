@@ -1,127 +1,145 @@
 import { getToolUiResourceUri } from "@modelcontextprotocol/ext-apps/app-bridge";
-import type { McpExtensionState } from "./state.js";
-import type { ToolMetadata, McpTool, McpResource, ServerEntry } from "./types.js";
-import { formatToolName } from "./types.js";
+
 import { resourceNameToToolName } from "./resource-tools.js";
+import type { McpExtensionState } from "./state.js";
+import type {
+  ToolMetadata,
+  McpTool,
+  McpResource,
+  ServerEntry,
+} from "./types.js";
+import { formatToolName } from "./types.js";
 import { extractToolUiStreamMode } from "./utils.js";
 
-export const buildToolMetadata = (tools: McpTool[], resources: McpResource[], definition: ServerEntry, serverName: string, prefix: "server" | "none" | "short"): {
-    metadata: ToolMetadata[];
-    failedTools: string[];
+export const buildToolMetadata = (
+  tools: McpTool[],
+  resources: McpResource[],
+  definition: ServerEntry,
+  serverName: string,
+  prefix: "server" | "none" | "short"
+): {
+  metadata: ToolMetadata[];
+  failedTools: string[];
 } => {
-    const metadata: ToolMetadata[] = [];
-    const failedTools: string[] = [];
-    for (const tool of tools) {
-        if (!tool?.name) {
-            failedTools.push("(unnamed)");
-            continue;
-        }
-        let uiResourceUri: string | undefined;
-        try {
-            uiResourceUri = getToolUiResourceUri({ _meta: tool._meta });
-        }
-        catch {
-            failedTools.push(tool.name);
-        }
-        metadata.push({
-            description: tool.description ?? "",
-            inputSchema: tool.inputSchema,
-            name: formatToolName(tool.name, serverName, prefix),
-            originalName: tool.name,
-            uiResourceUri,
-            uiStreamMode: extractToolUiStreamMode(tool._meta),
-        });
+  const metadata: ToolMetadata[] = [];
+  const failedTools: string[] = [];
+  for (const tool of tools) {
+    if (!tool?.name) {
+      failedTools.push("(unnamed)");
+      continue;
     }
-    if (definition.exposeResources !== false) {
-        for (const resource of resources) {
-            const baseName = `get_${resourceNameToToolName(resource.name)}`;
-            metadata.push({
-                description: resource.description ?? `Read resource: ${resource.uri}`,
-                name: formatToolName(baseName, serverName, prefix),
-                originalName: baseName,
-                resourceUri: resource.uri,
-            });
-        }
+    let uiResourceUri: string | undefined;
+    try {
+      uiResourceUri = getToolUiResourceUri({ _meta: tool._meta });
+    } catch {
+      failedTools.push(tool.name);
     }
-    return { failedTools, metadata };
+    metadata.push({
+      description: tool.description ?? "",
+      inputSchema: tool.inputSchema,
+      name: formatToolName(tool.name, serverName, prefix),
+      originalName: tool.name,
+      uiResourceUri,
+      uiStreamMode: extractToolUiStreamMode(tool._meta),
+    });
+  }
+  if (definition.exposeResources !== false) {
+    for (const resource of resources) {
+      const baseName = `get_${resourceNameToToolName(resource.name)}`;
+      metadata.push({
+        description: resource.description ?? `Read resource: ${resource.uri}`,
+        name: formatToolName(baseName, serverName, prefix),
+        originalName: baseName,
+        resourceUri: resource.uri,
+      });
+    }
+  }
+  return { failedTools, metadata };
 };
-export const getToolNames = (state: McpExtensionState, serverName: string): string[] => 
-    state.toolMetadata.get(serverName)?.map(m => m.name) ?? []
-;
+export const getToolNames = (
+  state: McpExtensionState,
+  serverName: string
+): string[] => state.toolMetadata.get(serverName)?.map((m) => m.name) ?? [];
 export const totalToolCount = (state: McpExtensionState): number => {
-    let count = 0;
-    for (const metadata of state.toolMetadata.values()) {
-        count += metadata.length;
-    }
-    return count;
+  let count = 0;
+  for (const metadata of state.toolMetadata.values()) {
+    count += metadata.length;
+  }
+  return count;
 };
-export const findToolByName = (metadata: ToolMetadata[] | undefined, toolName: string): ToolMetadata | undefined => {
-    if (!metadata) {
-        return undefined;
-    }
-    const exact = metadata.find(m => m.name === toolName);
-    if (exact) {
-        return exact;
-    }
-    const normalized = toolName.replaceAll("-", "_");
-    return metadata.find(m => m.name.replaceAll("-", "_") === normalized);
+export const findToolByName = (
+  metadata: ToolMetadata[] | undefined,
+  toolName: string
+): ToolMetadata | undefined => {
+  if (!metadata) {
+    return undefined;
+  }
+  const exact = metadata.find((m) => m.name === toolName);
+  if (exact) {
+    return exact;
+  }
+  const normalized = toolName.replaceAll("-", "_");
+  return metadata.find((m) => m.name.replaceAll("-", "_") === normalized);
 };
 export const formatSchema = (schema: unknown, indent = "  "): string => {
-    if (!schema || typeof schema !== "object") {
-        return `${indent}(no schema)`;
+  if (!schema || typeof schema !== "object") {
+    return `${indent}(no schema)`;
+  }
+  const s = schema as Record<string, unknown>;
+  if (s.type === "object" && s.properties && typeof s.properties === "object") {
+    const props = s.properties as Record<string, unknown>;
+    const required = Array.isArray(s.required) ? (s.required as string[]) : [];
+    if (Object.keys(props).length === 0) {
+      return `${indent}(no parameters)`;
     }
-    const s = schema as Record<string, unknown>;
-    if (s.type === "object" && s.properties && typeof s.properties === "object") {
-        const props = s.properties as Record<string, unknown>;
-        const required = Array.isArray(s.required) ? s.required as string[] : [];
-        if (Object.keys(props).length === 0) {
-            return `${indent}(no parameters)`;
-        }
-        const lines: string[] = [];
-        for (const [name, propSchema] of Object.entries(props)) {
-            const isRequired = required.includes(name);
-            const propLine = formatProperty(name, propSchema, isRequired, indent);
-            lines.push(propLine);
-        }
-        return lines.join("\n");
+    const lines: string[] = [];
+    for (const [name, propSchema] of Object.entries(props)) {
+      const isRequired = required.includes(name);
+      const propLine = formatProperty(name, propSchema, isRequired, indent);
+      lines.push(propLine);
     }
-    if (s.type) {
-        return `${indent}(${s.type})`;
-    }
-    return `${indent}(complex schema)`;
+    return lines.join("\n");
+  }
+  if (s.type) {
+    return `${indent}(${s.type})`;
+  }
+  return `${indent}(complex schema)`;
 };
-const formatProperty = (name: string, schema: unknown, required: boolean, indent: string): string => {
-    if (!schema || typeof schema !== "object") {
-        return `${indent}${name}${required ? " *required*" : ""}`;
-    }
-    const s = schema as Record<string, unknown>;
-    const parts: string[] = [];
-    let typeStr = "";
-    if (s.type) {
-        typeStr = Array.isArray(s.type) ? s.type.join(" | ") : String(s.type);
-    }
-    else if (s.enum) {
-        typeStr = "enum";
-    }
-    else if (s.anyOf || s.oneOf) {
-        typeStr = "union";
-    }
-    if (Array.isArray(s.enum)) {
-        const enumVals = s.enum.map(v => JSON.stringify(v)).join(", ");
-        typeStr = `enum: ${enumVals}`;
-    }
-    parts.push(`${indent}${name}`);
-    if (typeStr) {
-        parts.push(`(${typeStr})`);
-    }
-    if (required) {
-        parts.push("*required*");
-    }
-    if (s.description && typeof s.description === "string") {
-        parts.push(`- ${s.description}`);
-    }
-    if (s.default !== undefined) {
-        parts.push(`[default: ${JSON.stringify(s.default)}]`);
-    }
-    return parts.join(" ");
+const formatProperty = (
+  name: string,
+  schema: unknown,
+  required: boolean,
+  indent: string
+): string => {
+  if (!schema || typeof schema !== "object") {
+    return `${indent}${name}${required ? " *required*" : ""}`;
+  }
+  const s = schema as Record<string, unknown>;
+  const parts: string[] = [];
+  let typeStr = "";
+  if (s.type) {
+    typeStr = Array.isArray(s.type) ? s.type.join(" | ") : String(s.type);
+  } else if (s.enum) {
+    typeStr = "enum";
+  } else if (s.anyOf || s.oneOf) {
+    typeStr = "union";
+  }
+  if (Array.isArray(s.enum)) {
+    const enumVals = s.enum.map((v) => JSON.stringify(v)).join(", ");
+    typeStr = `enum: ${enumVals}`;
+  }
+  parts.push(`${indent}${name}`);
+  if (typeStr) {
+    parts.push(`(${typeStr})`);
+  }
+  if (required) {
+    parts.push("*required*");
+  }
+  if (s.description && typeof s.description === "string") {
+    parts.push(`- ${s.description}`);
+  }
+  if (s.default !== undefined) {
+    parts.push(`[default: ${JSON.stringify(s.default)}]`);
+  }
+  return parts.join(" ");
 };

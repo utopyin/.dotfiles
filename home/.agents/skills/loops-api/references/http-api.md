@@ -88,7 +88,7 @@ POST /v1/contacts/create
   "userGroup": "premium",
   "userId": "usr_123",
   "mailingLists": { "cm_abc123": true },
-  "customProperty": "value"
+  "customProperty": "value",
 }
 ```
 
@@ -179,7 +179,7 @@ POST /v1/contacts/properties
 ```jsonc
 {
   "name": "planTier",
-  "type": "string"
+  "type": "string",
 }
 ```
 
@@ -226,10 +226,10 @@ Events trigger email automations configured in Loops. The event name must match 
   "eventName": "signup",
   "eventProperties": {
     "plan": "pro",
-    "trialDays": 14
+    "trialDays": 14,
   },
   "mailingLists": { "list_123": true },
-  "firstName": "Alex"
+  "firstName": "Alex",
 }
 ```
 
@@ -287,15 +287,15 @@ POST /v1/transactional
   "addToAudience": true,
   "dataVariables": {
     "firstName": "Alex",
-    "resetLink": "https://..."
+    "resetLink": "https://...",
   },
   "attachments": [
     {
       "filename": "invoice.pdf",
       "contentType": "application/pdf",
-      "data": "<base64-encoded-content>"
-    }
-  ]
+      "data": "<base64-encoded-content>",
+    },
+  ],
 }
 ```
 
@@ -338,7 +338,7 @@ Only `name` is required. Creates a draft campaign and an empty email message in 
 
 ```jsonc
 {
-  "name": "Spring product announcement"
+  "name": "Spring product announcement",
 }
 ```
 
@@ -360,7 +360,7 @@ Updates the draft campaign name only. Returns `409` if the campaign is not in dr
 
 ```jsonc
 {
-  "name": "Renamed announcement"
+  "name": "Renamed announcement",
 }
 ```
 
@@ -390,7 +390,7 @@ Updates draft email-message fields. All body fields are optional in the schema, 
   "fromName": "Loops",
   "fromEmail": "hello",
   "replyToEmail": "support@example.com",
-  "lmx": "<Style themeId=\"default\" />\n<Paragraph><Text>Hey there.</Text></Paragraph>\n<Component componentId=\"logo\" />"
+  "lmx": "<Style themeId=\"default\" />\n<Paragraph><Text>Hey there.</Text></Paragraph>\n<Component componentId=\"logo\" />",
 }
 ```
 
@@ -447,7 +447,7 @@ POST /v1/uploads
 ```jsonc
 {
   "contentType": "image/png",
-  "contentLength": 102400
+  "contentLength": 102400,
 }
 ```
 
@@ -682,16 +682,16 @@ curl -X POST https://app.loops.so/api/v1/contacts/create \
 
 ## Common Errors
 
-| Status | Meaning | Fix |
-| --- | --- | --- |
-| 401 | Invalid API key | Check the key is correct and has not been revoked |
-| 400 | Bad request | Check required fields and value types |
-| 404 | Not found | Contact, transactional email, campaign, theme, component, or email message ID does not exist |
-| 409 | Conflict | Email or userId already exists, idempotency key was reused, campaign is not draft, email message uses MJML or content cannot be parsed, or `expectedRevisionId` is stale |
-| 413 | Payload too large | LMX body exceeds 100 KB |
-| 422 | LMX failed to compile | Fix invalid LMX, missing required LMX attributes, or XML escaping |
-| 429 | Rate limited | Back off and retry |
-| CORS error | Client-side request | Move the API call to your server |
+| Status     | Meaning               | Fix                                                                                                                                                                      |
+| ---------- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 401        | Invalid API key       | Check the key is correct and has not been revoked                                                                                                                        |
+| 400        | Bad request           | Check required fields and value types                                                                                                                                    |
+| 404        | Not found             | Contact, transactional email, campaign, theme, component, or email message ID does not exist                                                                             |
+| 409        | Conflict              | Email or userId already exists, idempotency key was reused, campaign is not draft, email message uses MJML or content cannot be parsed, or `expectedRevisionId` is stale |
+| 413        | Payload too large     | LMX body exceeds 100 KB                                                                                                                                                  |
+| 422        | LMX failed to compile | Fix invalid LMX, missing required LMX attributes, or XML escaping                                                                                                        |
+| 429        | Rate limited          | Back off and retry                                                                                                                                                       |
+| CORS error | Client-side request   | Move the API call to your server                                                                                                                                         |
 
 Most v1 contact, event, and transactional request body string values are limited to **500 characters**. LMX content on email-message updates follows the LMX payload limit.
 

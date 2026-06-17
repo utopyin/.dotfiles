@@ -60,7 +60,7 @@ Official references:
   - backend services
   - webhook handlers
   - repeatable integrations
-  Read `references/http-api.md`
+    Read `references/http-api.md`
 
 If the user is working from the terminal instead of writing application code, use the `loops-cli` skill.
 

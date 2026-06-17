@@ -15,9 +15,15 @@ export class ConsentManager {
   }
 
   requiresPrompt(serverName: string): boolean {
-    if (this.mode === "never") {return false;}
-    if (this.deniedServers.has(serverName)) {return true;}
-    if (this.mode === "always") {return true;}
+    if (this.mode === "never") {
+      return false;
+    }
+    if (this.deniedServers.has(serverName)) {
+      return true;
+    }
+    if (this.mode === "always") {
+      return true;
+    }
     return !this.approvedServers.has(serverName);
   }
 
@@ -40,7 +46,9 @@ export class ConsentManager {
   }
 
   ensureApproved(serverName: string): void {
-    if (this.mode === "never") {return;}
+    if (this.mode === "never") {
+      return;
+    }
     if (this.deniedServers.has(serverName)) {
       throw new ConsentError(serverName, { denied: true });
     }

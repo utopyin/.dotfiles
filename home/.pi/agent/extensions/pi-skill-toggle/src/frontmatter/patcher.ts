@@ -1,27 +1,27 @@
 import type {
-	FrontmatterDocument,
-	FrontmatterPatch,
-	SkillInvocationMode,
+  FrontmatterDocument,
+  FrontmatterPatch,
+  SkillInvocationMode,
 } from "../types.ts";
 
 const DISABLE_KEY = "disable-model-invocation";
 const DISABLE_KEY_RE = /^\s*disable-model-invocation\s*:/u;
 
 export interface FrontmatterPatcher {
-	patchInvocationMode(
-		doc: FrontmatterDocument,
-		desiredMode: SkillInvocationMode,
-	): FrontmatterPatch;
+  patchInvocationMode(
+    doc: FrontmatterDocument,
+    desiredMode: SkillInvocationMode
+  ): FrontmatterPatch;
 }
 
 const getEol = (line: string): string => {
-	if (line.endsWith("\r\n")) {
-		return "\r\n";
-	}
-	if (line.endsWith("\n")) {
-		return "\n";
-	}
-	return "";
+  if (line.endsWith("\r\n")) {
+    return "\r\n";
+  }
+  if (line.endsWith("\n")) {
+    return "\n";
+  }
+  return "";
 };
 
 const stripEol = (line: string): string => line.replace(/\r?\n$/u, "");
@@ -29,81 +29,81 @@ const stripEol = (line: string): string => line.replace(/\r?\n$/u, "");
 const endsWithEol = (line: string): boolean => line.endsWith("\n");
 
 const splitLinesPreserve = (
-	text: string,
-	fallbackEol: "\n" | "\r\n",
+  text: string,
+  fallbackEol: "\n" | "\r\n"
 ): string[] => {
-	if (text.length === 0) {
-		return [];
-	}
-	const lines =
-		text.match(/.*(?:\r?\n|$)/gu)?.filter((line) => line.length > 0) ??
-		[text];
-	return lines.length > 0 ? lines : [fallbackEol];
+  if (text.length === 0) {
+    return [];
+  }
+  const lines = text
+    .match(/.*(?:\r?\n|$)/gu)
+    ?.filter((line) => line.length > 0) ?? [text];
+  return lines.length > 0 ? lines : [fallbackEol];
 };
 
 const ensureManualOnly = (
-	frontmatterText: string,
-	lineEnding: "\n" | "\r\n",
+  frontmatterText: string,
+  lineEnding: "\n" | "\r\n"
 ): string => {
-	const lines = splitLinesPreserve(frontmatterText, lineEnding);
-	let replaced = false;
-	const next: string[] = [];
+  const lines = splitLinesPreserve(frontmatterText, lineEnding);
+  let replaced = false;
+  const next: string[] = [];
 
-	for (const line of lines) {
-		if (DISABLE_KEY_RE.test(stripEol(line))) {
-			if (!replaced) {
-				next.push(`${DISABLE_KEY}: true${getEol(line) || lineEnding}`);
-				replaced = true;
-			}
-			continue;
-		}
-		next.push(line);
-	}
+  for (const line of lines) {
+    if (DISABLE_KEY_RE.test(stripEol(line))) {
+      if (!replaced) {
+        next.push(`${DISABLE_KEY}: true${getEol(line) || lineEnding}`);
+        replaced = true;
+      }
+      continue;
+    }
+    next.push(line);
+  }
 
-	if (!replaced) {
-		const lastIndex = next.length - 1;
-		const lastLine = next.at(lastIndex);
-		if (lastLine !== undefined && !endsWithEol(lastLine)) {
-			next[lastIndex] = `${lastLine}${lineEnding}`;
-		}
-		next.push(`${DISABLE_KEY}: true${lineEnding}`);
-	}
+  if (!replaced) {
+    const lastIndex = next.length - 1;
+    const lastLine = next.at(lastIndex);
+    if (lastLine !== undefined && !endsWithEol(lastLine)) {
+      next[lastIndex] = `${lastLine}${lineEnding}`;
+    }
+    next.push(`${DISABLE_KEY}: true${lineEnding}`);
+  }
 
-	return next.join("");
+  return next.join("");
 };
 
 const ensureAgentInvocable = (frontmatterText: string): string =>
-	splitLinesPreserve(
-		frontmatterText,
-		frontmatterText.includes("\r\n") ? "\r\n" : "\n",
-	)
-		.filter((line) => !DISABLE_KEY_RE.test(stripEol(line)))
-		.join("");
+  splitLinesPreserve(
+    frontmatterText,
+    frontmatterText.includes("\r\n") ? "\r\n" : "\n"
+  )
+    .filter((line) => !DISABLE_KEY_RE.test(stripEol(line)))
+    .join("");
 
 const patchInvocationMode = (
-	doc: FrontmatterDocument,
-	desiredMode: SkillInvocationMode,
+  doc: FrontmatterDocument,
+  desiredMode: SkillInvocationMode
 ): FrontmatterPatch => {
-	if (!doc.hasFrontmatter) {
-		const newFrontmatter =
-			desiredMode === "manual-only"
-				? `${DISABLE_KEY}: true${doc.lineEnding}`
-				: "";
-		const newText = newFrontmatter
-			? `---${doc.lineEnding}${newFrontmatter}---${doc.lineEnding}${doc.raw}`
-			: doc.raw;
-		return { newText, oldText: doc.raw };
-	}
+  if (!doc.hasFrontmatter) {
+    const newFrontmatter =
+      desiredMode === "manual-only"
+        ? `${DISABLE_KEY}: true${doc.lineEnding}`
+        : "";
+    const newText = newFrontmatter
+      ? `---${doc.lineEnding}${newFrontmatter}---${doc.lineEnding}${doc.raw}`
+      : doc.raw;
+    return { newText, oldText: doc.raw };
+  }
 
-	const newFrontmatter =
-		desiredMode === "manual-only"
-			? ensureManualOnly(doc.frontmatterText, doc.lineEnding)
-			: ensureAgentInvocable(doc.frontmatterText);
+  const newFrontmatter =
+    desiredMode === "manual-only"
+      ? ensureManualOnly(doc.frontmatterText, doc.lineEnding)
+      : ensureAgentInvocable(doc.frontmatterText);
 
-	const newText = `${doc.raw.slice(0, doc.frontmatterStart)}${newFrontmatter}${doc.raw.slice(doc.frontmatterEnd)}`;
-	return { newText, oldText: doc.raw };
+  const newText = `${doc.raw.slice(0, doc.frontmatterStart)}${newFrontmatter}${doc.raw.slice(doc.frontmatterEnd)}`;
+  return { newText, oldText: doc.raw };
 };
 
 export class MinimalFrontmatterPatcher implements FrontmatterPatcher {
-	patchInvocationMode = patchInvocationMode;
+  patchInvocationMode = patchInvocationMode;
 }

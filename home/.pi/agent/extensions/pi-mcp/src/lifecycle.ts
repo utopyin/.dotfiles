@@ -1,7 +1,7 @@
-import type { ServerDefinition } from "./types.js";
-import type { McpServerManager } from "./server-manager.js";
 import { NeedsAuthError } from "./errors.js";
 import { logger } from "./logger.js";
+import type { McpServerManager } from "./server-manager.js";
+import type { ServerDefinition } from "./types.js";
 
 export type ReconnectCallback = (serverName: string) => void;
 
@@ -32,7 +32,11 @@ export class McpLifecycleManager {
     this.keepAliveServers.set(name, definition);
   }
 
-  registerServer(name: string, definition: ServerDefinition, settings?: { idleTimeout?: number }): void {
+  registerServer(
+    name: string,
+    definition: ServerDefinition,
+    settings?: { idleTimeout?: number }
+  ): void {
     this.allServers.set(name, definition);
     if (settings?.idleTimeout !== undefined) {
       this.serverSettings.set(name, settings);
@@ -83,7 +87,9 @@ export class McpLifecycleManager {
     }
 
     for (const [name] of this.allServers) {
-      if (this.keepAliveServers.has(name)) {continue;}
+      if (this.keepAliveServers.has(name)) {
+        continue;
+      }
       const timeout = this.getIdleTimeout(name);
       if (timeout > 0 && this.manager.isIdle(name, timeout)) {
         await this.manager.close(name);
@@ -94,7 +100,9 @@ export class McpLifecycleManager {
 
   private getIdleTimeout(name: string): number {
     const perServer = this.serverSettings.get(name)?.idleTimeout;
-    if (perServer !== undefined) {return perServer * 60 * 1000;}
+    if (perServer !== undefined) {
+      return perServer * 60 * 1000;
+    }
     return this.globalIdleTimeout;
   }
 

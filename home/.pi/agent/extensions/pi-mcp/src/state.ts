@@ -1,9 +1,15 @@
-import type { ExtensionContext } from "@earendil-works/pi-coding-agent";
 import type { TextContent, ImageContent } from "@earendil-works/pi-ai";
+import type { ExtensionContext } from "@earendil-works/pi-coding-agent";
+
 import type { ConsentManager } from "./consent-manager.js";
 import type { McpLifecycleManager } from "./lifecycle.js";
 import type { McpServerManager } from "./server-manager.js";
-import type { ToolMetadata, McpConfig, UiSessionMessages, UiStreamSummary } from "./types.js";
+import type {
+  ToolMetadata,
+  McpConfig,
+  UiSessionMessages,
+  UiStreamSummary,
+} from "./types.js";
 import type { UiResourceHandler } from "./ui-resource-handler.js";
 import type { UiServerHandle } from "./ui-server.js";
 
@@ -23,7 +29,10 @@ export type SendMessageFn = (
     display: boolean;
     details?: unknown;
   },
-  options?: { triggerTurn?: boolean; deliverAs?: "steer" | "followUp" | "nextTurn" }
+  options?: {
+    triggerTurn?: boolean;
+    deliverAs?: "steer" | "followUp" | "nextTurn";
+  }
 ) => void;
 
 export interface McpExtensionState {

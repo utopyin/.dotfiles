@@ -1,183 +1,202 @@
+import { createHash } from "node:crypto";
 // metadata-cache.ts - Persistent MCP metadata cache
-import { existsSync, readFileSync, writeFileSync, renameSync, mkdirSync } from "node:fs";
+import {
+  existsSync,
+  readFileSync,
+  writeFileSync,
+  renameSync,
+  mkdirSync,
+} from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
-import { createHash } from "node:crypto";
+
 import { getToolUiResourceUri } from "@modelcontextprotocol/ext-apps/app-bridge";
-import type { McpTool, McpResource, ServerEntry, ToolMetadata } from "./types.js";
-import { formatToolName } from "./types.js";
+
 import { resourceNameToToolName } from "./resource-tools.js";
+import type {
+  McpTool,
+  McpResource,
+  ServerEntry,
+  ToolMetadata,
+} from "./types.js";
+import { formatToolName } from "./types.js";
 import { extractToolUiStreamMode } from "./utils.js";
 
 const CACHE_VERSION = 1;
 const CACHE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const CACHE_PATH = join(homedir(), ".pi", "agent", "mcp-cache.json");
 export interface CachedTool {
-    name: string;
-    description?: string;
-    inputSchema?: unknown;
-    uiResourceUri?: string;
-    uiStreamMode?: "eager" | "stream-first";
+  name: string;
+  description?: string;
+  inputSchema?: unknown;
+  uiResourceUri?: string;
+  uiStreamMode?: "eager" | "stream-first";
 }
 export interface CachedResource {
-    uri: string;
-    name: string;
-    description?: string;
+  uri: string;
+  name: string;
+  description?: string;
 }
 export interface ServerCacheEntry {
-    configHash: string;
-    tools: CachedTool[];
-    resources: CachedResource[];
-    cachedAt: number;
+  configHash: string;
+  tools: CachedTool[];
+  resources: CachedResource[];
+  cachedAt: number;
 }
 export interface MetadataCache {
-    version: number;
-    servers: Record<string, ServerCacheEntry>;
+  version: number;
+  servers: Record<string, ServerCacheEntry>;
 }
-export const getMetadataCachePath = (): string => 
-    CACHE_PATH
-;
+export const getMetadataCachePath = (): string => CACHE_PATH;
 export const loadMetadataCache = (): MetadataCache | null => {
-    if (!existsSync(CACHE_PATH)) {
-        return null;
+  if (!existsSync(CACHE_PATH)) {
+    return null;
+  }
+  try {
+    const raw = JSON.parse(readFileSync(CACHE_PATH, "utf-8"));
+    if (!raw || typeof raw !== "object") {
+      return null;
     }
-    try {
-        const raw = JSON.parse(readFileSync(CACHE_PATH, "utf-8"));
-        if (!raw || typeof raw !== "object") {
-            return null;
-        }
-        if (raw.version !== CACHE_VERSION) {
-            return null;
-        }
-        if (!raw.servers || typeof raw.servers !== "object") {
-            return null;
-        }
-        return raw as MetadataCache;
+    if (raw.version !== CACHE_VERSION) {
+      return null;
     }
-    catch {
-        return null;
+    if (!raw.servers || typeof raw.servers !== "object") {
+      return null;
     }
+    return raw as MetadataCache;
+  } catch {
+    return null;
+  }
 };
 export const saveMetadataCache = (cache: MetadataCache): void => {
-    const dir = dirname(CACHE_PATH);
-    mkdirSync(dir, { recursive: true });
-    const merged: MetadataCache = { servers: {}, version: CACHE_VERSION };
-    try {
-        if (existsSync(CACHE_PATH)) {
-            const existing = JSON.parse(readFileSync(CACHE_PATH, "utf-8")) as MetadataCache;
-            if (existing && existing.version === CACHE_VERSION && existing.servers) {
-                merged.servers = { ...existing.servers };
-            }
-        }
+  const dir = dirname(CACHE_PATH);
+  mkdirSync(dir, { recursive: true });
+  const merged: MetadataCache = { servers: {}, version: CACHE_VERSION };
+  try {
+    if (existsSync(CACHE_PATH)) {
+      const existing = JSON.parse(
+        readFileSync(CACHE_PATH, "utf-8")
+      ) as MetadataCache;
+      if (existing && existing.version === CACHE_VERSION && existing.servers) {
+        merged.servers = { ...existing.servers };
+      }
     }
-    catch {
-        // Ignore best-effort cleanup errors.
-    }
-    merged.version = CACHE_VERSION;
-    merged.servers = { ...merged.servers, ...cache.servers };
-    const tmpPath = `${CACHE_PATH}.${process.pid}.tmp`;
-    writeFileSync(tmpPath, JSON.stringify(merged, null, 2), "utf-8");
-    renameSync(tmpPath, CACHE_PATH);
+  } catch {
+    // Ignore best-effort cleanup errors.
+  }
+  merged.version = CACHE_VERSION;
+  merged.servers = { ...merged.servers, ...cache.servers };
+  const tmpPath = `${CACHE_PATH}.${process.pid}.tmp`;
+  writeFileSync(tmpPath, JSON.stringify(merged, null, 2), "utf-8");
+  renameSync(tmpPath, CACHE_PATH);
 };
 export const computeServerHash = (definition: ServerEntry): string => {
-    // Hash only fields that affect server identity and tool/resource output.
-    // Exclude lifecycle, idleTimeout, debug — those are runtime behavior settings
-    // that don't change which tools a server exposes.
-    const identity: Record<string, unknown> = {
-        args: definition.args,
-        auth: definition.auth,
-        bearerToken: definition.bearerToken,
-        bearerTokenEnv: definition.bearerTokenEnv,
-        command: definition.command,
-        cwd: definition.cwd,
-        env: definition.env,
-        exposeResources: definition.exposeResources,
-        headers: definition.headers,
-        url: definition.url,
-    };
-    const normalized = stableStringify(identity);
-    return createHash("sha256").update(normalized).digest("hex");
+  // Hash only fields that affect server identity and tool/resource output.
+  // Exclude lifecycle, idleTimeout, debug — those are runtime behavior settings
+  // that don't change which tools a server exposes.
+  const identity: Record<string, unknown> = {
+    args: definition.args,
+    auth: definition.auth,
+    bearerToken: definition.bearerToken,
+    bearerTokenEnv: definition.bearerTokenEnv,
+    command: definition.command,
+    cwd: definition.cwd,
+    env: definition.env,
+    exposeResources: definition.exposeResources,
+    headers: definition.headers,
+    url: definition.url,
+  };
+  const normalized = stableStringify(identity);
+  return createHash("sha256").update(normalized).digest("hex");
 };
-export const isServerCacheValid = (entry: ServerCacheEntry, definition: ServerEntry, maxAgeMs: number = CACHE_MAX_AGE_MS): boolean => {
-    if (!entry || entry.configHash !== computeServerHash(definition)) {
-        return false;
-    }
-    if (!entry.cachedAt || typeof entry.cachedAt !== "number") {
-        return false;
-    }
-    if (maxAgeMs > 0 && Date.now() - entry.cachedAt > maxAgeMs) {
-        return false;
-    }
-    return true;
+export const isServerCacheValid = (
+  entry: ServerCacheEntry,
+  definition: ServerEntry,
+  maxAgeMs: number = CACHE_MAX_AGE_MS
+): boolean => {
+  if (!entry || entry.configHash !== computeServerHash(definition)) {
+    return false;
+  }
+  if (!entry.cachedAt || typeof entry.cachedAt !== "number") {
+    return false;
+  }
+  if (maxAgeMs > 0 && Date.now() - entry.cachedAt > maxAgeMs) {
+    return false;
+  }
+  return true;
 };
-export const reconstructToolMetadata = (serverName: string, entry: ServerCacheEntry, prefix: "server" | "none" | "short", exposeResources?: boolean): ToolMetadata[] => {
-    const metadata: ToolMetadata[] = [];
-    for (const tool of entry.tools ?? []) {
-        if (!tool?.name) {
-            continue;
-        }
-        metadata.push({
-            description: tool.description ?? "",
-            inputSchema: tool.inputSchema,
-            name: formatToolName(tool.name, serverName, prefix),
-            originalName: tool.name,
-            uiResourceUri: tool.uiResourceUri,
-            uiStreamMode: tool.uiStreamMode,
-        });
+export const reconstructToolMetadata = (
+  serverName: string,
+  entry: ServerCacheEntry,
+  prefix: "server" | "none" | "short",
+  exposeResources?: boolean
+): ToolMetadata[] => {
+  const metadata: ToolMetadata[] = [];
+  for (const tool of entry.tools ?? []) {
+    if (!tool?.name) {
+      continue;
     }
-    if (exposeResources !== false) {
-        for (const resource of entry.resources ?? []) {
-            if (!resource?.name || !resource?.uri) {
-                continue;
-            }
-            const baseName = `get_${resourceNameToToolName(resource.name)}`;
-            metadata.push({
-                description: resource.description ?? `Read resource: ${resource.uri}`,
-                name: formatToolName(baseName, serverName, prefix),
-                originalName: baseName,
-                resourceUri: resource.uri,
-            });
-        }
+    metadata.push({
+      description: tool.description ?? "",
+      inputSchema: tool.inputSchema,
+      name: formatToolName(tool.name, serverName, prefix),
+      originalName: tool.name,
+      uiResourceUri: tool.uiResourceUri,
+      uiStreamMode: tool.uiStreamMode,
+    });
+  }
+  if (exposeResources !== false) {
+    for (const resource of entry.resources ?? []) {
+      if (!resource?.name || !resource?.uri) {
+        continue;
+      }
+      const baseName = `get_${resourceNameToToolName(resource.name)}`;
+      metadata.push({
+        description: resource.description ?? `Read resource: ${resource.uri}`,
+        name: formatToolName(baseName, serverName, prefix),
+        originalName: baseName,
+        resourceUri: resource.uri,
+      });
     }
-    return metadata;
+  }
+  return metadata;
 };
-export const serializeTools = (tools: McpTool[]): CachedTool[] => 
-    tools
-        .filter(t => t?.name)
-        .map(t => ({
-        description: t.description,
-        inputSchema: t.inputSchema,
-        name: t.name,
-        uiResourceUri: tryGetToolUiResourceUri(t),
-        uiStreamMode: extractToolUiStreamMode(t._meta),
-    }))
-;
-export const serializeResources = (resources: McpResource[]): CachedResource[] => 
-    resources
-        .filter(r => r?.name && r?.uri)
-        .map(r => ({
-        description: r.description,
-        name: r.name,
-        uri: r.uri,
-    }))
-;
+export const serializeTools = (tools: McpTool[]): CachedTool[] =>
+  tools
+    .filter((t) => t?.name)
+    .map((t) => ({
+      description: t.description,
+      inputSchema: t.inputSchema,
+      name: t.name,
+      uiResourceUri: tryGetToolUiResourceUri(t),
+      uiStreamMode: extractToolUiStreamMode(t._meta),
+    }));
+export const serializeResources = (
+  resources: McpResource[]
+): CachedResource[] =>
+  resources
+    .filter((r) => r?.name && r?.uri)
+    .map((r) => ({
+      description: r.description,
+      name: r.name,
+      uri: r.uri,
+    }));
 const stableStringify = (value: unknown): string => {
-    if (value === null || value === undefined || typeof value !== "object") {
-        const serialized = JSON.stringify(value);
-        return serialized === undefined ? "undefined" : serialized;
-    }
-    if (Array.isArray(value)) {
-        return `[${value.map(v => stableStringify(v)).join(",")}]`;
-    }
-    const obj = value as Record<string, unknown>;
-    const keys = Object.keys(obj).toSorted();
-    return `{${keys.map(k => `${JSON.stringify(k)}:${stableStringify(obj[k])}`).join(",")}}`;
+  if (value === null || value === undefined || typeof value !== "object") {
+    const serialized = JSON.stringify(value);
+    return serialized === undefined ? "undefined" : serialized;
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map((v) => stableStringify(v)).join(",")}]`;
+  }
+  const obj = value as Record<string, unknown>;
+  const keys = Object.keys(obj).toSorted();
+  return `{${keys.map((k) => `${JSON.stringify(k)}:${stableStringify(obj[k])}`).join(",")}}`;
 };
 const tryGetToolUiResourceUri = (tool: McpTool): string | undefined => {
-    try {
-        return getToolUiResourceUri({ _meta: tool._meta });
-    }
-    catch {
-        return undefined;
-    }
+  try {
+    return getToolUiResourceUri({ _meta: tool._meta });
+  } catch {
+    return undefined;
+  }
 };

@@ -398,12 +398,12 @@ Example:
 
 ```md
 {
-  "id": "deadbeef",
-  "title": "Add tests",
-  "tags": ["qa", "tmux"],
-  "status": "open",
-  "created_at": "2026-01-25T17:00:00.000Z",
-  "assigned_to_session": "session-123"
+"id": "deadbeef",
+"title": "Add tests",
+"tags": ["qa", "tmux"],
+"status": "open",
+"created_at": "2026-01-25T17:00:00.000Z",
+"assigned_to_session": "session-123"
 }
 
 Investigate startup path.

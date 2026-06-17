@@ -50,12 +50,12 @@ Example:
 
 ## 3. Content Types And Nesting
 
-| Content type | Meaning |
-| --- | --- |
-| `inline` | Text, variables, inline tags, and `<Br />` |
-| `text` | Text and variables only; no inline formatting tags |
-| `raw` | Literal text only; braces are not parsed as variables |
-| `none` | No text content; only declared element children or self-closing |
+| Content type | Meaning                                                         |
+| ------------ | --------------------------------------------------------------- |
+| `inline`     | Text, variables, inline tags, and `<Br />`                      |
+| `text`       | Text and variables only; no inline formatting tags              |
+| `raw`        | Literal text only; braces are not parsed as variables           |
+| `none`       | No text content; only declared element children or self-closing |
 
 Nesting summary:
 
@@ -78,22 +78,22 @@ Nesting summary:
 
 These appear on many block tags:
 
-| Attribute | Type | Notes |
-| --- | --- | --- |
-| `blockColor` | hex color | Block background |
-| `blockBorderRadius` | number | 0-999 |
-| `paddingTop`, `paddingRight`, `paddingBottom`, `paddingLeft` | number | Pixels |
+| Attribute                                                    | Type      | Notes            |
+| ------------------------------------------------------------ | --------- | ---------------- |
+| `blockColor`                                                 | hex color | Block background |
+| `blockBorderRadius`                                          | number    | 0-999            |
+| `paddingTop`, `paddingRight`, `paddingBottom`, `paddingLeft` | number    | Pixels           |
 
 ### Text Block Attributes
 
 Used by headings, paragraphs, quotes, and list items:
 
-| Attribute | Type | Notes |
-| --- | --- | --- |
-| `fontSize` | number | Headings/paragraphs/list items: 12-64 |
-| `lineHeight` | number | Percentage, 100-300 |
-| `align` | enum | `left`, `center`, `right` |
-| block style attrs | mixed | See above |
+| Attribute         | Type   | Notes                                 |
+| ----------------- | ------ | ------------------------------------- |
+| `fontSize`        | number | Headings/paragraphs/list items: 12-64 |
+| `lineHeight`      | number | Percentage, 100-300                   |
+| `align`           | enum   | `left`, `center`, `right`             |
+| block style attrs | mixed  | See above                             |
 
 ---
 
@@ -142,17 +142,17 @@ Optional attributes: `fontSize`, `lineHeight`, and block style attrs.
 
 Text content with variables allowed. Inline tags such as `<Strong>` and `<Link>` are invalid inside buttons.
 
-| Attribute | Type | Required | Notes |
-| --- | --- | :---: | --- |
-| `href` | url / dynamic string | | Supports variables; include it for clickable CTA buttons |
-| `bgColor`, `textColor`, `borderColor`, `blockColor` | hex color | | |
-| `borderRadius` | number | | 0-999 |
-| `borderWidth` | number | | 0-16 |
-| `innerXPadding`, `innerYPadding` | number | | 0-100 |
-| `fontSize` | number | | 6-64 |
-| `align` | enum | | `left`, `center`, `right` |
-| `notrack` | boolean | | `"true"` disables tracking for this link |
-| block style attrs | mixed | | Block background / padding |
+| Attribute                                           | Type                 | Required | Notes                                                    |
+| --------------------------------------------------- | -------------------- | :------: | -------------------------------------------------------- |
+| `href`                                              | url / dynamic string |          | Supports variables; include it for clickable CTA buttons |
+| `bgColor`, `textColor`, `borderColor`, `blockColor` | hex color            |          |                                                          |
+| `borderRadius`                                      | number               |          | 0-999                                                    |
+| `borderWidth`                                       | number               |          | 0-16                                                     |
+| `innerXPadding`, `innerYPadding`                    | number               |          | 0-100                                                    |
+| `fontSize`                                          | number               |          | 6-64                                                     |
+| `align`                                             | enum                 |          | `left`, `center`, `right`                                |
+| `notrack`                                           | boolean              |          | `"true"` disables tracking for this link                 |
+| block style attrs                                   | mixed                |          | Block background / padding                               |
 
 ```xml
 <Button href="https://loops.so/start" bgColor="#000000" textColor="#ffffff" borderRadius="12">Get started</Button>
@@ -165,19 +165,19 @@ Do not use the old `size` attribute; it is not supported.
 
 Self-closing.
 
-| Attribute | Type | Required | Notes |
-| --- | --- | :---: | --- |
-| `src` | url | yes | Static placeholder/source URL; no variables |
-| `alt` | string / dynamic string | | Supports variables |
-| `href` | url / dynamic string | | Supports variables |
-| `width` | number | | 12-600 pixels |
-| `align` | enum | | `left`, `center`, `right` |
-| `borderRadius` | number | | 0-999 |
-| `borderWidth` | number | | 0-16 |
-| `borderColor` | hex color | | |
-| `dynamicSrc` | url / dynamic string | | Use this for dynamic image URLs |
-| `notrack` | boolean | | |
-| block style attrs | mixed | | Block background / padding |
+| Attribute         | Type                    | Required | Notes                                       |
+| ----------------- | ----------------------- | :------: | ------------------------------------------- |
+| `src`             | url                     |   yes    | Static placeholder/source URL; no variables |
+| `alt`             | string / dynamic string |          | Supports variables                          |
+| `href`            | url / dynamic string    |          | Supports variables                          |
+| `width`           | number                  |          | 12-600 pixels                               |
+| `align`           | enum                    |          | `left`, `center`, `right`                   |
+| `borderRadius`    | number                  |          | 0-999                                       |
+| `borderWidth`     | number                  |          | 0-16                                        |
+| `borderColor`     | hex color               |          |                                             |
+| `dynamicSrc`      | url / dynamic string    |          | Use this for dynamic image URLs             |
+| `notrack`         | boolean                 |          |                                             |
+| block style attrs | mixed                   |          | Block background / padding                  |
 
 ```xml
 <Image src="https://cdn.example.com/logo.png" alt="Company logo" width="180" align="center" />
@@ -190,13 +190,13 @@ Use a static `src` for the placeholder or Loops-hosted image. For externally hos
 
 Self-closing.
 
-| Attribute | Type | Notes |
-| --- | --- | --- |
-| `align` | enum | `left`, `center`, `right` |
-| `width` | number | Percentage, 10-100 |
-| `borderWidth` | number | 1-16 |
-| `color` | hex color | |
-| block style attrs | mixed | Block background / padding |
+| Attribute         | Type      | Notes                      |
+| ----------------- | --------- | -------------------------- |
+| `align`           | enum      | `left`, `center`, `right`  |
+| `width`           | number    | Percentage, 10-100         |
+| `borderWidth`     | number    | 1-16                       |
+| `color`           | hex color |                            |
+| block style attrs | mixed     | Block background / padding |
 
 ```xml
 <Divider />
@@ -217,16 +217,16 @@ Lists must contain at least one `<ListItem>`. `<ListItem>` accepts inline conten
 
 `<OrderedList>` attributes:
 
-| Attribute | Type | Notes |
-| --- | --- | --- |
-| `start` | number | Starting number |
-| `align` | enum | `left`, `center`, `right` |
+| Attribute | Type   | Notes                     |
+| --------- | ------ | ------------------------- |
+| `start`   | number | Starting number           |
+| `align`   | enum   | `left`, `center`, `right` |
 
 `<UnorderedList>` attributes:
 
-| Attribute | Type | Notes |
-| --- | --- | --- |
-| `align` | enum | `left`, `center`, `right` |
+| Attribute | Type | Notes                     |
+| --------- | ---- | ------------------------- |
+| `align`   | enum | `left`, `center`, `right` |
 
 ```xml
 <OrderedList start="3">
@@ -241,14 +241,14 @@ Multi-column layout. `<Columns>` must contain two to four `<ColumnItem>` childre
 
 `<Columns>` attributes:
 
-| Attribute | Type | Notes |
-| --- | --- | --- |
-| `gap` | number | 12-150 pixels |
-| `widths` | string | Comma-separated percentages matching the number of columns, such as `"50,50"`, `"33,33,34"`, or `"25,25,25,25"` |
-| `verticalAlignment` | enum | `top`, `middle`, `bottom` |
-| `stackOnMobile` | boolean | |
-| `reverseOnMobile` | boolean | |
-| block style attrs | mixed | Block background / padding |
+| Attribute           | Type    | Notes                                                                                                           |
+| ------------------- | ------- | --------------------------------------------------------------------------------------------------------------- |
+| `gap`               | number  | 12-150 pixels                                                                                                   |
+| `widths`            | string  | Comma-separated percentages matching the number of columns, such as `"50,50"`, `"33,33,34"`, or `"25,25,25,25"` |
+| `verticalAlignment` | enum    | `top`, `middle`, `bottom`                                                                                       |
+| `stackOnMobile`     | boolean |                                                                                                                 |
+| `reverseOnMobile`   | boolean |                                                                                                                 |
+| block style attrs   | mixed   | Block background / padding                                                                                      |
 
 ```xml
 <Columns gap="24" widths="40,60" verticalAlignment="middle">
@@ -273,10 +273,10 @@ Two input forms are accepted:
 
 Components cannot nest inside components.
 
-| Attribute | Type | Required | Notes |
-| --- | --- | :---: | --- |
-| `componentId` | string | yes | Team-owned component id |
-| block style attrs | mixed | | Block background / padding |
+| Attribute         | Type   | Required | Notes                      |
+| ----------------- | ------ | :------: | -------------------------- |
+| `componentId`     | string |   yes    | Team-owned component id    |
+| block style attrs | mixed  |          | Block background / padding |
 
 ```xml
 <Component componentId="cmp_123" />
@@ -289,11 +289,11 @@ Components cannot nest inside components.
 
 Clickable or styled block container. Use sections to create layout cards, groups, or framed content areas around related blocks. Contains block tags. Sections cannot nest inside sections.
 
-| Attribute | Type | Notes |
-| --- | --- | --- |
-| `href` | url / dynamic string | Supports variables |
-| `notrack` | boolean | `"true"` disables tracking |
-| block style attrs | mixed | Block background / padding |
+| Attribute         | Type                 | Notes                      |
+| ----------------- | -------------------- | -------------------------- |
+| `href`            | url / dynamic string | Supports variables         |
+| `notrack`         | boolean              | `"true"` disables tracking |
+| block style attrs | mixed                | Block background / padding |
 
 ```xml
 <Section href="https://example.com/{contact.userId}" blockColor="#f8fafc" blockBorderRadius="12" paddingTop="16" paddingBottom="16">
@@ -308,21 +308,21 @@ Social/icon row. `<Icons>` must contain one to 100 `<Icon />` children.
 
 `<Icons>` attributes:
 
-| Attribute | Type | Notes |
-| --- | --- | --- |
-| `align` | enum | `left`, `center`, `right` |
-| `gap` | number | 4-200 pixels |
-| `size` | number | 18-48 pixels |
-| `color` | enum | `#000000`, `#808080`, or `#ffffff` |
-| block style attrs | mixed | Block background / padding |
+| Attribute         | Type   | Notes                              |
+| ----------------- | ------ | ---------------------------------- |
+| `align`           | enum   | `left`, `center`, `right`          |
+| `gap`             | number | 4-200 pixels                       |
+| `size`            | number | 18-48 pixels                       |
+| `color`           | enum   | `#000000`, `#808080`, or `#ffffff` |
+| block style attrs | mixed  | Block background / padding         |
 
 `<Icon />` attributes:
 
-| Attribute | Type | Required | Notes |
-| --- | --- | :---: | --- |
-| `name` | string | yes | Known Font Awesome icon name |
-| `href` | url | | |
-| `notrack` | boolean | | |
+| Attribute | Type    | Required | Notes                        |
+| --------- | ------- | :------: | ---------------------------- |
+| `name`    | string  |   yes    | Known Font Awesome icon name |
+| `href`    | url     |          |                              |
+| `notrack` | boolean |          |                              |
 
 ```xml
 <Icons align="center" gap="20" size="24" color="#000000">
@@ -337,18 +337,18 @@ Common icon names include `twitter`, `instagram`, `linkedin`, `youtube`, `github
 
 Self-closing top-level metadata. It does not render content. All attributes are optional. Use `themeId` for the current theme/style-template id.
 
-| Attribute | Type |
-| --- | --- |
-| `themeId` | string |
-| `backgroundColor`, `backgroundXPadding`, `backgroundYPadding` | string / number |
-| `bodyColor`, `bodyXPadding`, `bodyYPadding`, `bodyFontFamily`, `bodyFontCategory` | string / number |
-| `borderColor`, `borderWidth`, `borderRadius` | string / number |
-| `buttonBodyColor`, `buttonBodyXPadding`, `buttonBodyYPadding` | string / number |
-| `buttonBorderColor`, `buttonBorderWidth`, `buttonBorderRadius` | string / number |
-| `buttonTextColor`, `buttonTextFontSize` | string / number |
-| `dividerColor`, `dividerBorderWidth` | string / number |
+| Attribute                                                                          | Type            |
+| ---------------------------------------------------------------------------------- | --------------- |
+| `themeId`                                                                          | string          |
+| `backgroundColor`, `backgroundXPadding`, `backgroundYPadding`                      | string / number |
+| `bodyColor`, `bodyXPadding`, `bodyYPadding`, `bodyFontFamily`, `bodyFontCategory`  | string / number |
+| `borderColor`, `borderWidth`, `borderRadius`                                       | string / number |
+| `buttonBodyColor`, `buttonBodyXPadding`, `buttonBodyYPadding`                      | string / number |
+| `buttonBorderColor`, `buttonBorderWidth`, `buttonBorderRadius`                     | string / number |
+| `buttonTextColor`, `buttonTextFontSize`                                            | string / number |
+| `dividerColor`, `dividerBorderWidth`                                               | string / number |
 | `textBaseColor`, `textBaseFontSize`, `textBaseLineHeight`, `textBaseLetterSpacing` | string / number |
-| `textLinkColor` | string |
+| `textLinkColor`                                                                    | string          |
 | `heading1Color`, `heading1FontSize`, `heading1LineHeight`, `heading1LetterSpacing` | string / number |
 | `heading2Color`, `heading2FontSize`, `heading2LineHeight`, `heading2LetterSpacing` | string / number |
 | `heading3Color`, `heading3FontSize`, `heading3LineHeight`, `heading3LetterSpacing` | string / number |
@@ -366,24 +366,24 @@ If `themeId` references a theme that already defines body/background colors, dup
 
 Inline tags live inside inline-content blocks (`<H1>`, `<H2>`, `<H3>`, `<Paragraph>`, `<Quote>`, `<ListItem>`) and can nest inside one another.
 
-| Tag | Effect |
-| --- | --- |
-| `<Strong>...</Strong>` | Bold |
-| `<Em>...</Em>` | Italic |
-| `<Underline>...</Underline>` | Underline |
-| `<Strike>...</Strike>` | Strikethrough |
-| `<Code>...</Code>` | Inline code |
-| `<Text>...</Text>` | No format; carries `textColor` only |
-| `<Link href="...">...</Link>` | Hyperlink |
+| Tag                           | Effect                              |
+| ----------------------------- | ----------------------------------- |
+| `<Strong>...</Strong>`        | Bold                                |
+| `<Em>...</Em>`                | Italic                              |
+| `<Underline>...</Underline>`  | Underline                           |
+| `<Strike>...</Strike>`        | Strikethrough                       |
+| `<Code>...</Code>`            | Inline code                         |
+| `<Text>...</Text>`            | No format; carries `textColor` only |
+| `<Link href="...">...</Link>` | Hyperlink                           |
 
 All format tags plus `<Text>` accept optional `textColor`. It must be a 3- or 6-digit hex color such as `#f00` or `#ff0000`.
 
 `<Link>` attributes:
 
-| Attribute | Type | Required | Notes |
-| --- | --- | :---: | --- |
-| `href` | url / dynamic string | yes | Supports variables |
-| `notrack` | boolean | | `"true"` disables tracking |
+| Attribute | Type                 | Required | Notes                      |
+| --------- | -------------------- | :------: | -------------------------- |
+| `href`    | url / dynamic string |   yes    | Supports variables         |
+| `notrack` | boolean              |          | `"true"` disables tracking |
 
 ```xml
 <Paragraph>Mixed <Strong>bold</Strong>, <Em>italic</Em>, and <Strong><Em>both</Em></Strong>.</Paragraph>
@@ -397,10 +397,10 @@ All format tags plus `<Text>` accept optional `textColor`. It must be a 3- or 6-
 
 LMX variables use braced expressions with explicit namespaces.
 
-| Syntax | Kind | Common email types |
-| --- | --- | --- |
-| `{contact.firstName}` | Contact property / merge tag | Campaign email messages |
-| `{system.unsubscribe_link}` | System variable | Unsubscribe URL when deliberately linking to the system unsubscribe URL |
+| Syntax                      | Kind                         | Common email types                                                      |
+| --------------------------- | ---------------------------- | ----------------------------------------------------------------------- |
+| `{contact.firstName}`       | Contact property / merge tag | Campaign email messages                                                 |
+| `{system.unsubscribe_link}` | System variable              | Unsubscribe URL when deliberately linking to the system unsubscribe URL |
 
 Use explicit contact-property syntax such as `{contact.firstName}` in LMX.
 
@@ -446,29 +446,29 @@ If a user asks for fallback behavior in LMX output, mention that the LMX markup 
 
 ## 8. Common Mistakes
 
-| Mistake | Fix |
-| --- | --- |
-| `<paragraph>`, `<p>`, `<P>` | Use `<Paragraph>` |
-| `<Image src="x.png">` | Use `<Image src="x.png" />` |
-| `<Image />` | Add the required static `src`: `<Image src="https://..." />` |
-| CTA `<Button>` without `href` | Add `href` when the button should be clickable |
-| `<Link>docs</Link>` | Add the required `href`: `<Link href="https://...">docs</Link>` |
-| `<Component />` | Add the required `componentId`: `<Component componentId="cmp_123" />` |
-| `<Icon />` | Add the required `name`: `<Icon name="twitter" />` |
-| Plain text at top level | Wrap in `<Paragraph>...</Paragraph>` |
-| `<Strong>` at top level | Wrap in a block such as `<Paragraph>` |
-| `<Button><Strong>Click</Strong></Button>` | Button text cannot contain inline tags |
-| `{firstName}` in LMX | Use `{contact.firstName}` |
-| `{contact.firstName|there}` or similar fallback syntax | No inline fallback syntax exists in LMX; configure fallbacks outside the LMX string |
-| `<Image src="{contact.imageUrl}" />` | Use static `src` plus `dynamicSrc="{contact.imageUrl}"` |
-| `<Columns>` with one or more than four `<ColumnItem>` children | Use two to four `<ColumnItem>` children |
-| `<Icon color="#f00" />` | Set `color` on `<Icons>` and use one of the allowed colors |
-| `<Icons color="#334155">` | Use `#000000`, `#808080`, or `#ffffff` |
-| Two `<Style />` tags | Use only one |
-| Adjacent top-level `<Section>` siblings with no spacer | Add a line-break spacer between sections unless the user explicitly specified a different spacing treatment |
-| Adjacent top-level `blockColor` blocks with no spacer | Add visible vertical space between highlighted blocks unless they are intentionally one connected card |
-| Unescaped `<` or `&` in text | Use `&lt;` and `&amp;` |
-| Manual legal footer, postal address, or unsubscribe block | Omit it; Loops adds required footer content automatically. A branded footer component can appear above it |
+| Mistake                                                        | Fix                                                                                                         |
+| -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| `<paragraph>`, `<p>`, `<P>`                                    | Use `<Paragraph>`                                                                                           |
+| `<Image src="x.png">`                                          | Use `<Image src="x.png" />`                                                                                 |
+| `<Image />`                                                    | Add the required static `src`: `<Image src="https://..." />`                                                |
+| CTA `<Button>` without `href`                                  | Add `href` when the button should be clickable                                                              |
+| `<Link>docs</Link>`                                            | Add the required `href`: `<Link href="https://...">docs</Link>`                                             |
+| `<Component />`                                                | Add the required `componentId`: `<Component componentId="cmp_123" />`                                       |
+| `<Icon />`                                                     | Add the required `name`: `<Icon name="twitter" />`                                                          |
+| Plain text at top level                                        | Wrap in `<Paragraph>...</Paragraph>`                                                                        |
+| `<Strong>` at top level                                        | Wrap in a block such as `<Paragraph>`                                                                       |
+| `<Button><Strong>Click</Strong></Button>`                      | Button text cannot contain inline tags                                                                      |
+| `{firstName}` in LMX                                           | Use `{contact.firstName}`                                                                                   |
+| `{contact.firstName                                            | there}` or similar fallback syntax                                                                          | No inline fallback syntax exists in LMX; configure fallbacks outside the LMX string |
+| `<Image src="{contact.imageUrl}" />`                           | Use static `src` plus `dynamicSrc="{contact.imageUrl}"`                                                     |
+| `<Columns>` with one or more than four `<ColumnItem>` children | Use two to four `<ColumnItem>` children                                                                     |
+| `<Icon color="#f00" />`                                        | Set `color` on `<Icons>` and use one of the allowed colors                                                  |
+| `<Icons color="#334155">`                                      | Use `#000000`, `#808080`, or `#ffffff`                                                                      |
+| Two `<Style />` tags                                           | Use only one                                                                                                |
+| Adjacent top-level `<Section>` siblings with no spacer         | Add a line-break spacer between sections unless the user explicitly specified a different spacing treatment |
+| Adjacent top-level `blockColor` blocks with no spacer          | Add visible vertical space between highlighted blocks unless they are intentionally one connected card      |
+| Unescaped `<` or `&` in text                                   | Use `&lt;` and `&amp;`                                                                                      |
+| Manual legal footer, postal address, or unsubscribe block      | Omit it; Loops adds required footer content automatically. A branded footer component can appear above it   |
 
 ---
 

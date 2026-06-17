@@ -17,19 +17,20 @@ Steps:
 Keep the commit message concise.`;
 
 export default function yeet(pi: ExtensionAPI) {
-	pi.registerCommand("yeet", {
-		description: "Add, commit, and push the current repo changes",
-		handler: (args, ctx) => {
-			const prompt = args?.trim()
-				? `${YEET_PROMPT}\n\nAdditional instructions from the user:\n${args.trim()}`
-				: YEET_PROMPT;
+  pi.registerCommand("yeet", {
+    description: "Add, commit, and push the current repo changes",
+    // oxlint-disable-next-line require-await
+    handler: async (args, ctx) => {
+      const prompt = args?.trim()
+        ? `${YEET_PROMPT}\n\nAdditional instructions from the user:\n${args.trim()}`
+        : YEET_PROMPT;
 
-			if (ctx.isIdle()) {
-				pi.sendUserMessage(prompt);
-			} else {
-				pi.sendUserMessage(prompt, { deliverAs: "followUp" });
-				ctx.ui.notify("Queued /yeet as a follow-up", "info");
-			}
-		},
-	});
+      if (ctx.isIdle()) {
+        pi.sendUserMessage(prompt);
+      } else {
+        pi.sendUserMessage(prompt, { deliverAs: "followUp" });
+        ctx.ui.notify("Queued /yeet as a follow-up", "info");
+      }
+    },
+  });
 }

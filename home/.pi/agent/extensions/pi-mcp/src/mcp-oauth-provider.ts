@@ -2,6 +2,8 @@
 // Bridges our credential storage with the SDK's auth layer so it can
 // automatically attach tokens, refresh on 401, and handle PKCE.
 
+import { randomBytes } from "node:crypto";
+
 import type { OAuthClientProvider } from "@modelcontextprotocol/sdk/client/auth.js";
 import type {
   OAuthClientMetadata,
@@ -9,10 +11,10 @@ import type {
   OAuthClientInformation,
   OAuthClientInformationFull,
 } from "@modelcontextprotocol/sdk/shared/auth.js";
+
+import { logger } from "./logger.js";
 import { McpAuth } from "./mcp-auth.js";
 import { McpOAuthCallback, CALLBACK_PATH } from "./mcp-oauth-callback.js";
-import { logger } from "./logger.js";
-import { randomBytes } from "node:crypto";
 
 export interface McpOAuthConfig {
   clientId?: string;
@@ -36,7 +38,7 @@ export class McpOAuthProvider implements OAuthClientProvider {
     serverUrl: string,
     config: McpOAuthConfig,
     callbacks: McpOAuthCallbacks,
-    callbackPort?: number,
+    callbackPort?: number
   ) {
     this.callbackPort = callbackPort;
     this.callbacks = callbacks;
@@ -58,7 +60,9 @@ export class McpOAuthProvider implements OAuthClientProvider {
       grant_types: ["authorization_code", "refresh_token"],
       redirect_uris: [this.redirectUrl],
       response_types: ["code"],
-      token_endpoint_auth_method: this.config.clientSecret ? "client_secret_post" : "none",
+      token_endpoint_auth_method: this.config.clientSecret
+        ? "client_secret_post"
+        : "none",
     };
   }
 
@@ -79,7 +83,9 @@ export class McpOAuthProvider implements OAuthClientProvider {
         entry.clientInfo.clientSecretExpiresAt &&
         entry.clientInfo.clientSecretExpiresAt < Date.now() / 1000
       ) {
-        logger.debug(`${this.serverName}: client secret expired, need to re-register`);
+        logger.debug(
+          `${this.serverName}: client secret expired, need to re-register`
+        );
         return undefined;
       }
       return {
@@ -101,14 +107,18 @@ export class McpOAuthProvider implements OAuthClientProvider {
         clientSecret: info.client_secret,
         clientSecretExpiresAt: info.client_secret_expires_at,
       },
-      this.serverUrl,
+      this.serverUrl
     );
-    logger.debug(`${this.serverName}: saved dynamically registered client (${info.client_id})`);
+    logger.debug(
+      `${this.serverName}: saved dynamically registered client (${info.client_id})`
+    );
   }
 
   async tokens(): Promise<OAuthTokens | undefined> {
     const entry = McpAuth.getForUrl(this.serverName, this.serverUrl);
-    if (!entry?.tokens) {return undefined;}
+    if (!entry?.tokens) {
+      return undefined;
+    }
 
     return {
       access_token: entry.tokens.accessToken,
@@ -126,17 +136,21 @@ export class McpOAuthProvider implements OAuthClientProvider {
       this.serverName,
       {
         accessToken: tokens.access_token,
-        expiresAt: tokens.expires_in ? Date.now() / 1000 + tokens.expires_in : undefined,
+        expiresAt: tokens.expires_in
+          ? Date.now() / 1000 + tokens.expires_in
+          : undefined,
         refreshToken: tokens.refresh_token,
         scope: tokens.scope,
       },
-      this.serverUrl,
+      this.serverUrl
     );
     logger.debug(`${this.serverName}: saved oauth tokens`);
   }
 
   async redirectToAuthorization(authorizationUrl: URL): Promise<void> {
-    logger.debug(`${this.serverName}: redirect to authorization: ${authorizationUrl.toString()}`);
+    logger.debug(
+      `${this.serverName}: redirect to authorization: ${authorizationUrl.toString()}`
+    );
     await this.callbacks.onRedirect(authorizationUrl);
   }
 
@@ -147,7 +161,9 @@ export class McpOAuthProvider implements OAuthClientProvider {
   async codeVerifier(): Promise<string> {
     const entry = McpAuth.get(this.serverName);
     if (!entry?.codeVerifier) {
-      throw new Error(`No code verifier saved for MCP server: ${this.serverName}`);
+      throw new Error(
+        `No code verifier saved for MCP server: ${this.serverName}`
+      );
     }
     return entry.codeVerifier;
   }
@@ -170,10 +186,14 @@ export class McpOAuthProvider implements OAuthClientProvider {
     return newState;
   }
 
-  async invalidateCredentials(type: "all" | "client" | "tokens"): Promise<void> {
+  async invalidateCredentials(
+    type: "all" | "client" | "tokens"
+  ): Promise<void> {
     logger.debug(`${this.serverName}: invalidating credentials (${type})`);
     const entry = McpAuth.get(this.serverName);
-    if (!entry) {return;}
+    if (!entry) {
+      return;
+    }
 
     switch (type) {
       case "all": {

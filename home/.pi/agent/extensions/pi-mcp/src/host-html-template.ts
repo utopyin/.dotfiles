@@ -1,30 +1,36 @@
-import type { UiHostContext, UiResourceContent, UiResourceCsp } from "./types.js";
+import type {
+  UiHostContext,
+  UiResourceContent,
+  UiResourceCsp,
+} from "./types.js";
 // Use locally bundled AppBridge to avoid CDN Zod bundling issues
 const DEFAULT_APP_BRIDGE_MODULE_URL = "/app-bridge.bundle.js";
 export interface HostHtmlTemplateInput {
-    sessionToken: string;
-    serverName: string;
-    toolName: string;
-    toolArgs: Record<string, unknown>;
-    resource: UiResourceContent;
-    allowAttribute: string;
-    requireToolConsent: boolean;
-    cacheToolConsent: boolean;
-    hostContext?: UiHostContext;
-    appBridgeModuleUrl?: string;
+  sessionToken: string;
+  serverName: string;
+  toolName: string;
+  toolArgs: Record<string, unknown>;
+  resource: UiResourceContent;
+  allowAttribute: string;
+  requireToolConsent: boolean;
+  cacheToolConsent: boolean;
+  hostContext?: UiHostContext;
+  appBridgeModuleUrl?: string;
 }
 export const buildHostHtmlTemplate = (input: HostHtmlTemplateInput): string => {
-    const hostContext = input.hostContext ?? {};
-    const sessionToken = safeInlineJSON(input.sessionToken);
-    const toolArgs = safeInlineJSON(input.toolArgs);
-    const serverName = safeInlineJSON(input.serverName);
-    const toolName = safeInlineJSON(input.toolName);
-    const hostContextJson = safeInlineJSON(hostContext);
-    const allowAttribute = safeInlineJSON(input.allowAttribute);
-    const requireToolConsent = safeInlineJSON(input.requireToolConsent);
-    const cacheToolConsent = safeInlineJSON(input.cacheToolConsent);
-    const moduleUrl = safeInlineJSON(input.appBridgeModuleUrl ?? DEFAULT_APP_BRIDGE_MODULE_URL);
-    return `<!doctype html>
+  const hostContext = input.hostContext ?? {};
+  const sessionToken = safeInlineJSON(input.sessionToken);
+  const toolArgs = safeInlineJSON(input.toolArgs);
+  const serverName = safeInlineJSON(input.serverName);
+  const toolName = safeInlineJSON(input.toolName);
+  const hostContextJson = safeInlineJSON(hostContext);
+  const allowAttribute = safeInlineJSON(input.allowAttribute);
+  const requireToolConsent = safeInlineJSON(input.requireToolConsent);
+  const cacheToolConsent = safeInlineJSON(input.cacheToolConsent);
+  const moduleUrl = safeInlineJSON(
+    input.appBridgeModuleUrl ?? DEFAULT_APP_BRIDGE_MODULE_URL
+  );
+  return `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -347,88 +353,93 @@ export const buildHostHtmlTemplate = (input: HostHtmlTemplateInput): string => {
 </body>
 </html>`;
 };
-export const buildCspMetaContent = (csp: UiResourceCsp | undefined): string | undefined => {
-    if (!csp) {
-        return undefined;
-    }
-    const directives: string[] = ["default-src 'none'"];
-    const scriptSrc = toDirective("script-src", csp.scriptDomains);
-    const styleSrc = toDirective("style-src", csp.styleDomains);
-    const fontSrc = toDirective("font-src", csp.fontDomains);
-    const imgSrc = toDirective("img-src", csp.imgDomains);
-    const mediaSrc = toDirective("media-src", csp.mediaDomains);
-    const connectSrc = toDirective("connect-src", csp.connectDomains);
-    const frameSrc = toDirective("frame-src", csp.frameDomains);
-    const workerSrc = toDirective("worker-src", csp.workerDomains);
-    const baseUri = toDirective("base-uri", csp.baseUriDomains);
-    if (scriptSrc) {
-        directives.push(scriptSrc);
-    }
-    if (styleSrc) {
-        directives.push(styleSrc);
-    }
-    if (fontSrc) {
-        directives.push(fontSrc);
-    }
-    if (imgSrc) {
-        directives.push(imgSrc);
-    }
-    if (mediaSrc) {
-        directives.push(mediaSrc);
-    }
-    if (connectSrc) {
-        directives.push(connectSrc);
-    }
-    if (frameSrc) {
-        directives.push(frameSrc);
-    }
-    if (workerSrc) {
-        directives.push(workerSrc);
-    }
-    if (baseUri) {
-        directives.push(baseUri);
-    }
-    return directives.join("; ");
+export const buildCspMetaContent = (
+  csp: UiResourceCsp | undefined
+): string | undefined => {
+  if (!csp) {
+    return undefined;
+  }
+  const directives: string[] = ["default-src 'none'"];
+  const scriptSrc = toDirective("script-src", csp.scriptDomains);
+  const styleSrc = toDirective("style-src", csp.styleDomains);
+  const fontSrc = toDirective("font-src", csp.fontDomains);
+  const imgSrc = toDirective("img-src", csp.imgDomains);
+  const mediaSrc = toDirective("media-src", csp.mediaDomains);
+  const connectSrc = toDirective("connect-src", csp.connectDomains);
+  const frameSrc = toDirective("frame-src", csp.frameDomains);
+  const workerSrc = toDirective("worker-src", csp.workerDomains);
+  const baseUri = toDirective("base-uri", csp.baseUriDomains);
+  if (scriptSrc) {
+    directives.push(scriptSrc);
+  }
+  if (styleSrc) {
+    directives.push(styleSrc);
+  }
+  if (fontSrc) {
+    directives.push(fontSrc);
+  }
+  if (imgSrc) {
+    directives.push(imgSrc);
+  }
+  if (mediaSrc) {
+    directives.push(mediaSrc);
+  }
+  if (connectSrc) {
+    directives.push(connectSrc);
+  }
+  if (frameSrc) {
+    directives.push(frameSrc);
+  }
+  if (workerSrc) {
+    directives.push(workerSrc);
+  }
+  if (baseUri) {
+    directives.push(baseUri);
+  }
+  return directives.join("; ");
 };
-const toDirective = (name: string, domains: string[] | undefined): string | null => {
-    if (!domains || domains.length === 0) {
-        return null;
-    }
-    return `${name} ${domains.join(" ")}`;
+const toDirective = (
+  name: string,
+  domains: string[] | undefined
+): string | null => {
+  if (!domains || domains.length === 0) {
+    return null;
+  }
+  return `${name} ${domains.join(" ")}`;
 };
-export const applyCspMeta = (html: string, cspContent: string | undefined): string => {
-    if (!cspContent) {
-        return html;
-    }
-    if (/http-equiv=["']Content-Security-Policy["']/iu.test(html)) {
-        return html;
-    }
-    const metaTag = `<meta http-equiv="Content-Security-Policy" content="${escapeHtmlAttribute(cspContent)}">`;
-    if (/<head[^>]*>/iu.test(html)) {
-        return html.replace(/<head[^>]*>/iu, (match) => `${match}\n${metaTag}`);
-    }
-    return `${metaTag}\n${html}`;
+export const applyCspMeta = (
+  html: string,
+  cspContent: string | undefined
+): string => {
+  if (!cspContent) {
+    return html;
+  }
+  if (/http-equiv=["']Content-Security-Policy["']/iu.test(html)) {
+    return html;
+  }
+  const metaTag = `<meta http-equiv="Content-Security-Policy" content="${escapeHtmlAttribute(cspContent)}">`;
+  if (/<head[^>]*>/iu.test(html)) {
+    return html.replace(/<head[^>]*>/iu, (match) => `${match}\n${metaTag}`);
+  }
+  return `${metaTag}\n${html}`;
 };
-const safeInlineJSON = (value: unknown): string => 
-    JSON.stringify(value)
-        .replaceAll("<", "\\u003c")
-        .replaceAll(">", "\\u003e")
-        .replaceAll("&", "\\u0026")
-        .replaceAll("\\u2028", "\\u2028")
-        .replaceAll("\\u2029", "\\u2029")
-;
-const escapeHtml = (value: string): string => 
-    value
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll("\"", "&quot;")
-        .replaceAll("'", "&#39;")
-;
-const escapeHtmlAttribute = (value: string): string => 
-    value
-        .replaceAll("&", "&amp;")
-        .replaceAll("\"", "&quot;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-;
+const safeInlineJSON = (value: unknown): string =>
+  JSON.stringify(value)
+    .replaceAll("<", "\\u003c")
+    .replaceAll(">", "\\u003e")
+    .replaceAll("&", "\\u0026")
+    .replaceAll("\\u2028", "\\u2028")
+    .replaceAll("\\u2029", "\\u2029");
+const escapeHtml = (value: string): string =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+const escapeHtmlAttribute = (value: string): string =>
+  value
+    .replaceAll("&", "&amp;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;");

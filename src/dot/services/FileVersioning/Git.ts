@@ -9,9 +9,7 @@ export const makeGitFileVersioning = Effect.gen(function* () {
     pullFastForward: Effect.fn("GitFileVersioning.pullFastForward")(function* (
       cwd: string
     ) {
-      yield* command
-        .run("git", ["pull", "--ff-only"], { cwd })
-        .pipe(Effect.asVoid);
+      yield* command.runInteractive("git", ["pull", "--ff-only"], { cwd });
     }),
     remoteSummary: Effect.fn("GitFileVersioning.remoteSummary")(function* (
       cwd: string

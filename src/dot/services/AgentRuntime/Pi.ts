@@ -106,7 +106,7 @@ export const makePiAgentRuntime = Effect.gen(function* () {
       return yield* command.exists("pi");
     }),
     update: Effect.fn("PiAgentRuntime.update")(function* () {
-      yield* command.run("pi", ["update"]).pipe(Effect.asVoid);
+      yield* command.runInteractive("pi", ["update"]);
     }),
   } satisfies AgentRuntimeShape;
 });

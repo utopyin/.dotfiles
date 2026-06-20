@@ -13,6 +13,7 @@ export const update = Effect.fn("update")(function* () {
   const packages = yield* PackageInstaller;
   const agent = yield* AgentRuntime;
 
+  yield* Console.log("Updating dotfiles repo...");
   yield* vcs
     .pullFastForward(config.dotfilesDir)
     .pipe(
@@ -21,9 +22,11 @@ export const update = Effect.fn("update")(function* () {
       )
     );
 
+  yield* Console.log("Updating Homebrew packages...");
   yield* packages.updateAll(config.brewfilePath);
 
   if (yield* agent.isInstalled()) {
+    yield* Console.log("Updating Pi runtime...");
     yield* agent
       .update()
       .pipe(
@@ -33,6 +36,7 @@ export const update = Effect.fn("update")(function* () {
       );
   }
 
+  yield* Console.log("Applying dotfiles config...");
   yield* applyConfig();
 
   yield* Console.log("Update complete");

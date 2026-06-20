@@ -27,9 +27,14 @@ export const makeHomebrewPackageInstaller = Effect.gen(function* () {
     ),
     applyManifest: Effect.fn("HomebrewPackageInstaller.applyManifest")(
       function* (manifestPath: string) {
-        yield* command
-          .run("brew", ["bundle", "--file", manifestPath])
-          .pipe(Effect.asVoid);
+        yield* trustManifestTaps(manifestPath).pipe(
+          Effect.provideService(CommandExecutor, command)
+        );
+        yield* command.runInteractive("brew", [
+          "bundle",
+          "--file",
+          manifestPath,
+        ]);
       }
     ),
     checkManifest: Effect.fn("HomebrewPackageInstaller.checkManifest")(
@@ -83,10 +88,13 @@ export const makeHomebrewPackageInstaller = Effect.gen(function* () {
     updateAll: Effect.fn("HomebrewPackageInstaller.updateAll")(function* (
       manifestPath: string
     ) {
-      yield* command.run("brew", ["update"]);
-      yield* command.run("brew", ["bundle", "--file", manifestPath]);
+      yield* command.runInteractive("brew", ["update"]);
+      yield* trustManifestTaps(manifestPath).pipe(
+        Effect.provideService(CommandExecutor, command)
+      );
+      yield* command.runInteractive("brew", ["bundle", "--file", manifestPath]);
       yield* command
-        .run("brew", ["upgrade"])
+        .runInteractive("brew", ["upgrade"])
         .pipe(Effect.catchCause(() => Effect.void));
     }),
   } satisfies PackageInstallerShape;
@@ -96,6 +104,20 @@ const appendLine = (content: string, line: string) =>
   content.trimEnd().length === 0
     ? `${line}\n`
     : `${content.trimEnd()}\n${line}\n`;
+
+const trustManifestTaps = Effect.fn(
+  "HomebrewPackageInstaller.trustManifestTaps"
+)(function* (manifestPath: string) {
+  const command = yield* CommandExecutor;
+  yield* command
+    .run("/bin/sh", [
+      "-lc",
+      TRUST_MANIFEST_TAPS_SCRIPT,
+      "dot-brew-trust",
+      manifestPath,
+    ])
+    .pipe(Effect.catchCause(() => Effect.void));
+});
 
 const formatHomebrewEntry = (entry: PackageEntry) => {
   const name = JSON.stringify(entry.name);
@@ -121,6 +143,29 @@ const matchesHomebrewEntry = (
 
 const normalizeTrailingNewline = (content: string) =>
   content.trimEnd().length === 0 ? "" : `${content.trimEnd()}\n`;
+
+const TRUST_MANIFEST_TAPS_SCRIPT = String.raw`
+manifest=$1
+[ -f "$manifest" ] || exit 0
+brew help trust >/dev/null 2>&1 || exit 0
+awk '
+  /^[[:space:]]*tap[[:space:]]+/ {
+    line=$0
+    sub(/^[[:space:]]*tap[[:space:]]+/, "", line)
+    sub(/#.*/, "", line)
+    gsub(/^[[:space:]]+|[[:space:]]+$/, "", line)
+    if (line ~ /^"/) {
+      sub(/^"/, "", line)
+      sub(/".*$/, "", line)
+    } else {
+      sub(/[[:space:],].*$/, "", line)
+    }
+    if (line != "" && line !~ /^homebrew\//) print line
+  }
+' "$manifest" | while IFS= read -r tap; do
+  brew trust --tap "$tap" >/dev/null 2>&1 || true
+done
+`;
 
 const readManifest = Effect.fn("HomebrewPackageInstaller.readManifest")(
   function* (manifestPath: string) {

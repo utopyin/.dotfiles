@@ -1,0 +1,22 @@
+{
+  "disabled": false,
+  "pathTemplate": "/Users/utopy/Documents/Void/Dev/{{ REPOBASENAME }}.worktrees/{{ TASKSLUG }}",
+  "branchTemplate": "utopy/{{ TASKSLUG }}",
+  "sourceRef": "origin/main",
+  "setupCommand": "bun install",
+  "copyGlobs": [
+    ".env",
+    ".env.local",
+    ".env.development.local",
+    ".claude/settings.local.json",
+    ".humanlayer/workspace.json",
+    ".humanlayer/workspace.local.json"
+  ],
+  "repos": [
+    {
+      "localPath": "/Users/utopy/Documents/Void/Dev/inbox",
+      "description": "Inbox",
+      "primary": true
+    }
+  ]
+}

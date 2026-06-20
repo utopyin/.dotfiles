@@ -1,5 +1,6 @@
 tap "oven-sh/bun"
 tap "rjyo/moshi"
+tap "humanlayer/humanlayer"
 
 cask "cursor"
 cask "1password"
@@ -33,6 +34,7 @@ cask "tableplus"
 cask "keka"
 cask "docker-desktop"
 cask "conar"
+cask "humanlayer"
 
 brew "bun"
 brew "ffmpeg"

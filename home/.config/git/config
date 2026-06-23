@@ -2,7 +2,7 @@
 	name = utopy
 
 [core]
-	editor = cursor --wait
+	editor = zed --wait
 	excludesFile = ~/.gitignore_global
 	pager = delta
 	ignoreCase = false

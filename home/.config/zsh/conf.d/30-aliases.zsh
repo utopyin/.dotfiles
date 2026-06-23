@@ -2,6 +2,9 @@ bun-reset() {
   find . -name "node_modules" -type d -prune -exec rm -rf '{}' + -o -name "bun.lock" -type f -delete
 }
 
+lazygit() {
+  command lazygit --use-config-file="$HOME/.config/lazygit/config.yml" "$@"
+}
 alias lz="lazygit"
 alias gw="git worktree"
 alias ghv="gh repo view -w"

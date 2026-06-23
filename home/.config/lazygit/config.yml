@@ -1,0 +1,30 @@
+os:
+  edit: "zed {{filename}}"
+  editAtLine: "zed {{filename}}:{{line}}"
+  open: "zed {{filename}}"
+git:
+  overrideGpg: true
+  pagers:
+    - colorArg: always
+      pager: delta --dark --paging=never
+# promptToReturnFromSubprocess: false # removes "press enter to return to lazygit" popup
+customCommands:
+  - key: "G"
+    command: "gh pr view -w {{.SelectedLocalBranch.Name}}"
+    context: "localBranches"
+    description: "Open Github PR in browser"
+  - key: "G"
+    command: "gh pr view -w"
+    context: "commits"
+    description: "Open Github PR in browser"
+  - key: "C"
+    command: "gitz-cli commit stage --commit --no-emoji --provider cerebras"
+    description: "AI commit for staged changes"
+    context: "files"
+    loadingText: "generating a commit message for staged changes"
+    output: terminal
+  - key: "<c-p>"
+    command: "git push --tags"
+    description: "Git push with tags"
+    context: "files,localBranches,commits"
+    loadingText: "Pushing with tags"

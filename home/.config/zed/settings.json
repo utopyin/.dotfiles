@@ -33,11 +33,7 @@
     },
     "linear": {
       "command": "npx",
-      "args": [
-        "-y",
-        "mcp-remote",
-        "https://mcp.linear.app/mcp"
-      ],
+      "args": ["-y", "mcp-remote", "https://mcp.linear.app/mcp"],
       "env": {}
     }
   },
@@ -88,10 +84,11 @@
       }
     },
     "default_model": {
-      "provider": "zed.dev",
-      "model": "claude-opus-4-6",
+      "speed": "fast",
+      "provider": "openai-subscribed",
+      "model": "gpt-5.5",
       "enable_thinking": true,
-      "effort": "high"
+      "effort": "medium"
     },
     "dock": "right",
     "favorite_models": [],
@@ -126,19 +123,13 @@
       "args": [],
       "projects": [
         {
-          "paths": [
-            "/mnt"
-          ]
+          "paths": ["/mnt"]
         },
         {
-          "paths": [
-            "/usr"
-          ]
+          "paths": ["/usr"]
         },
         {
-          "paths": [
-            "~/.zshrc"
-          ]
+          "paths": ["~/.zshrc"]
         }
       ]
     },
@@ -147,19 +138,18 @@
       "args": [],
       "projects": [
         {
-          "paths": [
-            "/"
-          ]
+          "paths": ["/"]
         },
         {
-          "paths": [
-            "/root"
-          ]
+          "paths": ["/root"]
         }
       ]
     }
   ],
   "agent_servers": {
+    "opencode": {
+      "type": "registry"
+    },
     "pi-acp": {
       "type": "registry"
     },

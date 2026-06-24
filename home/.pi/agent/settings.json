@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.79.8",
+  "lastChangelogVersion": "0.80.2",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
   "defaultThinkingLevel": "medium",
@@ -28,5 +28,6 @@
     }
   ],
   "editorPaddingX": 3,
-  "quietStartup": true
+  "quietStartup": true,
+  "steeringMode": "one-at-a-time"
 }

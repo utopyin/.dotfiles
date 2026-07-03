@@ -1,6 +1,7 @@
 tap "oven-sh/bun"
 tap "rjyo/moshi"
 tap "humanlayer/humanlayer"
+tap "derailed/k9s"
 
 cask "cursor"
 cask "1password"
@@ -62,3 +63,4 @@ brew "stow"
 brew "herdr"
 brew "moshi-hook"
 brew "mosh"
+brew "k9s"

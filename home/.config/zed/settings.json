@@ -15,7 +15,6 @@
   },
   "zoomed_padding": true,
   "bottom_dock_layout": "contained",
-  "proxy": "",
   "edit_predictions": {
     "mode": "eager"
   },
@@ -102,6 +101,7 @@
     "indent_size": 20.0
   },
   "project_panel": {
+    "hide_hidden": true,
     "dock": "left",
     "entry_spacing": "standard",
     "hide_root": true,
@@ -194,90 +194,6 @@
   },
   "formatter": "language_server",
   "format_on_save": "on",
-  "languages": {
-    "JavaScript": {
-      "formatter": {
-        "language_server": {
-          "name": "biome"
-        }
-      },
-      "code_actions_on_format": {
-        "source.fixAll.biome": true,
-        "source.organizeImports.biome": true
-      }
-    },
-    "TypeScript": {
-      "formatter": {
-        "language_server": {
-          "name": "biome"
-        }
-      },
-      "code_actions_on_format": {
-        "source.fixAll.biome": true,
-        "source.organizeImports.biome": true
-      }
-    },
-    "TSX": {
-      "formatter": {
-        "language_server": {
-          "name": "biome"
-        }
-      },
-      "code_actions_on_format": {
-        "source.fixAll.biome": true,
-        "source.organizeImports.biome": true,
-        "source.suppressRule.inline.biome": true
-      }
-    },
-    "JSONC": {
-      "formatter": {
-        "language_server": {
-          "name": "biome"
-        }
-      },
-      "code_actions_on_format": {
-        "source.fixAll.biome": true,
-        "source.organizeImports.biome": true
-      }
-    },
-    "JSON": {
-      "formatter": {
-        "language_server": {
-          "name": "biome"
-        }
-      },
-      "code_actions_on_format": {
-        "source.fixAll.biome": true,
-        "source.organizeImports.biome": true
-      }
-    }
-  },
-  "lsp": {
-    "vtsls": {
-      "settings": {
-        "typescript": {
-          "updateImportsOnFileMove": {
-            "enabled": "always"
-          }
-        },
-        "javascript": {
-          "updateImportsOnFileMove": {
-            "enabled": "always"
-          }
-        }
-      },
-      "enable_lsp_tasks": true
-    },
-    "typescript-language-server": {
-      "settings": {
-        "typescript": {
-          "preferences": {
-            "includePackageJsonAutoImports": "on"
-          }
-        }
-      }
-    }
-  },
   "theme_overrides": {
     "Cursor Dark": {
       "text": "#D6D6DE"

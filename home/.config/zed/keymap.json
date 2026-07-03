@@ -67,5 +67,10 @@
     "bindings": {
       "alt-w": "git::Worktree"
     }
+  },
+  {
+    "bindings": {
+      "alt-shift-o": "text_finder::Toggle"
+    }
   }
 ]

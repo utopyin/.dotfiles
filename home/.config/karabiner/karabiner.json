@@ -13,20 +13,14 @@
                 "from": {
                   "key_code": "tab",
                   "modifiers": {
-                    "mandatory": [
-                      "command"
-                    ],
-                    "optional": [
-                      "any"
-                    ]
+                    "mandatory": ["command"],
+                    "optional": ["any"]
                   }
                 },
                 "to": [
                   {
                     "key_code": "7",
-                    "modifiers": [
-                      "command"
-                    ]
+                    "modifiers": ["command"]
                   }
                 ],
                 "type": "basic"

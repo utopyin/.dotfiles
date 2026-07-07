@@ -1,5 +1,5 @@
 {
-  "lastChangelogVersion": "0.80.2",
+  "lastChangelogVersion": "0.80.3",
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.5",
   "defaultThinkingLevel": "medium",
@@ -25,7 +25,8 @@
       "source": "npm:@plannotator/pi-extension",
       "skills": [],
       "extensions": ["+"]
-    }
+    },
+    "npm:pi-subagents"
   ],
   "editorPaddingX": 3,
   "quietStartup": true,

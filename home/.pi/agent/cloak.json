@@ -1,0 +1,75 @@
+{
+  "enabled": true,
+  "cloakCharacter": "*",
+  "cloakLength": null,
+  "tryAllPatterns": true,
+  "patterns": [
+    {
+      "filePattern": [
+        "**/.env",
+        "**/.env.*",
+        ".env",
+        ".env.*"
+      ],
+      "cloakPattern": [
+        {
+          "flags": "iu",
+          "pattern": "^(\\s*(?:export\\s+)?[A-Za-z0-9_]*(?:API[_-]?KEY|TOKEN|SECRET|PASSWORD|PASS|PRIVATE[_-]?KEY|CLIENT[_-]?SECRET|WEBHOOK[_-]?SECRET|AUTH|BEARER|CREDENTIAL)[A-Za-z0-9_]*\\s*=\\s*).+$",
+          "replace": "$1"
+        }
+      ]
+    },
+    {
+      "filePattern": [
+        "**/*secret*.json",
+        "**/*secrets*.json",
+        "**/*credential*.json",
+        "**/*credentials*.json",
+        "**/auth.json",
+        "**/mcp.json",
+        "**/mcp-cache.json",
+        "**/mcp-npx-cache.json",
+        "auth.json",
+        "mcp.json",
+        "mcp-cache.json",
+        "mcp-npx-cache.json"
+      ],
+      "cloakPattern": [
+        {
+          "flags": "iu",
+          "pattern": "(\"[^\"]*(?:api[_-]?key|token|secret|password|private[_-]?key|client[_-]?secret|auth|bearer|credential)[^\"]*\"\\s*:\\s*\")[^\"]+(\")",
+          "replace": "$1$2"
+        }
+      ]
+    },
+    {
+      "filePattern": [
+        "**/*.pem",
+        "**/*.key",
+        "**/*_rsa",
+        "**/*_dsa",
+        "**/*_ecdsa",
+        "**/*_ed25519",
+        "*.pem",
+        "*.key"
+      ],
+      "cloakPattern": ".+",
+      "replace": ""
+    },
+    {
+      "filePattern": [
+        "**/.npmrc",
+        ".npmrc",
+        "**/.yarnrc",
+        ".yarnrc"
+      ],
+      "cloakPattern": [
+        {
+          "flags": "iu",
+          "pattern": "^(\\s*(?://[^=]+:_authToken|_authToken|token|password|username)\\s*=\\s*).+$",
+          "replace": "$1"
+        }
+      ]
+    }
+  ]
+}

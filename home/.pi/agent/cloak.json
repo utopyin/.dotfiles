@@ -5,12 +5,7 @@
   "tryAllPatterns": true,
   "patterns": [
     {
-      "filePattern": [
-        "**/.env",
-        "**/.env.*",
-        ".env",
-        ".env.*"
-      ],
+      "filePattern": ["**/.env", "**/.env.*", ".env", ".env.*"],
       "cloakPattern": [
         {
           "flags": "iu",
@@ -57,12 +52,7 @@
       "replace": ""
     },
     {
-      "filePattern": [
-        "**/.npmrc",
-        ".npmrc",
-        "**/.yarnrc",
-        ".yarnrc"
-      ],
+      "filePattern": ["**/.npmrc", ".npmrc", "**/.yarnrc", ".yarnrc"],
       "cloakPattern": [
         {
           "flags": "iu",

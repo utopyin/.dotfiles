@@ -38,6 +38,7 @@ Infer the topic and output format from context. Before starting, unless already 
 > "How long do you want this research task to run?"
 
 Map the answer to a depth tier in the Collection Plan below:
+
 - A few minutes → Quick
 - ~10-15 minutes → Thorough
 - Longer / no limit → Exhaustive
@@ -77,24 +78,31 @@ Default structure:
 # Deep Research: [Topic]
 
 ## Executive Summary
+
 [2-3 paragraphs]
 
 ## Key Findings
+
 [Numbered findings with source links]
 
 ## Detailed Analysis
+
 [Themes, evidence, and synthesis]
 
 ## Contrarian Views And Risks
+
 [Counterarguments, limitations, failure modes]
 
 ## Open Questions
+
 [What remains uncertain]
 
 ## Sources
+
 [Every URL used with a one-line note]
 
 ## Rerun Inputs
+
 workflow: firecrawl-deep-research
 topic: [topic]
 depth: [quick/thorough/exhaustive]

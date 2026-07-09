@@ -50,15 +50,19 @@ Leave unavailable fields blank. Do not infer.
 # Company Directory Export: [Source]
 
 ## Summary
+
 [Filters, count extracted, limitations]
 
 ## Companies
+
 [Table or link to JSON/CSV]
 
 ## Sources
+
 [Directory pages and profiles used]
 
 ## Rerun Inputs
+
 workflow: firecrawl-company-directories
 directory: [source]
 filters: [criteria]

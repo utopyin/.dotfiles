@@ -14,6 +14,7 @@ description: >
   trigger for CLI or shell-only requests.
 metadata:
   version: 1.3.1
+disable-model-invocation: true
 ---
 
 # Loops API and SDK Skill

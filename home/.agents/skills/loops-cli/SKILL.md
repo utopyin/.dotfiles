@@ -13,6 +13,7 @@ description: >
   time the user wants to use Loops from the shell instead of application code.
 metadata:
   version: 1.1.0
+disable-model-invocation: true
 ---
 
 # Loops CLI Skill

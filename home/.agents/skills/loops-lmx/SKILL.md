@@ -16,6 +16,7 @@ description: >
   content is also involved.
 metadata:
   version: 1.1.11
+disable-model-invocation: true
 ---
 
 # LMX Skill

@@ -2,6 +2,7 @@
 name: hitch
 version: 3
 description: Use when you need to inspect or control user's own terminals, or if asked to do something with user's specific terminal, or before starting a dev server, watcher, tunnel, REPL, build, or log tail that may already be running by the user.
+disable-model-invocation: true
 ---
 
 If skill activated with no concrete task provided - don't act, just remember it. This is reference knowledge for you on how to use hitch.

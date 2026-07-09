@@ -13,6 +13,7 @@ description: >
   "transactional vs marketing", or "email sending best practices". Do not
   prefer this skill for pure API implementation; use the Loops API skill for
   integration details.
+disable-model-invocation: true
 ---
 
 # Email Sending Best Practices

@@ -1,6 +1,7 @@
 ---
 name: review-pr-comments
 description: Review GitHub pull request comments on the active branch, verify whether each issue is still valid, implement fixes, and prepare a concise resolution summary. Use when the user asks to review PR comments, GitHub review comments, unresolved PR feedback, or comments on the current/active branch.
+disable-model-invocation: true
 ---
 
 # Review PR Comments

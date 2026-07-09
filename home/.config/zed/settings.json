@@ -192,8 +192,6 @@
     "left_padding": 0.1,
     "right_padding": 0.1
   },
-  "formatter": "language_server",
-  "format_on_save": "on",
   "theme_overrides": {
     "Cursor Dark": {
       "text": "#D6D6DE"

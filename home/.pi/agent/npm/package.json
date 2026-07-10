@@ -3,9 +3,9 @@
   "private": true,
   "dependencies": {
     "@neilurk12/pi-lazygit": "^0.1.1",
-    "@plannotator/pi-extension": "^0.21.4",
+    "@plannotator/pi-extension": "^0.22.0",
     "@zenobius/pi-worktrees": "^0.5.1",
     "pi-btw": "^0.4.1",
-    "pi-subagents": "^0.33.1"
+    "pi-subagents": "^0.34.0"
   }
 }

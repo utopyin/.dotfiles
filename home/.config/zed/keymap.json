@@ -70,7 +70,7 @@
   },
   {
     "bindings": {
-      "alt-shift-o": "text_finder::Toggle"
+      "alt-ctrl-o": "text_finder::Toggle"
     }
   }
 ]

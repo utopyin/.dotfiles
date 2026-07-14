@@ -1,7 +1,10 @@
 {
   "prompts": {
     "review": {
-      "denied": ""
+      "denied": "."
     }
+  },
+  "diffOptions": {
+    "diffStyle": "split"
   }
 }

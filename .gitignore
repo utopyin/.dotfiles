@@ -19,6 +19,7 @@ home/.zshrc.local
 # Pi runtime/auth/state
 home/.pi/agent/auth.json
 home/.pi/agent/*.local.json
+home/.pi/agent/mcp-cache.json
 home/.pi/agent/mcp-*-cache.json
 home/.pi/agent/mcp-oauth/
 home/.pi/agent/sessions/

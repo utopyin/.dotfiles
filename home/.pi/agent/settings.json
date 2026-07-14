@@ -2,7 +2,7 @@
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-sol",
   "lastChangelogVersion": "0.80.6",
-  "defaultThinkingLevel": "medium",
+  "defaultThinkingLevel": "high",
   "shellCommandPrefix": "for config_file in \"$HOME\"/.config/zsh/conf.d/{20-paths,30-aliases}.zsh; do [ -r \"$config_file\" ] && . \"$config_file\"; done",
   "treeFilterMode": "no-tools",
   "terminal": {
@@ -26,7 +26,8 @@
       "skills": [],
       "extensions": ["+"]
     },
-    "npm:pi-subagents"
+    "npm:pi-subagents",
+    "npm:pi-mcp-adapter@2.11.0"
   ],
   "editorPaddingX": 3,
   "quietStartup": true,

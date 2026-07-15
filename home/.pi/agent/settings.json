@@ -26,7 +26,6 @@
       "skills": [],
       "extensions": ["+"]
     },
-    "npm:pi-subagents",
     "npm:pi-mcp-adapter@2.11.0"
   ],
   "editorPaddingX": 3,

@@ -23,8 +23,3 @@ customCommands:
     context: "files"
     loadingText: "generating a commit message for staged changes"
     output: terminal
-  - key: "<c-p>"
-    command: "git push --tags"
-    description: "Git push with tags"
-    context: "files,localBranches,commits"
-    loadingText: "Pushing with tags"

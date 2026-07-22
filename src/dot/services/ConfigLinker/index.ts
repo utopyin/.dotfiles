@@ -14,7 +14,7 @@ export interface ConfigLinkerShape {
   readonly unlinkHome: (
     dotfilesDir: string,
     homeDir: string
-  ) => Effect.Effect<void, CommandExecutionError>;
+  ) => Effect.Effect<void, CommandExecutionError | PlatformError.PlatformError>;
 }
 
 export class ConfigLinker extends Context.Service<ConfigLinker>()(

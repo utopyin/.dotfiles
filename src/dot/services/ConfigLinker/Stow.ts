@@ -28,15 +28,26 @@ export const makeStowConfigLinker = Effect.gen(function* () {
           "--no-folding",
           "--ignore",
           "\\.DS_Store$",
+          "--ignore",
+          FOLDED_SKILLS_IGNORE,
           "--restow",
           "home",
         ])
         .pipe(Effect.asVoid);
+
+      yield* ensureFoldedSkillLinks(dotfilesDir, homeDir).pipe(
+        Effect.provideService(FileSystem.FileSystem, fs),
+        Effect.provideService(Path.Path, path)
+      );
     }),
     unlinkHome: Effect.fn("StowConfigLinker.unlinkHome")(function* (
       dotfilesDir: string,
       homeDir: string
     ) {
+      yield* removeFoldedSkillLinks(homeDir).pipe(
+        Effect.provideService(FileSystem.FileSystem, fs),
+        Effect.provideService(Path.Path, path)
+      );
       yield* command
         .run("stow", [
           "--dir",
@@ -46,12 +57,68 @@ export const makeStowConfigLinker = Effect.gen(function* () {
           "--no-folding",
           "--ignore",
           "\\.DS_Store$",
+          "--ignore",
+          FOLDED_SKILLS_IGNORE,
           "--delete",
           "home",
         ])
         .pipe(Effect.asVoid);
     }),
   } satisfies ConfigLinkerShape;
+});
+
+const ensureFoldedSkillLinks = Effect.fn(
+  "StowConfigLinker.ensureFoldedSkillLinks"
+)(function* (dotfilesDir: string, homeDir: string) {
+  const path = yield* Path.Path;
+  const sourcePath = path.join(dotfilesDir, "home", ...SKILLS_SOURCE_SEGMENTS);
+
+  for (const linkName of FOLDED_SKILL_LINKS) {
+    const linkPath = path.join(homeDir, ...linkName.split("/"));
+    yield* ensureDirectoryLink(sourcePath, linkPath, homeDir);
+  }
+});
+
+const ensureDirectoryLink = Effect.fn("StowConfigLinker.ensureDirectoryLink")(
+  function* (sourcePath: string, linkPath: string, homeDir: string) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+
+    yield* fs.makeDirectory(path.dirname(linkPath), { recursive: true });
+
+    const relativeTarget = path.relative(path.dirname(linkPath), sourcePath);
+
+    const isLink = yield* pathIsSymlink(linkPath);
+    if (isLink) {
+      const currentTarget = yield* fs.readLink(linkPath);
+      if (currentTarget === relativeTarget) {
+        return;
+      }
+      yield* fs.remove(linkPath);
+    } else {
+      const exists = yield* fs.exists(linkPath);
+      if (exists) {
+        yield* backupExistingPath(homeDir, linkPath);
+      }
+    }
+
+    yield* fs.symlink(relativeTarget, linkPath);
+  }
+);
+
+const removeFoldedSkillLinks = Effect.fn(
+  "StowConfigLinker.removeFoldedSkillLinks"
+)(function* (homeDir: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+
+  for (const linkName of FOLDED_SKILL_LINKS) {
+    const linkPath = path.join(homeDir, ...linkName.split("/"));
+    const isLink = yield* pathIsSymlink(linkPath);
+    if (isLink) {
+      yield* fs.remove(linkPath);
+    }
+  }
 });
 
 const hasSymlinkAncestor = Effect.fn("StowConfigLinker.hasSymlinkAncestor")(
@@ -80,6 +147,26 @@ const pathIsSymlink = Effect.fn("StowConfigLinker.pathIsSymlink")(function* (
     Effect.catchCause(() => Effect.succeed(false))
   );
 });
+
+const backupExistingPath = Effect.fn("StowConfigLinker.backupExistingPath")(
+  function* (homeDir: string, targetPath: string) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+
+    const stamp = new Date().toISOString().replaceAll(/[^0-9A-Za-z]+/gu, "-");
+    const relativeEntry = path.relative(homeDir, targetPath);
+    const backupPath = path.join(
+      homeDir,
+      ".dotfiles-backups",
+      "stow",
+      stamp,
+      relativeEntry
+    );
+
+    yield* fs.makeDirectory(path.dirname(backupPath), { recursive: true });
+    yield* fs.rename(targetPath, backupPath);
+  }
+);
 
 const backupConflicts = Effect.fn("StowConfigLinker.backupConflicts")(
   function* (dotfilesDir: string, homeDir: string) {
@@ -126,3 +213,7 @@ const backupConflicts = Effect.fn("StowConfigLinker.backupConflicts")(
     }
   }
 );
+
+const SKILLS_SOURCE_SEGMENTS = [".agents", "skills"] as const;
+const FOLDED_SKILL_LINKS = [".agents/skills", ".claude/skills"] as const;
+const FOLDED_SKILLS_IGNORE = "\\.agents/skills$";

@@ -57,6 +57,7 @@ export const cli = Command.make("dot").pipe(
         Flag.withDescription("With --cursor, skip Cursor extension installs")
       ),
       yes: Flag.boolean("yes").pipe(
+        Flag.withAlias("y"),
         Flag.withDescription("Use defaults for prompts (does not apply Cursor)")
       ),
     }).pipe(

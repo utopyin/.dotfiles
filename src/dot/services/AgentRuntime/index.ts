@@ -1,6 +1,7 @@
 import * as Context from "effect/Context";
 import type * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
+import type * as PlatformError from "effect/PlatformError";
 
 import type { CommandExecutionError } from "../CommandExecutor/index.ts";
 import { makePiAgentRuntime } from "./Pi.ts";
@@ -8,7 +9,7 @@ import { makePiAgentRuntime } from "./Pi.ts";
 export interface AgentRuntimeShape {
   readonly installExtensionPackageDeps: (
     extensionsDir: string
-  ) => Effect.Effect<void, CommandExecutionError>;
+  ) => Effect.Effect<void, CommandExecutionError | PlatformError.PlatformError>;
   readonly installPackageDeps: (
     packageDir: string
   ) => Effect.Effect<void, CommandExecutionError>;

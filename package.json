@@ -4,9 +4,10 @@
   "type": "module",
   "scripts": {
     "dot": "bun run bin/dot.ts",
-    "check": "bun run check:types && bun run check:lint",
+    "check": "bun run check:types && bun run test && bun run check:lint",
     "check:types": "tsc --noEmit",
     "check:lint": "ultracite check",
+    "test": "vitest run",
     "build": "bun build ./bin/dot.ts --compile --outfile ./dist/dot",
     "fix": "ultracite fix"
   },
@@ -15,10 +16,12 @@
     "effect": "4.0.0-beta.78"
   },
   "devDependencies": {
+    "@effect/platform-node-shared": "4.0.0-beta.78",
     "@types/bun": "1.3.14",
     "oxfmt": "0.53.0",
     "oxlint": "1.68.0",
     "typescript": "6.0.3",
-    "ultracite": "7.8.1"
+    "ultracite": "7.8.1",
+    "vitest": "4.1.10"
   }
 }

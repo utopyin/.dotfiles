@@ -29,6 +29,8 @@ export const makeStowConfigLinker = Effect.gen(function* () {
           "--ignore",
           "\\.DS_Store$",
           "--ignore",
+          NODE_MODULES_IGNORE,
+          "--ignore",
           FOLDED_SKILLS_IGNORE,
           "--restow",
           "home",
@@ -57,6 +59,8 @@ export const makeStowConfigLinker = Effect.gen(function* () {
           "--no-folding",
           "--ignore",
           "\\.DS_Store$",
+          "--ignore",
+          NODE_MODULES_IGNORE,
           "--ignore",
           FOLDED_SKILLS_IGNORE,
           "--delete",
@@ -217,3 +221,4 @@ const backupConflicts = Effect.fn("StowConfigLinker.backupConflicts")(
 const SKILLS_SOURCE_SEGMENTS = [".agents", "skills"] as const;
 const FOLDED_SKILL_LINKS = [".agents/skills", ".claude/skills"] as const;
 const FOLDED_SKILLS_IGNORE = "\\.agents/skills$";
+const NODE_MODULES_IGNORE = "(^|/)node_modules($|/)";

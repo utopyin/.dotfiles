@@ -6,7 +6,7 @@ import { DotfilesConfig } from "../../Config.ts";
 import { CommandExecutor } from "../CommandExecutor/index.ts";
 import type { AgentRuntimeShape } from "./index.ts";
 
-const discoverExtensionPackageDirs = Effect.fn(
+export const discoverExtensionPackageDirs = Effect.fn(
   "PiAgentRuntime.discoverExtensionPackageDirs"
 )(function* (extensionsDir: string) {
   const fs = yield* FileSystem.FileSystem;
@@ -16,21 +16,27 @@ const discoverExtensionPackageDirs = Effect.fn(
     return [];
   }
 
-  const packageDirs: string[] = [];
+  const packageDirs = new Set<string>();
   for (const entry of yield* fs.readDirectory(extensionsDir)) {
-    const packageDir = path.join(extensionsDir, entry);
-    const packageJsonPath = path.join(packageDir, "package.json");
+    const discoveredPackageDir = path.join(extensionsDir, entry);
+    const packageInfo = yield* fs.stat(discoveredPackageDir);
+    if (packageInfo.type !== "Directory") {
+      continue;
+    }
+
+    const packageJsonPath = path.join(discoveredPackageDir, "package.json");
     if (!(yield* fs.exists(packageJsonPath))) {
       continue;
     }
 
     const packageJson = yield* fs.readFileString(packageJsonPath);
     if (hasRuntimeDependencies(packageJson)) {
-      packageDirs.push(packageDir);
+      const realPackageJsonPath = yield* fs.realPath(packageJsonPath);
+      packageDirs.add(path.dirname(realPackageJsonPath));
     }
   }
 
-  return packageDirs.toSorted();
+  return [...packageDirs].toSorted();
 });
 
 const hasRuntimeDependencies = (packageJson: string) => {
@@ -84,8 +90,7 @@ export const makePiAgentRuntime = Effect.gen(function* () {
         extensionsDir
       ).pipe(
         Effect.provideService(FileSystem.FileSystem, fs),
-        Effect.provideService(Path.Path, path),
-        Effect.catchCause(() => Effect.succeed([]))
+        Effect.provideService(Path.Path, path)
       );
       for (const packageDir of packageDirs) {
         yield* installRuntimePackageDeps(packageDir);

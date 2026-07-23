@@ -39,5 +39,8 @@ export const update = Effect.fn("update")(function* () {
   yield* Console.log("Applying dotfiles config...");
   yield* applyConfig();
 
+  yield* Console.log("Installing Pi extension dependencies...");
+  yield* agent.installExtensionPackageDeps(config.piExtensionsDir);
+
   yield* Console.log("Update complete");
 });

@@ -17,6 +17,7 @@ The rotation review candidate list from the old shell-config migration is:
 - `CLOUDFLARE_API_TOKEN`
 - `UIDOTSH_TOKEN`
 - `EXCALIDRAW_API_KEY`
+- `FIRECRAWL_API_KEY` (required by the vendored Pi Firecrawl tools)
 
 `UIDOTSH_BEARER` is derived from `UIDOTSH_TOKEN`, not a separate secret value.
 
@@ -28,6 +29,7 @@ The template references Password-category items in the `Personal` vault:
 - `Dotfiles Cloudflare API Token` → `password`
 - `Dotfiles UIDOTSH Token` → `password`
 - `Dotfiles Excalidraw API Key` → `password`
+- `Dotfiles FIRECRAWL_API_KEY` → `password` after running `dot secrets add FIRECRAWL_API_KEY`
 
 ## Commands
 
@@ -59,6 +61,14 @@ printf %s "$SECRET_VALUE" | dot secrets add SOME_API_KEY --value-stdin
 `dot secrets add SOME_API_KEY value` is intentionally unsupported in the Effect CLI because it can leak into shell history/process logs.
 
 This creates/updates a 1Password item named `Dotfiles SOME_API_KEY`, updates `secrets.template.zsh`, and re-renders `~/.config/secrets/env.zsh`.
+
+To enable Pi's Firecrawl `search`, `scrape`, and `crawl` tools:
+
+```bash
+dot secrets add FIRECRAWL_API_KEY
+```
+
+Then start Pi from a new shell so it inherits the rendered environment variable.
 
 ## Remove a secret
 

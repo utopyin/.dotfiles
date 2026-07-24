@@ -1,7 +1,7 @@
 {
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-5.6-sol",
-  "lastChangelogVersion": "0.81.1",
+  "lastChangelogVersion": "0.82.0",
   "defaultThinkingLevel": "high",
   "shellCommandPrefix": "for config_file in \"$HOME\"/.config/zsh/conf.d/{20-paths,30-aliases}.zsh; do [ -r \"$config_file\" ] && . \"$config_file\"; done",
   "treeFilterMode": "no-tools",
@@ -10,13 +10,8 @@
   },
   "enableSkillCommands": true,
   "showHardwareCursor": false,
-  "theme": "current-ide",
+  "theme": "github-dark-default",
   "packages": [
-    "npm:@zenobius/pi-worktrees",
-    {
-      "source": "npm:pi-btw",
-      "extensions": ["+extensions/btw.ts"]
-    },
     {
       "source": "npm:@neilurk12/pi-lazygit",
       "extensions": ["+dist/index.js"]
@@ -30,5 +25,7 @@
   ],
   "editorPaddingX": 3,
   "quietStartup": true,
-  "steeringMode": "one-at-a-time"
+  "steeringMode": "one-at-a-time",
+  "defaultProjectTrust": "always",
+  "doubleEscapeAction": "tree"
 }

@@ -6,6 +6,11 @@ import { DotfilesConfig } from "../../Config.ts";
 import { CommandExecutor } from "../CommandExecutor/index.ts";
 import type { AgentRuntimeShape } from "./index.ts";
 
+export interface ExtensionPackageDirs {
+  readonly installDir: string;
+  readonly liveDir: string;
+}
+
 export const discoverExtensionPackageDirs = Effect.fn(
   "PiAgentRuntime.discoverExtensionPackageDirs"
 )(function* (extensionsDir: string) {
@@ -16,7 +21,7 @@ export const discoverExtensionPackageDirs = Effect.fn(
     return [];
   }
 
-  const packageDirs = new Set<string>();
+  const packageDirs: ExtensionPackageDirs[] = [];
   for (const entry of yield* fs.readDirectory(extensionsDir)) {
     const discoveredPackageDir = path.join(extensionsDir, entry);
     const packageInfo = yield* fs.stat(discoveredPackageDir);
@@ -32,11 +37,34 @@ export const discoverExtensionPackageDirs = Effect.fn(
     const packageJson = yield* fs.readFileString(packageJsonPath);
     if (hasRuntimeDependencies(packageJson)) {
       const realPackageJsonPath = yield* fs.realPath(packageJsonPath);
-      packageDirs.add(path.dirname(realPackageJsonPath));
+      packageDirs.push({
+        installDir: path.dirname(realPackageJsonPath),
+        liveDir: yield* fs.realPath(discoveredPackageDir),
+      });
     }
   }
 
-  return [...packageDirs].toSorted();
+  return packageDirs.toSorted((left, right) =>
+    left.liveDir.localeCompare(right.liveDir)
+  );
+});
+
+export const linkExtensionNodeModules = Effect.fn(
+  "PiAgentRuntime.linkExtensionNodeModules"
+)(function* ({ installDir, liveDir }: ExtensionPackageDirs) {
+  if (installDir === liveDir) {
+    return;
+  }
+
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const liveNodeModules = path.join(liveDir, "node_modules");
+  const installedNodeModules = path.join(installDir, "node_modules");
+  yield* fs.remove(liveNodeModules, { force: true, recursive: true });
+  yield* fs.symlink(
+    path.relative(liveDir, installedNodeModules),
+    liveNodeModules
+  );
 });
 
 const hasRuntimeDependencies = (packageJson: string) => {
@@ -72,13 +100,7 @@ export const makePiAgentRuntime = Effect.gen(function* () {
     "PiAgentRuntime.installRuntimePackageDeps"
   )(function* (packageDir: string) {
     yield* command
-      .run("npm", [
-        "install",
-        "--omit=dev",
-        "--omit=peer",
-        "--prefix",
-        packageDir,
-      ])
+      .run("npm", ["install", "--omit=dev", "--prefix", packageDir])
       .pipe(Effect.asVoid);
   });
 
@@ -93,7 +115,11 @@ export const makePiAgentRuntime = Effect.gen(function* () {
         Effect.provideService(Path.Path, path)
       );
       for (const packageDir of packageDirs) {
-        yield* installRuntimePackageDeps(packageDir);
+        yield* installRuntimePackageDeps(packageDir.installDir);
+        yield* linkExtensionNodeModules(packageDir).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(Path.Path, path)
+        );
       }
     }),
     installPackageDeps,

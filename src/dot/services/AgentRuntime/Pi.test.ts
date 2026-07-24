@@ -15,7 +15,10 @@ import * as Effect from "effect/Effect";
 import * as Layer from "effect/Layer";
 import { afterEach, describe, expect, test } from "vitest";
 
-import { discoverExtensionPackageDirs } from "./Pi.ts";
+import {
+  discoverExtensionPackageDirs,
+  linkExtensionNodeModules,
+} from "./Pi.ts";
 
 const tempDirs: string[] = [];
 
@@ -28,7 +31,7 @@ describe("Pi extension package discovery", () => {
     );
   });
 
-  test("ignores files and resolves Stow-linked package manifests", async () => {
+  test("finds tracked and live dirs for Stow-linked extensions", async () => {
     const tempDir = await mkdtemp(join(tmpdir(), "dot-pi-extensions-"));
     tempDirs.push(tempDir);
 
@@ -53,6 +56,30 @@ describe("Pi extension package discovery", () => {
       )
     );
 
-    expect(packageDirs).toStrictEqual([await realpath(trackedPackageDir)]);
+    const installDir = await realpath(trackedPackageDir);
+    const canonicalLivePackageDir = await realpath(livePackageDir);
+    expect(packageDirs).toStrictEqual([
+      { installDir, liveDir: canonicalLivePackageDir },
+    ]);
+
+    await mkdir(join(installDir, "node_modules"));
+    await writeFile(join(installDir, "node_modules", "dependency.js"), "");
+    await mkdir(join(livePackageDir, "node_modules"));
+    await writeFile(join(livePackageDir, "node_modules", "stale.js"), "");
+
+    await Effect.runPromise(
+      linkExtensionNodeModules({
+        installDir,
+        liveDir: canonicalLivePackageDir,
+      }).pipe(Effect.provide(Layer.merge(NodeFileSystem.layer, NodePath.layer)))
+    );
+
+    const linkedNodeModules = await realpath(
+      join(livePackageDir, "node_modules")
+    );
+    const installedNodeModules = await realpath(
+      join(installDir, "node_modules")
+    );
+    expect(linkedNodeModules).toBe(installedNodeModules);
   });
 });

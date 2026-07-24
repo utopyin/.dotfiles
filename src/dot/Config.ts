@@ -32,7 +32,7 @@ export const DotfilesConfig = Config.all({
   ),
   homeDir: Config.string("HOME").pipe(Config.withDefault(homedir())),
   piNpmPackage: Config.string("DOTFILES_PI_NPM_PACKAGE").pipe(
-    Config.withDefault("@earendil-works/pi-coding-agent@0.78.1")
+    Config.withDefault("@earendil-works/pi-coding-agent@0.82.0")
   ),
   secretsVault: Config.string("DOTFILES_SECRETS_VAULT").pipe(
     Config.withDefault("Personal")

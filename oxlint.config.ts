@@ -6,6 +6,19 @@ export default defineConfig({
   extends: [core, vitest],
   ignorePatterns: [
     ...(core.ignorePatterns ?? []),
+    // Keep the Davis suite diffable against upstream; it has its own checks.
+    "home/.pi/agent/extensions/ask-user/**",
+    "home/.pi/agent/extensions/background-terminals/**",
+    "home/.pi/agent/extensions/copy-all/**",
+    "home/.pi/agent/extensions/file-search/**",
+    "home/.pi/agent/extensions/firecrawl-search/**",
+    "home/.pi/agent/extensions/git-info/**",
+    "home/.pi/agent/extensions/model-info/**",
+    "home/.pi/agent/extensions/shared/**",
+    "home/.pi/agent/extensions/subagents/**",
+    "home/.pi/agent/extensions/summaries/**",
+    "home/.pi/agent/extensions/ui-customization/**",
+    "home/.pi/agent/extensions/workflows/**",
     // Generated/minified browser bridge vendored with pi-mcp; source TS stays linted.
     "home/.pi/agent/extensions/pi-mcp/src/app-bridge.bundle.js",
   ],

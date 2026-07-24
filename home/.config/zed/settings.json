@@ -85,9 +85,9 @@
     "default_model": {
       "speed": "fast",
       "provider": "openai-subscribed",
-      "model": "gpt-5.5",
+      "model": "gpt-5.6-sol",
       "enable_thinking": true,
-      "effort": "medium"
+      "effort": "low"
     },
     "dock": "right",
     "favorite_models": [],
@@ -147,6 +147,12 @@
     }
   ],
   "agent_servers": {
+    "cursor": {
+      "default_config_options": {
+        "model": "claude-fable-5"
+      },
+      "type": "registry"
+    },
     "opencode": {
       "type": "registry"
     },

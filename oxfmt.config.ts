@@ -15,7 +15,6 @@ export default defineConfig({
     "home/.pi/agent/extensions/model-info/**",
     "home/.pi/agent/extensions/shared/**",
     "home/.pi/agent/extensions/subagents/**",
-    "home/.pi/agent/extensions/summaries/**",
     "home/.pi/agent/extensions/ui-customization/**",
     "home/.pi/agent/extensions/workflows/**",
   ],

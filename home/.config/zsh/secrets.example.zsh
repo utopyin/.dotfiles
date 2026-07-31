@@ -9,3 +9,4 @@
 # export UIDOTSH_BEARER="Bearer ${UIDOTSH_TOKEN}"
 # export EXCALIDRAW_API_KEY="op://Personal/Dotfiles Excalidraw API Key/password"
 # export GH_REGISTRY_TOKEN="op://Personal/Dotfiles GH Registry Token/password"
+# export FIREWORKS_API_KEY="op://Personal/Dotfiles Fireworks API Token/password"

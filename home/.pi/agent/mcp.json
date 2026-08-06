@@ -1,6 +1,10 @@
 {
   "imports": ["cursor"],
   "mcpServers": {
+    "inbox-admin": {
+      "url": "https://admin.inboxapp.com/api/mcp",
+      "directTools": false
+    },
     "trigger": {
       "args": ["trigger.dev@latest", "mcp"],
       "command": "npx",

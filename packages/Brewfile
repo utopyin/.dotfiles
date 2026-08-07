@@ -36,6 +36,7 @@ cask "keka"
 cask "docker-desktop"
 cask "conar"
 cask "humanlayer"
+cask "devin-cli"
 
 brew "bun"
 brew "ffmpeg"

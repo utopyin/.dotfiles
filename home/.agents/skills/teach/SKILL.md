@@ -9,7 +9,17 @@ The user has asked you to teach them something. This is a stateful request - the
 
 ## Teaching Workspace
 
-Treat the current directory as a teaching workspace. The state of their learning is captured in this directory in several files:
+Store teaching workspaces under `~/learn/<subject>` by default. At the start of every teaching request:
+
+1. Identify the subject the user wants to learn.
+2. Derive a concise, lowercase kebab-case subject slug. Remove parenthetical category labels when they are only clarifiers; for example, `Matter (IoT)` becomes `matter`, while `Effect TS` becomes `effect-ts`.
+3. Resolve the teaching workspace to `~/learn/<subject-slug>`.
+4. Inspect that directory before writing. If it already contains a teaching workspace, resume it. If it does not exist, create it lazily as the first course files are written.
+5. Tell the user which teaching workspace is being used before making changes.
+
+An explicit workspace path from the user overrides the default. If the current directory already contains a `MISSION.md` and the other teaching-workspace artifacts, treat it as an existing course and continue there unless the user requests a different location. Never initialize a new course in the current working directory merely because the session started there.
+
+Treat the resolved teaching workspace as the base directory for every relative path below. The state of the user's learning is captured there in several files:
 
 - `MISSION.md`: A document capturing the _reason_ the user is interested in the topic. This should be used to ground all teaching. Use the format in [MISSION-FORMAT.md](./MISSION-FORMAT.md).
 - `./reference/*.html`: A directory of reference materials. These are the compressed learnings from the lessons - cheat sheets, reference algorithms, syntax, yoga poses, glossaries. They are the raw units of learning. They should be beautiful documents which print out well, and are designed for quick reference.

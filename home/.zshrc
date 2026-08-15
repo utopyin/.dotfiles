@@ -13,6 +13,14 @@ export ZSH="$HOME/.oh-my-zsh"
 export LDFLAGS="-L/opt/homebrew/opt/llvm/lib"
 export CPPFLAGS="-I/opt/homebrew/opt/llvm/include"
 
+# Register every completion directory before Oh My Zsh runs compinit.
+fpath=(
+  "$HOME/.config/zsh/completions"
+  "$HOME/.docker/completions"
+  "${BUN_INSTALL:-$HOME/.bun}"
+  "${fpath[@]}"
+)
+
 # Set name of the theme to load --- if set to "random", it will
 # load a random theme each time Oh My Zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME

@@ -1,5 +1,5 @@
 setopt CHASE_LINKS
-eval "$(zoxide init zsh)"
+_dotfiles_source_cached_integration "zoxide-init-v1" zoxide init zsh
 
 # A function to visually change directories with lstr
 lcd() {

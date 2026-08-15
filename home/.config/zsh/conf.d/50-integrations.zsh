@@ -1,11 +1,5 @@
-if command -v wt >/dev/null 2>&1; then eval "$(command wt config shell init zsh)"; fi
-# The following lines have been added by Docker Desktop to enable Docker CLI completions.
-fpath=("$HOME/.docker/completions" "${fpath[@]}")
-autoload -Uz compinit
-compinit
-# End of Docker CLI completions
-
-eval "$(op completion zsh)"; compdef _op op
+_dotfiles_source_cached_integration "worktrunk-init-v1" wt config shell init zsh
+_dotfiles_source_cached_integration "op-completion-v1" op completion zsh
 
 # >>> hitch shell integration >>>
 function _hitch_prompt_segment() {

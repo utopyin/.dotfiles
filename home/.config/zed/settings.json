@@ -7,6 +7,8 @@
 // custom settings, run `zed: open default settings` from the
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
+  "vim_mode": false,
+  "proxy": "",
   "diff_view_style": "split",
   "cli_default_open_behavior": "new_window",
   "use_system_window_tabs": false,
@@ -192,7 +194,7 @@
   "theme": {
     "mode": "dark",
     "light": "GitHub Light",
-    "dark": "Cursor Dark"
+    "dark": "Min Dark (Solid)"
   },
   "centered_layout": {
     "left_padding": 0.1,
@@ -203,5 +205,6 @@
       "text": "#D6D6DE"
     }
   },
-  "hidden_files": []
+  "hidden_files": [],
+  "lsp_results_location": "picker",
 }

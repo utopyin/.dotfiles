@@ -72,5 +72,11 @@
     "bindings": {
       "alt-ctrl-o": "text_finder::Toggle"
     }
+  },
+  {
+    "context": "Editor",
+    "bindings": {
+      "cmd-1": "editor::FindAllReferences"
+    }
   }
 ]

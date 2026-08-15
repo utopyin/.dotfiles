@@ -1,3 +1,5 @@
+gui:
+  nerdFontsVersion: "3"
 os:
   edit: "zed {{filename}}"
   editAtLine: "zed {{filename}}:{{line}}"

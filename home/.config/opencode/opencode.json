@@ -14,6 +14,11 @@
       "type": "remote",
       "url": "https://mcp.linear.app/mcp",
       "enabled": true
+    },
+    "fastmail": {
+      "type": "remote",
+      "url": "https://api.fastmail.com/mcp",
+      "enabled": true
     }
   },
   "lsp": true,

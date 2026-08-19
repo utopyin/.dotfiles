@@ -18,6 +18,10 @@
     "linear": {
       "url": "https://mcp.linear.app/mcp",
       "directTools": false
+    },
+    "fastmail": {
+      "url": "https://api.fastmail.com/mcp",
+      "directTools": false
     }
   }
 }

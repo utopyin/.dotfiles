@@ -1,3 +1,5 @@
+export EDITOR="zed --wait"
+
 # pnpm
 export PNPM_HOME="${PNPM_HOME:-$HOME/Library/pnpm}"
 case ":$PATH:" in

@@ -60,6 +60,17 @@ bun run dot link            # install ~/.local/bin/dot -> ~/.dotfiles/dist/dot
 bun run dot link --dev      # install a shim that runs bin/dot.ts via Bun
 ```
 
+### Default developer file app
+
+On macOS, apply the tracked developer-file associations for Zed Preview with:
+
+```bash
+duti ~/.duti
+```
+
+The settings cover source code, scripts, plain text, documentation, data, and
+common project/configuration formats.
+
 ### Cursor profile
 
 `cursor-profile.code-profile` is sanitized for publishing: it keeps settings,

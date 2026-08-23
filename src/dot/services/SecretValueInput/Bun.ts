@@ -18,6 +18,7 @@ export const makeBunSecretValueInput = Effect.sync(
             ],
             {
               stderr: "inherit",
+              stdin: "inherit",
               stdout: "pipe",
             }
           );

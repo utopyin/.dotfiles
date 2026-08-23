@@ -1,6 +1,11 @@
 {
   "imports": ["cursor"],
   "mcpServers": {
+    "axiom": {
+      "url": "https://mcp.axiom.co/mcp",
+      "auth": "oauth",
+      "directTools": false
+    },
     "inbox-admin": {
       "url": "https://admin.inboxapp.com/api/mcp",
       "directTools": false

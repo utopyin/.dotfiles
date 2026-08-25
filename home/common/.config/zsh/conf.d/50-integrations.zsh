@@ -1,5 +1,6 @@
 _dotfiles_source_cached_integration "worktrunk-init-v1" wt config shell init zsh
 _dotfiles_source_cached_integration "op-completion-v1" op completion zsh
+_dotfiles_source_cached_integration "try-init-v1" try init "$HOME/Work/tries"
 
 # >>> hitch shell integration >>>
 function _hitch_prompt_segment() {

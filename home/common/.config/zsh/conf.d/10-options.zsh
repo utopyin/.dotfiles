@@ -1,4 +1,5 @@
 setopt CHASE_LINKS
+_dotfiles_source_cached_integration "mise-activate-zsh-v1" mise activate zsh
 _dotfiles_source_cached_integration "zoxide-init-v1" zoxide init zsh
 
 # A function to visually change directories with lstr

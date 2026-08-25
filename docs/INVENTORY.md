@@ -52,7 +52,8 @@ Installed Pi package and extension-local dependencies are represented by tracked
 
 - Homebrew package manifest: `packages/Brewfile`
 - Git config: `home/common/.config/git/config`
-- Global Git ignore: `home/.gitignore_global`
+- GitHub-backed identity: generated at `~/.config/git/identity.config` by `dot init`
+- Global Git ignore: `home/common/.gitignore_global`
 - Ghostty config: `home/macos/.config/ghostty/config`
 - Ghostty theme/shaders used by the config are tracked under `home/macos/.config/ghostty/`.
 

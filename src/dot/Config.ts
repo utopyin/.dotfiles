@@ -19,6 +19,8 @@ export interface DotfilesConfigShape {
   readonly archRepoManifestPath: string;
   readonly dotfilesDir: string;
   readonly editorCommand: string;
+  readonly gitIdentityConfigPath: string;
+  readonly gitSshSigningKeyCommandPath: string;
   readonly homeDir: string;
   readonly localBinDotPath: string;
   readonly piExtensionsDir: string;
@@ -65,6 +67,8 @@ export const DotfilesConfig = Config.all({
       brewfilePath: `${dotfilesDir}/packages/Brewfile`,
       dotfilesDir,
       editorCommand,
+      gitIdentityConfigPath: `${homeDir}/.config/git/identity.config`,
+      gitSshSigningKeyCommandPath: `${homeDir}/.local/bin/git-ssh-signing-key`,
       homeDir,
       localBinDotPath: `${homeDir}/.local/bin/dot`,
       piExtensionsDir: `${homeDir}/.pi/agent/extensions`,

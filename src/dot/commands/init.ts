@@ -5,6 +5,7 @@ import { DotfilesConfig } from "../Config.ts";
 import { AgentRuntime } from "../services/AgentRuntime/index.ts";
 import { BinaryLinker } from "../services/BinaryLinker.ts";
 import { CommandExecutor } from "../services/CommandExecutor/index.ts";
+import { GitSetup } from "../services/GitSetup.ts";
 import { PackageInstaller } from "../services/PackageInstaller/index.ts";
 import { ShellSetup } from "../services/ShellSetup/index.ts";
 import { doctor } from "./doctor.ts";
@@ -15,6 +16,7 @@ export const init = Effect.fn("init")(function* () {
   const agent = yield* AgentRuntime;
   const commands = yield* CommandExecutor;
   const linker = yield* BinaryLinker;
+  const git = yield* GitSetup;
   const packages = yield* PackageInstaller;
   const shell = yield* ShellSetup;
   yield* packages.installSelfIfMissing();
@@ -27,6 +29,7 @@ export const init = Effect.fn("init")(function* () {
   yield* linker.linkDot("release");
   yield* shell.installIntegrations();
   yield* applyConfig();
+  yield* git.configureIdentity();
   yield* agent.installSelfIfMissing();
   yield* agent.installPackageDeps(config.piPackageDir);
   yield* agent.installExtensionPackageDeps(config.piExtensionsDir);

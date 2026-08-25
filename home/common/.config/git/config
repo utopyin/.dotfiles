@@ -1,5 +1,5 @@
-[user]
-	name = utopy
+[include]
+	path = ~/.config/git/identity.config
 
 [core]
 	editor = zed --wait

@@ -7,6 +7,7 @@ import { BinaryLinker } from "./services/BinaryLinker.ts";
 import { CommandExecutor } from "./services/CommandExecutor/index.ts";
 import { ConfigLinker } from "./services/ConfigLinker/index.ts";
 import { FileVersioning } from "./services/FileVersioning/index.ts";
+import { GitSetup } from "./services/GitSetup.ts";
 import { makeHomebrewPackageInstaller } from "./services/PackageInstaller/Homebrew.ts";
 import { PackageInstaller } from "./services/PackageInstaller/index.ts";
 import { makeOmarchyPackageInstaller } from "./services/PackageInstaller/Omarchy.ts";
@@ -56,6 +57,7 @@ const WithPackages = SelectedPackageInstaller.pipe(
 
 export const Live = Layer.mergeAll(
   BinaryLinker.Live,
+  GitSetup.Live,
   PiExtensionVendor.Live,
   Secrets.Live,
   Workspace.Live

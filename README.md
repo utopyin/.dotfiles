@@ -43,11 +43,14 @@ dot secrets doctor
 dot secrets render
 ```
 
-For a first-pass full bootstrap on a machine with Bun available, `init` installs packages, builds `dist/dot`, links `~/.local/bin/dot`, applies config, and checks the result:
+For a first-pass full bootstrap on a machine with Bun available, authenticate GitHub first. `init` installs packages, derives the Git name and email from the authenticated GitHub account, writes them to the ignored `~/.config/git/identity.config`, builds `dist/dot`, links `~/.local/bin/dot`, applies config, and checks the result. When GitHub has no public email, `init` uses the account's GitHub noreply address.
 
 ```bash
+gh auth login
 bun run dot init
 ```
+
+Git commit signing uses the first key exposed by the 1Password SSH agent. The tracked Git config enables SSH signing without committing the public key or personal identity.
 
 ## Usage
 

@@ -43,14 +43,11 @@ local function send_shortcut_once(mods, key)
   end, { timeout = 50, type = "oneshot" })
 end
 
--- SUPER+SHIFT+C normally opens Calendar; preserve that outside Quick Access.
+-- SUPER+SHIFT+C previously opened Calendar (and copied passwords in Quick Access).
+-- Forward Chromium's Omarchy Copy URL shortcut instead.
 hl.unbind("SUPER + SHIFT + C")
-o.bind("SUPER + SHIFT + C", "1Password copy password / Calendar", function()
-  if onepassword_quick_access_active() then
-    send_shortcut_once("CTRL + SHIFT", "C")
-  else
-    hl.exec_cmd(o.launch_webapp("https://app.hey.com/calendar/weeks/"))
-  end
+o.bind("SUPER + SHIFT + C", "Copy browser URL", function()
+  send_shortcut_once("ALT + SHIFT", "L")
 end)
 
 o.bind("SUPER + ALT + C", "1Password copy one-time password", function()

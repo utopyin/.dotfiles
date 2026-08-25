@@ -17,7 +17,8 @@
 
 o.bind("MOD3 + C", "Zed", { launch = "zeditor" })
 
--- Show or hide a maximized browser scratchpad.
+-- Show or hide maximized app scratchpads.
+o.bind("MOD3 + L", "Toggle Linear", "~/.local/bin/toggle-linear")
 o.bind("MOD3 + B", "Toggle browser", "~/.local/bin/toggle-browser")
 
 hl.unbind("ALT + CTRL + J")

@@ -1,6 +1,6 @@
-if (( $+commands[zed] )); then
+if command -v zed >/dev/null 2>&1; then
   export EDITOR="zed --wait"
-elif (( $+commands[nvim] )); then
+elif command -v nvim >/dev/null 2>&1; then
   export EDITOR="nvim"
 fi
 

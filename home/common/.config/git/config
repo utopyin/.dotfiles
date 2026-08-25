@@ -11,7 +11,8 @@
 	format = ssh
 
 [gpg "ssh"]
-	program = ~/.local/bin/op-ssh-sign
+	program = op-ssh-sign
+	defaultKeyCommand = git-ssh-signing-key
 
 [commit]
 	gpgSign = true

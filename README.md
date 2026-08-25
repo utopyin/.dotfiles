@@ -50,7 +50,7 @@ gh auth login
 bun run dot init
 ```
 
-Git commit signing uses the first key exposed by the 1Password SSH agent. The tracked Git config enables SSH signing without committing the public key or personal identity.
+Git commit signing uses the first key exposed by the 1Password SSH agent. The tracked Git config enables SSH signing without committing the public key or personal identity. HTTPS pushes use the authenticated GitHub CLI credential helper, and the first push of a local branch automatically sets its upstream.
 
 ## Usage
 

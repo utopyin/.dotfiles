@@ -15,7 +15,10 @@ export interface GitIdentity {
 }
 
 export interface GitSetupStatus {
+  readonly autoSetupRemoteConfigured: boolean;
   readonly emailConfigured: boolean;
+  readonly githubAuthenticated: boolean;
+  readonly githubCredentialHelperConfigured: boolean;
   readonly nameConfigured: boolean;
   readonly signingConfigured: boolean;
   readonly signingKeyAvailable: boolean;
@@ -99,20 +102,43 @@ export class GitSetup extends Context.Service<GitSetup>()("dot/GitSetup", {
       }),
 
       status: Effect.fn("GitSetup.status")(function* () {
-        const [name, email, signingFormat, signCommits, keyCommand, key] =
-          yield* Effect.all([
-            readGitConfig("user.name"),
-            readGitConfig("user.email"),
-            readGitConfig("gpg.format"),
-            readGitConfig("commit.gpgSign"),
-            readGitConfig("gpg.ssh.defaultKeyCommand"),
-            command
-              .runText(config.gitSshSigningKeyCommandPath)
-              .pipe(Effect.option),
-          ]).pipe(Effect.provideService(CommandExecutor, command));
+        const [
+          name,
+          email,
+          signingFormat,
+          signCommits,
+          keyCommand,
+          key,
+          credentialHelper,
+          autoSetupRemote,
+          githubAuthenticated,
+        ] = yield* Effect.all([
+          readGitConfig("user.name"),
+          readGitConfig("user.email"),
+          readGitConfig("gpg.format"),
+          readGitConfig("commit.gpgSign"),
+          readGitConfig("gpg.ssh.defaultKeyCommand"),
+          command
+            .runText(config.gitSshSigningKeyCommandPath)
+            .pipe(Effect.option),
+          readGitConfig("credential.https://github.com.helper"),
+          readGitConfig("push.autoSetupRemote"),
+          command
+            .run("gh", ["auth", "status", "--hostname", "github.com"])
+            .pipe(
+              Effect.as(true),
+              Effect.catchCause(() => Effect.succeed(false))
+            ),
+        ]).pipe(Effect.provideService(CommandExecutor, command));
 
         return {
+          autoSetupRemoteConfigured: optionEquals(autoSetupRemote, "true"),
           emailConfigured: optionHasText(email),
+          githubAuthenticated,
+          githubCredentialHelperConfigured: optionIncludes(
+            credentialHelper,
+            "gh auth git-credential"
+          ),
           nameConfigured: optionHasText(name),
           signingConfigured:
             optionEquals(signingFormat, "ssh") &&
@@ -141,3 +167,6 @@ const optionHasText = (value: Option.Option<string>) =>
 
 const optionEquals = (value: Option.Option<string>, expected: string) =>
   Option.isSome(value) && value.value.trim().toLowerCase() === expected;
+
+const optionIncludes = (value: Option.Option<string>, expected: string) =>
+  Option.isSome(value) && value.value.includes(expected);

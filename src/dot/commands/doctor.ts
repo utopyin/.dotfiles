@@ -39,6 +39,24 @@ export const doctor = Effect.fn("doctor")(function* () {
     line({ label: "Git user email", ok: gitStatus.emailConfigured })
   );
   yield* Console.log(
+    line({
+      label: "GitHub CLI authentication",
+      ok: gitStatus.githubAuthenticated,
+    })
+  );
+  yield* Console.log(
+    line({
+      label: "GitHub HTTPS credential helper",
+      ok: gitStatus.githubCredentialHelperConfigured,
+    })
+  );
+  yield* Console.log(
+    line({
+      label: "Git automatic upstream setup",
+      ok: gitStatus.autoSetupRemoteConfigured,
+    })
+  );
+  yield* Console.log(
     line({ label: "Git SSH signing", ok: gitStatus.signingConfigured })
   );
   yield* Console.log(

@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+
 import * as Effect from "effect/Effect";
 import { describe, expect, it } from "vitest";
 
@@ -6,6 +8,21 @@ import {
   parseGitHubIdentity,
   renderGitIdentityConfig,
 } from "./GitSetup.ts";
+
+const trackedGitConfig = new URL(
+  "../../../home/common/.config/git/config",
+  import.meta.url
+);
+
+describe("tracked Git configuration", () => {
+  it("uses GitHub CLI credentials and automatically tracks new branches", async () => {
+    const config = await readFile(trackedGitConfig, "utf-8");
+
+    expect(config).toContain('[credential "https://github.com"]');
+    expect(config).toContain("helper = !gh auth git-credential");
+    expect(config).toContain("autoSetupRemote = true");
+  });
+});
 
 describe(parseGitHubIdentity, () => {
   it("uses the GitHub noreply address when the public email is null", async () => {

@@ -4,6 +4,7 @@ import * as Path from "effect/Path";
 
 import { CommandExecutor } from "../CommandExecutor/index.ts";
 import { PlatformInfo } from "../PlatformInfo.ts";
+import { HyprlandConfigError } from "./errors.ts";
 import type { ConfigLinkerShape } from "./index.ts";
 
 export const makeStowConfigLinker = Effect.gen(function* () {
@@ -18,6 +19,14 @@ export const makeStowConfigLinker = Effect.gen(function* () {
       dotfilesDir: string,
       homeDir: string
     ) {
+      if (platform.os === "linux") {
+        yield* verifyProspectiveHyprlandConfig(dotfilesDir, homeDir).pipe(
+          Effect.provideService(CommandExecutor, command),
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(Path.Path, path)
+        );
+      }
+
       yield* backupConflicts(dotfilesDir, homeDir, packageNames).pipe(
         Effect.provideService(FileSystem.FileSystem, fs),
         Effect.provideService(Path.Path, path)
@@ -37,6 +46,8 @@ export const makeStowConfigLinker = Effect.gen(function* () {
           FOLDED_SKILLS_IGNORE,
           "--ignore",
           FOLDED_OMARCHY_THEMES_IGNORE,
+          "--ignore",
+          MANAGED_HYPRLAND_FILES_IGNORE,
           "--restow",
           ...packageNames,
         ])
@@ -47,8 +58,17 @@ export const makeStowConfigLinker = Effect.gen(function* () {
         Effect.provideService(Path.Path, path)
       );
 
-      if (platform.os !== "darwin") {
+      if (platform.os === "linux") {
         yield* ensureFoldedOmarchyThemesLink(dotfilesDir, homeDir).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(Path.Path, path)
+        );
+        yield* ensureHyprlandConfigLinks(dotfilesDir, homeDir).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(Path.Path, path)
+        );
+        yield* reloadAndValidateHyprland(homeDir).pipe(
+          Effect.provideService(CommandExecutor, command),
           Effect.provideService(FileSystem.FileSystem, fs),
           Effect.provideService(Path.Path, path)
         );
@@ -63,7 +83,7 @@ export const makeStowConfigLinker = Effect.gen(function* () {
         Effect.provideService(Path.Path, path)
       );
 
-      if (platform.os !== "darwin") {
+      if (platform.os === "linux") {
         yield* removeFoldedOmarchyThemesLink(homeDir).pipe(
           Effect.provideService(FileSystem.FileSystem, fs),
           Effect.provideService(Path.Path, path)
@@ -91,6 +111,92 @@ export const makeStowConfigLinker = Effect.gen(function* () {
         .pipe(Effect.asVoid);
     }),
   } satisfies ConfigLinkerShape;
+});
+
+const verifyProspectiveHyprlandConfig = Effect.fn(
+  "StowConfigLinker.verifyProspectiveHyprlandConfig"
+)(function* (dotfilesDir: string, homeDir: string) {
+  const command = yield* CommandExecutor;
+  if (!(yield* command.exists("Hyprland"))) {
+    return;
+  }
+
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const currentConfigDir = path.join(homeDir, ...HYPRLAND_CONFIG_SEGMENTS);
+  const currentMainConfig = path.join(currentConfigDir, "hyprland.lua");
+  if (!(yield* fs.exists(currentMainConfig))) {
+    return;
+  }
+
+  yield* Effect.scoped(
+    Effect.gen(function* () {
+      const stagingHome = yield* fs.makeTempDirectoryScoped({
+        prefix: "dot-hyprland-",
+      });
+      const stagingConfigDir = path.join(
+        stagingHome,
+        ...HYPRLAND_CONFIG_SEGMENTS
+      );
+      yield* fs.makeDirectory(stagingConfigDir, { recursive: true });
+
+      const currentEntries = yield* fs.readDirectory(currentConfigDir);
+      for (const entry of currentEntries) {
+        if (entry.endsWith(".lua")) {
+          yield* fs.copyFile(
+            path.join(currentConfigDir, entry),
+            path.join(stagingConfigDir, entry)
+          );
+        }
+      }
+
+      const sourceConfigDir = path.join(
+        dotfilesDir,
+        "home",
+        "linux",
+        ...HYPRLAND_CONFIG_SEGMENTS
+      );
+      for (const fileName of MANAGED_HYPRLAND_FILES) {
+        yield* fs.copyFile(
+          path.join(sourceConfigDir, fileName),
+          path.join(stagingConfigDir, fileName)
+        );
+      }
+
+      const currentStatePath = path.join(
+        homeDir,
+        ".local",
+        "state",
+        "omarchy",
+        "current"
+      );
+      if (yield* fs.exists(currentStatePath)) {
+        const stagingStateDir = path.join(
+          stagingHome,
+          ".local",
+          "state",
+          "omarchy"
+        );
+        yield* fs.makeDirectory(stagingStateDir, { recursive: true });
+        yield* fs.symlink(
+          currentStatePath,
+          path.join(stagingStateDir, "current")
+        );
+      }
+
+      yield* command
+        .run("env", [
+          `HOME=${stagingHome}`,
+          `XDG_CONFIG_HOME=${path.join(stagingHome, ".config")}`,
+          `XDG_STATE_HOME=${path.join(stagingHome, ".local", "state")}`,
+          "Hyprland",
+          "--verify-config",
+          "--config",
+          path.join(stagingConfigDir, "hyprland.lua"),
+        ])
+        .pipe(Effect.asVoid);
+    })
+  );
 });
 
 const ensureFoldedSkillLinks = Effect.fn(
@@ -124,6 +230,105 @@ const ensureFoldedOmarchyThemesLink = Effect.fn(
 
   yield* ensureDirectoryLink(sourcePath, linkPath, homeDir);
 });
+
+const ensureHyprlandConfigLinks = Effect.fn(
+  "StowConfigLinker.ensureHyprlandConfigLinks"
+)(function* (dotfilesDir: string, homeDir: string) {
+  const path = yield* Path.Path;
+  const sourceConfigDir = path.join(
+    dotfilesDir,
+    "home",
+    "linux",
+    ...HYPRLAND_CONFIG_SEGMENTS
+  );
+  const targetConfigDir = path.join(homeDir, ...HYPRLAND_CONFIG_SEGMENTS);
+
+  for (const fileName of MANAGED_HYPRLAND_FILES) {
+    yield* ensureAtomicFileLink(
+      path.join(sourceConfigDir, fileName),
+      path.join(targetConfigDir, fileName),
+      homeDir
+    );
+  }
+});
+
+const ensureAtomicFileLink = Effect.fn("StowConfigLinker.ensureAtomicFileLink")(
+  function* (sourcePath: string, linkPath: string, homeDir: string) {
+    const fs = yield* FileSystem.FileSystem;
+    const path = yield* Path.Path;
+    const relativeTarget = path.relative(path.dirname(linkPath), sourcePath);
+
+    if (yield* pathIsSymlink(linkPath)) {
+      const currentTarget = yield* fs.readLink(linkPath);
+      if (currentTarget === relativeTarget) {
+        return;
+      }
+    } else if (yield* fs.exists(linkPath)) {
+      yield* copyExistingFileToBackup(homeDir, linkPath);
+    }
+
+    yield* fs.makeDirectory(path.dirname(linkPath), { recursive: true });
+    const temporaryLink = `${linkPath}.dot-${process.pid}-${Date.now()}`;
+    yield* fs.symlink(relativeTarget, temporaryLink);
+    yield* fs
+      .rename(temporaryLink, linkPath)
+      .pipe(
+        Effect.ensuring(
+          fs.remove(temporaryLink).pipe(Effect.catchCause(() => Effect.void))
+        )
+      );
+  }
+);
+
+const reloadAndValidateHyprland = Effect.fn(
+  "StowConfigLinker.reloadAndValidateHyprland"
+)(function* (homeDir: string) {
+  const command = yield* CommandExecutor;
+  if (!(yield* command.exists("Hyprland"))) {
+    return;
+  }
+
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const mainConfig = path.join(
+    homeDir,
+    ...HYPRLAND_CONFIG_SEGMENTS,
+    "hyprland.lua"
+  );
+  if (!(yield* fs.exists(mainConfig))) {
+    return;
+  }
+
+  yield* command
+    .run("Hyprland", ["--verify-config", "--config", mainConfig])
+    .pipe(Effect.asVoid);
+
+  if (!(yield* command.exists("hyprctl"))) {
+    return;
+  }
+
+  const instances = yield* command
+    .runText("hyprctl", ["instances", "-j"])
+    .pipe(Effect.catchCause(() => Effect.succeed("[]")));
+  if (!hasRunningHyprlandInstance(instances)) {
+    return;
+  }
+
+  yield* command.run("hyprctl", ["reload", "config-only"]);
+  const errors = (yield* command.runText("hyprctl", ["configerrors"])).trim();
+  if (errors.length > 0) {
+    return yield* new HyprlandConfigError({ errors });
+  }
+});
+
+const hasRunningHyprlandInstance = (instances: string): boolean => {
+  try {
+    const decoded: unknown = JSON.parse(instances);
+    return Array.isArray(decoded) && decoded.length > 0;
+  } catch {
+    return false;
+  }
+};
 
 const ensureDirectoryLink = Effect.fn("StowConfigLinker.ensureDirectoryLink")(
   function* (sourcePath: string, linkPath: string, homeDir: string) {
@@ -226,6 +431,24 @@ const backupExistingPath = Effect.fn("StowConfigLinker.backupExistingPath")(
   }
 );
 
+const copyExistingFileToBackup = Effect.fn(
+  "StowConfigLinker.copyExistingFileToBackup"
+)(function* (homeDir: string, targetPath: string) {
+  const fs = yield* FileSystem.FileSystem;
+  const path = yield* Path.Path;
+  const stamp = new Date().toISOString().replaceAll(/[^0-9A-Za-z]+/gu, "-");
+  const backupPath = path.join(
+    homeDir,
+    ".dotfiles-backups",
+    "stow",
+    stamp,
+    path.relative(homeDir, targetPath)
+  );
+
+  yield* fs.makeDirectory(path.dirname(backupPath), { recursive: true });
+  yield* fs.copyFile(targetPath, backupPath);
+});
+
 const backupConflicts = Effect.fn("StowConfigLinker.backupConflicts")(
   function* (
     dotfilesDir: string,
@@ -241,7 +464,10 @@ const backupConflicts = Effect.fn("StowConfigLinker.backupConflicts")(
       const sourceRoot = path.join(dotfilesDir, "home", packageName);
       const entries = yield* fs.readDirectory(sourceRoot, { recursive: true });
       for (const entry of entries) {
-        if (path.basename(entry) === ".DS_Store") {
+        if (
+          path.basename(entry) === ".DS_Store" ||
+          isManagedHyprlandEntry(packageName, entry)
+        ) {
           continue;
         }
 
@@ -286,9 +512,23 @@ const backupConflicts = Effect.fn("StowConfigLinker.backupConflicts")(
   }
 );
 
+const isManagedHyprlandEntry = (packageName: string, entry: string): boolean =>
+  packageName === "linux" &&
+  MANAGED_HYPRLAND_FILES.some(
+    (fileName) => entry === `.config/hypr/${fileName}`
+  );
+
 const SKILLS_SOURCE_SEGMENTS = [".agents", "skills"] as const;
 const FOLDED_SKILL_LINKS = [".agents/skills", ".claude/skills"] as const;
 const FOLDED_SKILLS_IGNORE = "\\.agents/skills$";
 const OMARCHY_THEMES_SEGMENTS = [".config", "omarchy", "themes"] as const;
 const FOLDED_OMARCHY_THEMES_IGNORE = "\\.config/omarchy/themes$";
+const HYPRLAND_CONFIG_SEGMENTS = [".config", "hypr"] as const;
+const MANAGED_HYPRLAND_FILES = [
+  "bindings.lua",
+  "input.lua",
+  "monitors.lua",
+] as const;
+const MANAGED_HYPRLAND_FILES_IGNORE =
+  "\\.config/hypr/(bindings|input|monitors)\\.lua$";
 const NODE_MODULES_IGNORE = "(^|/)node_modules($|/)";

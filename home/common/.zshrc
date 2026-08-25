@@ -137,3 +137,5 @@ done
 if [[ -f "$HOME/.config/secrets/env.zsh" ]]; then
   source "$HOME/.config/secrets/env.zsh"
 fi
+
+export PATH="$HOME/bin:$PATH"

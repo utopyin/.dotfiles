@@ -15,12 +15,15 @@
 -- Add a new binding.
 -- o.bind("SUPER + SHIFT + R", "SSH", "alacritty -e ssh your-server")
 
-o.bind("MOD3 + C", "Zed", { launch = "zeditor" })
+-- Hyper+C previously launched Zed directly.
+hl.unbind("MOD3 + C")
 
 -- Show or hide maximized app scratchpads.
+o.bind("MOD3 + B", "Toggle browser", "~/.local/bin/toggle-browser")
+o.bind("MOD3 + C", "Toggle Zed", "~/.local/bin/toggle-zed")
+o.bind("MOD3 + D", "Toggle Spotify", "~/.local/bin/toggle-spotify")
 o.bind("MOD3 + L", "Toggle Linear", "~/.local/bin/toggle-linear")
 o.bind("MOD3 + S", "Toggle Slack", "~/.local/bin/toggle-slack")
-o.bind("MOD3 + B", "Toggle browser", "~/.local/bin/toggle-browser")
 
 hl.unbind("ALT + CTRL + J")
 

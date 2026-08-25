@@ -18,7 +18,7 @@ export const init = Effect.fn("init")(function* () {
   const packages = yield* PackageInstaller;
   const shell = yield* ShellSetup;
   yield* packages.installSelfIfMissing();
-  yield* packages.applyManifest(config.brewfilePath);
+  yield* packages.applyManifest(packages.manifestPaths[0] ?? "");
   yield* commands.run(
     "bun",
     ["build", "./bin/dot.ts", "--compile", "--outfile", "./dist/dot"],

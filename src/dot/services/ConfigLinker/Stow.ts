@@ -3,26 +3,29 @@ import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
 
 import { CommandExecutor } from "../CommandExecutor/index.ts";
+import { PlatformInfo } from "../PlatformInfo.ts";
 import type { ConfigLinkerShape } from "./index.ts";
 
 export const makeStowConfigLinker = Effect.gen(function* () {
   const command = yield* CommandExecutor;
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
+  const platform = yield* PlatformInfo;
+  const packageNames = ["common", platform.os === "darwin" ? "macos" : "linux"];
 
   return {
     linkHome: Effect.fn("StowConfigLinker.linkHome")(function* (
       dotfilesDir: string,
       homeDir: string
     ) {
-      yield* backupConflicts(dotfilesDir, homeDir).pipe(
+      yield* backupConflicts(dotfilesDir, homeDir, packageNames).pipe(
         Effect.provideService(FileSystem.FileSystem, fs),
         Effect.provideService(Path.Path, path)
       );
       yield* command
         .run("stow", [
           "--dir",
-          dotfilesDir,
+          path.join(dotfilesDir, "home"),
           "--target",
           homeDir,
           "--no-folding",
@@ -33,7 +36,7 @@ export const makeStowConfigLinker = Effect.gen(function* () {
           "--ignore",
           FOLDED_SKILLS_IGNORE,
           "--restow",
-          "home",
+          ...packageNames,
         ])
         .pipe(Effect.asVoid);
 
@@ -53,7 +56,7 @@ export const makeStowConfigLinker = Effect.gen(function* () {
       yield* command
         .run("stow", [
           "--dir",
-          dotfilesDir,
+          path.join(dotfilesDir, "home"),
           "--target",
           homeDir,
           "--no-folding",
@@ -64,7 +67,7 @@ export const makeStowConfigLinker = Effect.gen(function* () {
           "--ignore",
           FOLDED_SKILLS_IGNORE,
           "--delete",
-          "home",
+          ...packageNames,
         ])
         .pipe(Effect.asVoid);
     }),
@@ -75,7 +78,12 @@ const ensureFoldedSkillLinks = Effect.fn(
   "StowConfigLinker.ensureFoldedSkillLinks"
 )(function* (dotfilesDir: string, homeDir: string) {
   const path = yield* Path.Path;
-  const sourcePath = path.join(dotfilesDir, "home", ...SKILLS_SOURCE_SEGMENTS);
+  const sourcePath = path.join(
+    dotfilesDir,
+    "home",
+    "common",
+    ...SKILLS_SOURCE_SEGMENTS
+  );
 
   for (const linkName of FOLDED_SKILL_LINKS) {
     const linkPath = path.join(homeDir, ...linkName.split("/"));
@@ -131,7 +139,7 @@ const hasSymlinkAncestor = Effect.fn("StowConfigLinker.hasSymlinkAncestor")(
     const segments = entry
       .split(path.sep)
       .filter((segment) => segment.length > 0);
-    for (let index = 1; index <= segments.length; index += 1) {
+    for (let index = 1; index < segments.length; index += 1) {
       const candidate = path.join(homeDir, ...segments.slice(0, index));
       const isLink = yield* pathIsSymlink(candidate);
       if (isLink) {
@@ -173,47 +181,61 @@ const backupExistingPath = Effect.fn("StowConfigLinker.backupExistingPath")(
 );
 
 const backupConflicts = Effect.fn("StowConfigLinker.backupConflicts")(
-  function* (dotfilesDir: string, homeDir: string) {
+  function* (
+    dotfilesDir: string,
+    homeDir: string,
+    packageNames: readonly string[]
+  ) {
     const fs = yield* FileSystem.FileSystem;
     const path = yield* Path.Path;
-    const sourceRoot = path.join(dotfilesDir, "home");
-    const entries = yield* fs.readDirectory(sourceRoot, { recursive: true });
     const stamp = new Date().toISOString().replaceAll(/[^0-9A-Za-z]+/gu, "-");
     const backupRoot = path.join(homeDir, ".dotfiles-backups", "stow", stamp);
 
-    for (const entry of entries) {
-      if (path.basename(entry) === ".DS_Store") {
-        continue;
-      }
+    for (const packageName of packageNames) {
+      const sourceRoot = path.join(dotfilesDir, "home", packageName);
+      const entries = yield* fs.readDirectory(sourceRoot, { recursive: true });
+      for (const entry of entries) {
+        if (path.basename(entry) === ".DS_Store") {
+          continue;
+        }
 
-      const sourcePath = path.join(sourceRoot, entry);
-      const sourceInfo = yield* fs.stat(sourcePath);
-      if (sourceInfo.type !== "File") {
-        continue;
-      }
+        const sourcePath = path.join(sourceRoot, entry);
+        const sourceInfo = yield* fs.stat(sourcePath);
+        if (sourceInfo.type !== "File") {
+          continue;
+        }
 
-      const targetPath = path.join(homeDir, entry);
-      const targetIsManagedThroughLink = yield* hasSymlinkAncestor(
-        homeDir,
-        entry
-      );
-      if (targetIsManagedThroughLink) {
-        continue;
-      }
+        const targetPath = path.join(homeDir, entry);
+        const targetIsManagedThroughLink = yield* hasSymlinkAncestor(
+          homeDir,
+          entry
+        );
+        if (targetIsManagedThroughLink) {
+          continue;
+        }
 
-      const targetExists = yield* fs.exists(targetPath);
-      if (!targetExists) {
-        continue;
-      }
+        const targetExists = yield* fs.exists(targetPath);
+        if (!targetExists) {
+          continue;
+        }
 
-      const targetIsLink = yield* pathIsSymlink(targetPath);
-      if (targetIsLink) {
-        continue;
-      }
+        const targetIsLink = yield* pathIsSymlink(targetPath);
+        if (targetIsLink) {
+          const currentTarget = yield* fs.readLink(targetPath);
+          const resolvedTarget = path.resolve(
+            path.dirname(targetPath),
+            currentTarget
+          );
+          if (resolvedTarget === sourcePath) {
+            yield* fs.remove(targetPath);
+          }
+          continue;
+        }
 
-      const backupPath = path.join(backupRoot, entry);
-      yield* fs.makeDirectory(path.dirname(backupPath), { recursive: true });
-      yield* fs.rename(targetPath, backupPath);
+        const backupPath = path.join(backupRoot, entry);
+        yield* fs.makeDirectory(path.dirname(backupPath), { recursive: true });
+        yield* fs.rename(targetPath, backupPath);
+      }
     }
   }
 );

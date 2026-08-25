@@ -22,8 +22,8 @@ export const update = Effect.fn("update")(function* () {
       )
     );
 
-  yield* Console.log("Updating Homebrew packages...");
-  yield* packages.updateAll(config.brewfilePath);
+  yield* Console.log(`Updating ${packages.managerName} packages...`);
+  yield* packages.updateAll(packages.manifestPaths[0] ?? "");
 
   if (yield* agent.isInstalled()) {
     yield* Console.log("Updating Pi runtime...");

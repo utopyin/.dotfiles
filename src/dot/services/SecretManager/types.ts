@@ -20,6 +20,9 @@ export interface SecretManagerShape {
   readonly isInstalled: () => Effect.Effect<boolean>;
   readonly isSignedIn: () => Effect.Effect<boolean>;
   readonly itemExists: (title: string, vault: string) => Effect.Effect<boolean>;
+  readonly itemTitles: (
+    vault: string
+  ) => Effect.Effect<ReadonlySet<string>, SecretManagerError>;
   readonly updatePasswordItem: (
     title: string,
     value: string,

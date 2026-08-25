@@ -12,18 +12,18 @@
 secrets.env
 secrets.json
 secrets.local.*
-home/.config/secrets/
-home/.config/zsh/secrets.zsh
-home/.zshrc.local
+home/common/.config/secrets/
+home/common/.config/zsh/secrets.zsh
+home/common/.zshrc.local
 
 # Pi runtime/auth/state
-home/.pi/agent/auth.json
-home/.pi/agent/*.local.json
-home/.pi/agent/mcp-cache.json
-home/.pi/agent/mcp-*-cache.json
-home/.pi/agent/mcp-oauth/
-home/.pi/agent/sessions/
-home/.pi/agent/extensions/**/config.private.json
+home/common/.pi/agent/auth.json
+home/common/.pi/agent/*.local.json
+home/common/.pi/agent/mcp-cache.json
+home/common/.pi/agent/mcp-*-cache.json
+home/common/.pi/agent/mcp-oauth/
+home/common/.pi/agent/sessions/
+home/common/.pi/agent/extensions/**/config.private.json
 
 # Dependencies / generated output
 node_modules/

@@ -7,23 +7,23 @@ export default defineConfig({
   ignorePatterns: [
     ...(core.ignorePatterns ?? []),
     // Keep the Davis suite diffable against upstream; it has its own checks.
-    "home/.pi/agent/extensions/ask-user/**",
-    "home/.pi/agent/extensions/background-terminals/**",
-    "home/.pi/agent/extensions/copy-all/**",
-    "home/.pi/agent/extensions/file-search/**",
-    "home/.pi/agent/extensions/firecrawl-search/**",
-    "home/.pi/agent/extensions/git-info/**",
-    "home/.pi/agent/extensions/model-info/**",
-    "home/.pi/agent/extensions/shared/**",
-    "home/.pi/agent/extensions/subagents/**",
-    "home/.pi/agent/extensions/ui-customization/**",
-    "home/.pi/agent/extensions/workflows/**",
+    "home/common/.pi/agent/extensions/ask-user/**",
+    "home/common/.pi/agent/extensions/background-terminals/**",
+    "home/common/.pi/agent/extensions/copy-all/**",
+    "home/common/.pi/agent/extensions/file-search/**",
+    "home/common/.pi/agent/extensions/firecrawl-search/**",
+    "home/common/.pi/agent/extensions/git-info/**",
+    "home/common/.pi/agent/extensions/model-info/**",
+    "home/common/.pi/agent/extensions/shared/**",
+    "home/common/.pi/agent/extensions/subagents/**",
+    "home/common/.pi/agent/extensions/ui-customization/**",
+    "home/common/.pi/agent/extensions/workflows/**",
     // Generated/minified browser bridge vendored with pi-mcp; source TS stays linted.
-    "home/.pi/agent/extensions/pi-mcp/src/app-bridge.bundle.js",
+    "home/common/.pi/agent/extensions/pi-mcp/src/app-bridge.bundle.js",
   ],
   overrides: [
     {
-      files: ["home/.pi/agent/extensions/pi-mcp/**"],
+      files: ["home/common/.pi/agent/extensions/pi-mcp/**"],
       rules: {
         // pi-mcp contains protocol/server glue where splitting callbacks further
         // makes the vendored adapter harder to compare with upstream.

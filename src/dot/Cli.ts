@@ -108,6 +108,8 @@ export const cli = Command.make("dot").pipe(
             Flag.withDescription("Mac App Store id, required for --kind mas")
           ),
           kind: Flag.choice("kind", [
+            "repo",
+            "aur",
             "brew",
             "cask",
             "mas",
@@ -125,6 +127,8 @@ export const cli = Command.make("dot").pipe(
         ),
         Command.make("remove", {
           kind: Flag.choice("kind", [
+            "repo",
+            "aur",
             "brew",
             "cask",
             "mas",

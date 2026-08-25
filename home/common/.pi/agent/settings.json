@@ -1,0 +1,27 @@
+{
+  "defaultProvider": "openai-codex",
+  "defaultModel": "gpt-5.6-sol",
+  "lastChangelogVersion": "0.84.3",
+  "defaultThinkingLevel": "high",
+  "shellCommandPrefix": "for config_file in \"$HOME\"/.config/zsh/conf.d/{20-paths,30-aliases}.zsh; do [ -r \"$config_file\" ] && . \"$config_file\"; done",
+  "treeFilterMode": "no-tools",
+  "terminal": {
+    "showImages": true
+  },
+  "enableSkillCommands": true,
+  "showHardwareCursor": false,
+  "theme": "github-dark-default",
+  "packages": [
+    {
+      "source": "npm:@plannotator/pi-extension",
+      "skills": [],
+      "extensions": ["+"]
+    },
+    "npm:pi-mcp-adapter@2.11.0"
+  ],
+  "editorPaddingX": 3,
+  "quietStartup": true,
+  "steeringMode": "one-at-a-time",
+  "defaultProjectTrust": "always",
+  "doubleEscapeAction": "tree"
+}

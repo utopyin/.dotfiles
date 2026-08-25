@@ -1,0 +1,766 @@
+{
+  "global_vars": [
+    {
+      "name": "secret_email_personal",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_EMAIL_PERSONAL\"'"
+      }
+    },
+    {
+      "name": "work_path",
+      "type": "shell",
+      "params": {
+        "cmd": "printf '%s/Work' \"$HOME\""
+      }
+    },
+    {
+      "name": "secret_dev_login_url",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_DEV_LOGIN_URL\"'"
+      }
+    },
+    {
+      "name": "secret_email_inbox",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_EMAIL_INBOX\"'"
+      }
+    },
+    {
+      "name": "secret_github_url",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_GITHUB_URL\"'"
+      }
+    },
+    {
+      "name": "secret_qa_database",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_QA_DATABASE\"'"
+      }
+    },
+    {
+      "name": "secret_email_matte0",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_EMAIL_MATTE0\"'"
+      }
+    },
+    {
+      "name": "secret_email_core",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_EMAIL_CORE\"'"
+      }
+    },
+    {
+      "name": "secret_email_linear",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_EMAIL_LINEAR\"'"
+      }
+    },
+    {
+      "name": "secret_email_studio",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_EMAIL_STUDIO\"'"
+      }
+    },
+    {
+      "name": "secret_email_lastlayer",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_EMAIL_LASTLAYER\"'"
+      }
+    },
+    {
+      "name": "secret_ml_path",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_ML_PATH\"'"
+      }
+    },
+    {
+      "name": "secret_email_centwise",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_EMAIL_CENTWISE\"'"
+      }
+    },
+    {
+      "name": "secret_mac_address",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_MAC_ADDRESS\"'"
+      }
+    },
+    {
+      "name": "secret_social_security_number",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_SOCIAL_SECURITY_NUMBER\"'"
+      }
+    },
+    {
+      "name": "secret_bic",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_BIC\"'"
+      }
+    },
+    {
+      "name": "secret_iban_spaced",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_IBAN_SPACED\"'"
+      }
+    },
+    {
+      "name": "secret_iban",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_IBAN\"'"
+      }
+    },
+    {
+      "name": "secret_siret",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_SIRET\"'"
+      }
+    },
+    {
+      "name": "secret_siren",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_SIREN\"'"
+      }
+    },
+    {
+      "name": "secret_pitchers_path",
+      "type": "shell",
+      "params": {
+        "cmd": "bash -c 'if [[ -r \"$HOME/.config/espanso/secrets.local.env\" ]]; then source \"$HOME/.config/espanso/secrets.local.env\"; fi; printf \"%s\" \"$ESPANSO_PITCHERS_PATH\"'"
+      }
+    }
+  ],
+  "matches": [
+    {
+      "trigger": "@perso",
+      "replace": "{{secret_email_personal}}",
+      "label": "Matteo @ Perso"
+    },
+    {
+      "trigger": "!igh",
+      "replace": "https://github.com/inboxhq/inbox",
+      "label": "Inbox Repo"
+    },
+    {
+      "trigger": "!resume",
+      "replace": "sorry for interrupting you, you can go back to work",
+      "label": "resume work"
+    },
+    {
+      "trigger": "!dev",
+      "replace": "{{work_path}}",
+      "label": "Work Path"
+    },
+    {
+      "trigger": "!ilog",
+      "replace": "{{secret_dev_login_url}}",
+      "label": "Dev Inbox Login path"
+    },
+    {
+      "trigger": "@ibx",
+      "replace": "{{secret_email_inbox}}",
+      "label": "Mail Inbox"
+    },
+    {
+      "trigger": "!gh",
+      "replace": "{{secret_github_url}}",
+      "label": "My Github link"
+    },
+    {
+      "trigger": "!qa",
+      "replace": "i want you to plan out the QA session to ensure this whole stack (we're at the tip of the stacked PRs, please compare the diff against main) is mergeable to prod. The goal is to ensure we have 0 regressions. You'll find lots of new code introduced that is not in use yet, this is fine.\nYour goal is to have a thorough QA session so that at the end of the session you have confidence, or not, if this code brings no regression.\n\nIf you find bugs that prevent you from continuing, you may do hotfixes in order to keep going, just ensure you keep those in the git index so that i can review the hotfixes and decide if we need a stronger version of those or if we can amend existing commits at the root of the causes.\n\nYou have access Helium (the authenticated browser) with Computer and the default dev services are already running. If you need more services during this QA, feel free to start them using dev commands.\n\nThe database is {{secret_qa_database}}, and you should have access to it using the pscale MCP. If you need to run scripts, you must authenticate them using `infisical run --path next -- <script>`",
+      "label": "QA Session"
+    },
+    {
+      "trigger": "!fried",
+      "replace": "explain this in simpler terms, my brain is fried rn",
+      "label": "Fried brain"
+    },
+    {
+      "trigger": "@0",
+      "replace": "{{secret_email_matte0}}",
+      "label": "Email Matte0"
+    },
+    {
+      "trigger": "@core",
+      "replace": "{{secret_email_core}}",
+      "label": "Utopy @ Core"
+    },
+    {
+      "trigger": "!pgh",
+      "replace": "https://github.com/preceptapp/precept",
+      "label": "Precept Repo Url"
+    },
+    {
+      "trigger": "!time",
+      "replace": "{{input.time}} {{input.timezone}} CET to EST",
+      "label": "Time Convert",
+      "vars": [
+        {
+          "name": "input",
+          "type": "form",
+          "params": {
+            "layout": "Time: [[time]]\nTimezone: [[timezone]]"
+          }
+        }
+      ]
+    },
+    {
+      "trigger": "!dot",
+      "replace": "·",
+      "label": "Middle Dot"
+    },
+    {
+      "trigger": "@line",
+      "replace": "{{secret_email_linear}}",
+      "label": "Email Linear"
+    },
+    {
+      "trigger": "!apply",
+      "replace": "dot apply --yes",
+      "label": "Apply home config"
+    },
+    {
+      "trigger": "@stud",
+      "replace": "{{secret_email_studio}}",
+      "label": "Utopy @ Studio"
+    },
+    {
+      "trigger": "!ext",
+      "replace": "chrome://extensions/",
+      "label": "Chromium extensions link"
+    },
+    {
+      "trigger": "!x",
+      "replace": "×",
+      "label": "Multiplication"
+    },
+    {
+      "trigger": "!log",
+      "replace": "console.log($|$)",
+      "label": "Console Log"
+    },
+    {
+      "trigger": "!infi",
+      "replace": "infisical export --path='/next' | grep \"DATABASE_URL\"",
+      "label": "Infisical export command"
+    },
+    {
+      "trigger": "!cgh",
+      "replace": "https://github.com/Abhimanyu-Jha/cueprep",
+      "label": "Cueprep Repo"
+    },
+    {
+      "trigger": "@ll",
+      "replace": "{{secret_email_lastlayer}}",
+      "label": "Matteo @ LastLayer"
+    },
+    {
+      "trigger": "!ml",
+      "replace": "{{secret_ml_path}}",
+      "label": "ML Folder Path"
+    },
+    {
+      "trigger": "l3",
+      "replace": "localhost:3000",
+      "label": "localhost:3000"
+    },
+    {
+      "trigger": "!date",
+      "replace": "{{date}}",
+      "label": "Date",
+      "vars": [
+        {
+          "name": "date",
+          "type": "date",
+          "params": {
+            "format": "%Y-%m-%d"
+          }
+        }
+      ]
+    },
+    {
+      "trigger": "!tab",
+      "replace": "⇥",
+      "label": "Tab"
+    },
+    {
+      "trigger": "!opt",
+      "replace": "⌥",
+      "label": "Option"
+    },
+    {
+      "trigger": "!fr",
+      "replace": "₣",
+      "label": "Franc"
+    },
+    {
+      "trigger": "cdd",
+      "replace": "cd ../..",
+      "label": "CD up 2 directories"
+    },
+    {
+      "trigger": "drizlle",
+      "replace": "drizzle",
+      "label": "drizlle- > drizzle"
+    },
+    {
+      "trigger": "@ct",
+      "replace": "{{secret_email_centwise}}",
+      "label": "Matteo @ Centwise"
+    },
+    {
+      "trigger": "!!cm",
+      "replace": "ça marche !",
+      "label": "Ça marche !"
+    },
+    {
+      "trigger": "!cm",
+      "replace": "ça marche",
+      "label": "Ça marche"
+    },
+    {
+      "trigger": "!desk",
+      "replace": "~/Desktop",
+      "label": "Desktop Path"
+    },
+    {
+      "trigger": "!down",
+      "replace": "↓",
+      "label": "Arrow Down"
+    },
+    {
+      "trigger": "!left",
+      "replace": "←",
+      "label": "Arrow Left"
+    },
+    {
+      "trigger": "!right",
+      "replace": "→",
+      "label": "Arrow Right"
+    },
+    {
+      "trigger": "!mac",
+      "replace": "{{secret_mac_address}}",
+      "label": "Mac Adress"
+    },
+    {
+      "trigger": "!sec",
+      "replace": "{{secret_social_security_number}}",
+      "label": "N° de Sécurité sociale"
+    },
+    {
+      "trigger": "!bic",
+      "replace": "{{secret_bic}}",
+      "label": "BIC"
+    },
+    {
+      "trigger": "!siban",
+      "replace": "{{secret_iban_spaced}}",
+      "label": "IBAN w/ Space"
+    },
+    {
+      "trigger": "!iban",
+      "replace": "{{secret_iban}}",
+      "label": "IBAN"
+    },
+    {
+      "trigger": "!siret",
+      "replace": "{{secret_siret}}",
+      "label": "SIRET"
+    },
+    {
+      "trigger": "!siren",
+      "replace": "{{secret_siren}}",
+      "label": "SIREN"
+    },
+    {
+      "trigger": "!vp",
+      "replace": "~/Documents/Void/Dev/velte",
+      "label": "Velte local path"
+    },
+    {
+      "trigger": "!tp",
+      "replace": "{{secret_pitchers_path}}",
+      "label": "Path -> thepitchers"
+    },
+    {
+      "trigger": "!dvp",
+      "replace": "~/Documents/Void/Dev/velte/packages/db",
+      "label": "Velte local path (db)"
+    },
+    {
+      "trigger": "!avp",
+      "replace": "~/Documents/Void/Dev/velte/services/api",
+      "label": "Velte local path (api service)"
+    },
+    {
+      "trigger": "!wvp",
+      "replace": "~/Documents/Void/Dev/velte/apps/web",
+      "label": "Velte local path (web)"
+    },
+    {
+      "trigger": "!apple",
+      "replace": "",
+      "label": "Apple"
+    },
+    {
+      "trigger": "!switch",
+      "replace": "switch ($|$) {\n  case 'value': {\n    break\n  }\n  default: {\n    break\n  }\n}",
+      "label": "Switch Statement"
+    },
+    {
+      "trigger": "!sleep",
+      "replace": "const sleep = (time = 3000) => new Promise (resolve => setTimeout (resolve, time));",
+      "label": "Sleep Promise"
+    },
+    {
+      "trigger": "!rue",
+      "replace": "React.useEffect(() => {\n  $|$\n}, [])",
+      "label": "React: useEffect"
+    },
+    {
+      "trigger": "!try",
+      "replace": "try {\n  $|$\n} catch (error) {\n\n} finally {\n\n}",
+      "label": "Try Catch"
+    },
+    {
+      "trigger": "!eur",
+      "replace": "€",
+      "label": "Euro"
+    },
+    {
+      "trigger": "!yen",
+      "replace": "¥",
+      "label": "Yen"
+    },
+    {
+      "trigger": "!usd",
+      "replace": "$",
+      "label": "Dollar"
+    },
+    {
+      "trigger": "!inr",
+      "replace": "₹",
+      "label": "Indian Rupee"
+    },
+    {
+      "trigger": "!krw",
+      "replace": "₩",
+      "label": "Won"
+    },
+    {
+      "trigger": "!php",
+      "replace": "₱",
+      "label": "Peso"
+    },
+    {
+      "trigger": "!ngn",
+      "replace": "₦",
+      "label": "Naira"
+    },
+    {
+      "trigger": "!thb",
+      "replace": "฿",
+      "label": "Baht"
+    },
+    {
+      "trigger": "!vnd",
+      "replace": "₫",
+      "label": "Dong"
+    },
+    {
+      "trigger": "!btc",
+      "replace": "₿",
+      "label": "Bitcoin"
+    },
+    {
+      "trigger": "!eth",
+      "replace": "Ξ",
+      "label": "Ethereum"
+    },
+    {
+      "trigger": "!gbp",
+      "replace": "£",
+      "label": "Sterling"
+    },
+    {
+      "trigger": "!ctrl",
+      "replace": "⌃",
+      "label": "Control"
+    },
+    {
+      "trigger": "!backspace",
+      "replace": "⌫",
+      "label": "Backspace"
+    },
+    {
+      "trigger": "!esc",
+      "replace": "⎋",
+      "label": "Escape"
+    },
+    {
+      "trigger": "!return",
+      "replace": "⏎",
+      "label": "Return"
+    },
+    {
+      "trigger": "!circle",
+      "replace": "●",
+      "label": "Circle"
+    },
+    {
+      "trigger": "!star-filled",
+      "replace": "★",
+      "label": "Star Filled"
+    },
+    {
+      "trigger": "!star-outline",
+      "replace": "☆",
+      "label": "Star Outline"
+    },
+    {
+      "trigger": "!sparkle",
+      "replace": "✦",
+      "label": "Sparkle"
+    },
+    {
+      "trigger": "!diamond",
+      "replace": "❖",
+      "label": "Diamond"
+    },
+    {
+      "trigger": "!reference-mark",
+      "replace": "※",
+      "label": "Reference Mark"
+    },
+    {
+      "trigger": "!asterism",
+      "replace": "⁂",
+      "label": "Asterism"
+    },
+    {
+      "trigger": "!three-dots",
+      "replace": "⁖",
+      "label": "Three Dot Punctuation"
+    },
+    {
+      "trigger": "!four-dots",
+      "replace": "⁘",
+      "label": "Four Dot Punctuation"
+    },
+    {
+      "trigger": "!five-dots",
+      "replace": "⁙",
+      "label": "Five Dot Punctuation"
+    },
+    {
+      "trigger": "!dotted-cross",
+      "replace": "⁜",
+      "label": "Dotted Cross"
+    },
+    {
+      "trigger": "!sun",
+      "replace": "☀",
+      "label": "Sun"
+    },
+    {
+      "trigger": "!division",
+      "replace": "÷",
+      "label": "Division"
+    },
+    {
+      "trigger": "!+-",
+      "replace": "±",
+      "label": "Plus Minus"
+    },
+    {
+      "trigger": "!1/2",
+      "replace": "½",
+      "label": "One Half"
+    },
+    {
+      "trigger": "!1/3",
+      "replace": "⅓",
+      "label": "One Third"
+    },
+    {
+      "trigger": "!1/4",
+      "replace": "¼",
+      "label": "One Quarter"
+    },
+    {
+      "trigger": "!3/4",
+      "replace": "¾",
+      "label": "Three Quarters"
+    },
+    {
+      "trigger": "!5/6",
+      "replace": "⅚",
+      "label": "Five Sixths"
+    },
+    {
+      "trigger": "!1/",
+      "replace": "⅟",
+      "label": "One Fraction"
+    },
+    {
+      "trigger": "!7/8",
+      "replace": "⅞",
+      "label": "Seven Eighths"
+    },
+    {
+      "trigger": "!1/8",
+      "replace": "⅛",
+      "label": "One Eighth"
+    },
+    {
+      "trigger": "!5/8",
+      "replace": "⅝",
+      "label": "Five Eighths"
+    },
+    {
+      "trigger": "!3/8",
+      "replace": "⅜",
+      "label": "Three Eighths"
+    },
+    {
+      "trigger": "!infinity",
+      "replace": "∞",
+      "label": "Infinity"
+    },
+    {
+      "trigger": "!registered",
+      "replace": "®",
+      "label": "Registered"
+    },
+    {
+      "trigger": "!copyright",
+      "replace": "©",
+      "label": "Copyright"
+    },
+    {
+      "trigger": "!published",
+      "replace": "℗",
+      "label": "Published"
+    },
+    {
+      "trigger": "!tm",
+      "replace": "™",
+      "label": "Trademark"
+    },
+    {
+      "trigger": "!numero-sign",
+      "replace": "№",
+      "label": "Numero Sign"
+    },
+    {
+      "trigger": "!celsius",
+      "replace": "℃",
+      "label": "Celsius"
+    },
+    {
+      "trigger": "!fahrenheit",
+      "replace": "℉",
+      "label": "Fahrenheit"
+    },
+    {
+      "trigger": "!check",
+      "replace": "✓",
+      "label": "Check"
+    },
+    {
+      "trigger": "!horizontal-ellipsis",
+      "replace": "…",
+      "label": "Horizontal Ellipsis"
+    },
+    {
+      "trigger": "!triangle",
+      "replace": "▲",
+      "label": "Triangle"
+    },
+    {
+      "trigger": "!up",
+      "replace": "↑",
+      "label": "Arrow Up"
+    },
+    {
+      "trigger": "!upleft",
+      "replace": "↖",
+      "label": "Arrow Up Left"
+    },
+    {
+      "trigger": "!upright",
+      "replace": "↗︎",
+      "label": "Arrow Up Right"
+    },
+    {
+      "trigger": "!downleft",
+      "replace": "↙",
+      "label": "Arrow Down Left"
+    },
+    {
+      "trigger": "!downright",
+      "replace": "↘",
+      "label": "Arrow Down Right"
+    },
+    {
+      "trigger": "!longright",
+      "replace": "⟶",
+      "label": "Arrow Long Right"
+    },
+    {
+      "trigger": "!longleft",
+      "replace": "⟵",
+      "label": "Arrow Long Left"
+    },
+    {
+      "trigger": "!lefthook",
+      "replace": "↩",
+      "label": "Arrow Left Hook"
+    },
+    {
+      "trigger": "!righthook",
+      "replace": "↪",
+      "label": "Arrow Right Hook"
+    },
+    {
+      "trigger": "!undo",
+      "replace": "↺",
+      "label": "Undo"
+    },
+    {
+      "trigger": "!redo",
+      "replace": "↻",
+      "label": "Redo"
+    },
+    {
+      "trigger": "!shift",
+      "replace": "⇧",
+      "label": "Shift"
+    },
+    {
+      "trigger": "!cmd",
+      "replace": "⌘",
+      "label": "Command"
+    }
+  ]
+}

@@ -1,0 +1,148 @@
+gui:
+  nerdFontsVersion: "3"
+os:
+  edit: "zed {{filename}}"
+  editAtLine: "zed {{filename}}:{{line}}"
+  open: "zed {{filename}}"
+git:
+  overrideGpg: true
+  diffRenderers:
+    - colorArg: always
+      command: delta --dark --paging=never
+# promptToReturnFromSubprocess: false # removes "press enter to return to lazygit" popup
+customCommands:
+  - key: "G"
+    command: "gh pr view -w {{.SelectedLocalBranch.Name}}"
+    context: "localBranches"
+    description: "Open Github PR in browser"
+  - key: "G"
+    command: "gh pr view -w"
+    context: "commits"
+    description: "Open Github PR in browser"
+  - key: "C"
+    command: "gitz-cli commit stage --commit --no-emoji --provider cerebras"
+    description: "AI commit for staged changes"
+    context: "files"
+    loadingText: "generating a commit message for staged changes"
+    output: terminal
+  # Fetch remote updates, rebase the stack onto the latest base, and push changed layers.
+  # Works best when stack branches use the `stack/` prefix, e.g. `stack/my-feature`.
+  - key: "#"
+    description: "gh stack"
+    commandMenu:
+      - key: "h"
+        description: "Handle stack state"
+        commandMenu:
+          - key: "i"
+            context: "global"
+            description: "Start a new stack          │ [init] Initialize from the current branch"
+            command: 'gh stack init "$(git branch --show-current)"'
+            output: popup
+          - key: "o"
+            context: "global"
+            description: "Open an existing stack     │ [checkout] Select by stack, PR, or branch"
+            command: "gh stack checkout"
+            output: terminal
+          - key: "s"
+            context: "global"
+            description: "Sync local and remote      │ [sync] Reconcile, rebase, push, and sync PR state"
+            command: "gh stack sync"
+            output: terminal
+            after:
+              checkForConflicts: true
+          - key: "v"
+            context: "global"
+            description: "View the stack"
+            command: "gh stack view"
+            output: popup
+      - key: "r"
+        context: "global"
+        description: "Rebase the stack"
+        command: "gh stack rebase"
+        output: terminal
+        after:
+          checkForConflicts: true
+      - key: "p"
+        context: "global"
+        description: "Rebase & Push stack"
+        command: "gh stack rebase --upstack && gh stack push"
+        output: terminal
+      - key: "s"
+        context: "global"
+        description: "Submit the stack"
+        command: "gh stack submit"
+        output: terminal
+        after:
+          checkForConflicts: true
+      - key: "m"
+        context: "global"
+        description: "Modify the stack"
+        command: "gh stack modify"
+        output: terminal
+        after:
+          checkForConflicts: true
+      - key: "n"
+        description: "Navigation"
+        commandMenu:
+          - key: "j"
+            context: "global"
+            description: "Jump to any layer          │ [switch] Open the interactive branch picker"
+            command: "gh stack switch"
+            output: terminal
+          - key: "t"
+            context: "global"
+            description: "Top Layer                  │ Switch to the highest layer"
+            command: "gh stack top"
+            output: popup
+          - key: "u"
+            context: "global"
+            description: "Layer Up                   │ Switch to the next higher layer"
+            command: "gh stack up"
+            output: popup
+          - key: "d"
+            context: "global"
+            description: "Layer Down                 │ Switch to the next lower layer"
+            command: "gh stack down"
+            output: popup
+          - key: "b"
+            context: "global"
+            description: "Bottom Layer               │ Switch to the lowest layer"
+            command: "gh stack bottom"
+            output: popup
+          - key: "D"
+            context: "global"
+            description: "Layer Down with Changes    │ Move uncommitted changes one layer down"
+            command: |
+              if git diff --quiet &&
+                git diff --cached --quiet &&
+                [ -z "$(git ls-files --others --exclude-standard)" ]; then
+                gh stack down
+              else
+                git stash push -u -m "lazygit: move changes down layer" &&
+                gh stack down &&
+                git stash pop
+              fi
+            output: popup
+            after:
+              checkForConflicts: true
+      - key: "!"
+        description: "Remove stack"
+        commandMenu:
+          - key: "l"
+            context: "global"
+            description: "Stop tracking locally      │ [unstack --local] Keep the GitHub stack"
+            prompts:
+              - type: "confirm"
+                title: "Stop tracking this stack locally?"
+                body: "The stack on GitHub will be kept."
+            command: "gh stack unstack --local"
+            output: terminal
+          - key: "x"
+            context: "global"
+            description: "Remove the stack entirely  │ [unstack] Unstack locally and on GitHub"
+            prompts:
+              - type: "confirm"
+                title: "Remove this stack?"
+                body: "This will unstack it locally and on GitHub."
+            command: "gh stack unstack"
+            output: terminal

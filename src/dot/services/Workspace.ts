@@ -13,20 +13,20 @@ import { DotfilesConfig } from "../Config.ts";
 import { CommandExecutor } from "./CommandExecutor/index.ts";
 import { FileVersioning } from "./FileVersioning/index.ts";
 
+export interface DependencyAuditResult {
+  readonly detail?: string;
+  readonly ok: boolean;
+}
+
 export class Workspace extends Context.Service<Workspace>()("dot/Workspace", {
   make: Effect.gen(function* () {
     const config = yield* DotfilesConfig;
     const commands = yield* CommandExecutor;
     const vcs = yield* FileVersioning;
     return {
-      dependencyAudit: commands
-        .run("bun", ["audit", "--audit-level=high"], {
-          cwd: config.dotfilesDir,
-        })
-        .pipe(
-          Effect.as(true),
-          Effect.catchCause(() => Effect.succeed(false))
-        ),
+      dependencyAudit: runDependencyAudit(config.dotfilesDir).pipe(
+        Effect.provideService(CommandExecutor, commands)
+      ),
       remoteSummary: vcs.remoteSummary(config.dotfilesDir),
       secretValueScan: commands.runText("/bin/sh", [
         "-lc",
@@ -38,3 +38,27 @@ export class Workspace extends Context.Service<Workspace>()("dot/Workspace", {
 }) {
   static readonly Live = Layer.effect(this, this.make);
 }
+
+const runDependencyAudit = Effect.fn("Workspace.runDependencyAudit")(function* (
+  dotfilesDir: string
+) {
+  const commands = yield* CommandExecutor;
+  return yield* commands
+    .run("bun", ["audit", "--audit-level=high"], { cwd: dotfilesDir })
+    .pipe(
+      Effect.match({
+        onFailure: (error): DependencyAuditResult => ({
+          detail: dependencyAuditFailureDetail(
+            `${error.stderr}\n${error.stdout}`
+          ),
+          ok: false,
+        }),
+        onSuccess: (): DependencyAuditResult => ({ ok: true }),
+      })
+    );
+});
+
+export const dependencyAuditFailureDetail = (output: string) =>
+  /DNSResolveFailed|Could not resolve|ENETUNREACH|network/iu.test(output)
+    ? "audit unavailable: could not reach the npm advisory service"
+    : "high-severity advisory found; run bun audit --audit-level=high";

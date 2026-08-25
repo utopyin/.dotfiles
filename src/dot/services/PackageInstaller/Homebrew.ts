@@ -1,6 +1,7 @@
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 
+import { DotfilesConfig } from "../../Config.ts";
 import { CommandExecutor } from "../CommandExecutor/index.ts";
 import type {
   PackageEntry,
@@ -10,9 +11,14 @@ import type {
 
 export const makeHomebrewPackageInstaller = Effect.gen(function* () {
   const command = yield* CommandExecutor;
+  const config = yield* DotfilesConfig;
   const fs = yield* FileSystem.FileSystem;
 
+  // Native package APIs intentionally share a stable service key order.
+  // oxlint-disable-next-line sort-keys
   return {
+    managerName: "Homebrew",
+    manifestPaths: [config.brewfilePath],
     addToManifest: Effect.fn("HomebrewPackageInstaller.addToManifest")(
       function* (manifestPath: string, entry: PackageEntry) {
         const manifest = yield* readManifest(manifestPath).pipe(

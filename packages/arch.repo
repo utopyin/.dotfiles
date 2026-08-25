@@ -1,0 +1,24 @@
+# Portable command-line and development packages
+act
+aws-cli
+caddy
+cloudflared
+ffmpeg
+fd
+fzf
+git
+github-cli
+jq
+k9s
+lazygit
+mosh
+neovim
+nodejs
+openssl
+python
+ripgrep
+rust
+stow
+tree-sitter-cli
+zig
+zsh

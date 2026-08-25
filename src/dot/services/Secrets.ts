@@ -87,36 +87,45 @@ export class Secrets extends Context.Service<Secrets>()("dot/Secrets", {
 
       doctor: Effect.fn("Secrets.doctor")(function* () {
         const installed = yield* manager.isInstalled();
-        const signedIn = installed ? yield* manager.isSignedIn() : false;
         const templateExists = yield* fs.exists(config.secretsTemplatePath);
         const outputExists = yield* fs.exists(config.secretsOutputPath);
         const refs: readonly SecretRef[] = templateExists
           ? secretRefs(yield* fs.readFileString(config.secretsTemplatePath))
           : [];
-        const itemLines: readonly string[] = signedIn
+        const vaults = [...new Set(refs.map(({ vault }) => vault))];
+        const signedInWithoutRefs =
+          installed && refs.length === 0 ? yield* manager.isSignedIn() : false;
+        const vaultItems = installed
           ? yield* Effect.all(
-              refs.map(({ title, vault }) =>
-                manager
-                  .itemExists(title, vault)
-                  .pipe(
-                    Effect.map((exists) =>
-                      exists
-                        ? `1Password item exists: ${vault}/${title}`
-                        : `1Password item missing: ${vault}/${title}`
-                    )
-                  )
+              vaults.map((vault) =>
+                manager.itemTitles(vault).pipe(
+                  Effect.option,
+                  Effect.map((titles) => [vault, titles] as const)
+                )
               )
             )
-          : refs.map(
-              ({ title, vault }) =>
-                `1Password item not checked: ${vault}/${title}`
-            );
+          : [];
+        const titlesByVault = new Map(vaultItems);
+        const sessionAvailable =
+          installed &&
+          (vaults.length === 0
+            ? signedInWithoutRefs
+            : vaultItems.every(([, items]) => items._tag === "Some"));
+        const itemLines: readonly string[] = refs.map(({ title, vault }) => {
+          const titles = titlesByVault.get(vault);
+          if (titles?._tag !== "Some") {
+            return `1Password item not checked: ${vault}/${title}`;
+          }
+          return titles.value.has(title)
+            ? `1Password item exists: ${vault}/${title}`
+            : `1Password item missing: ${vault}/${title}`;
+        });
 
         return [
           installed ? "1Password CLI: installed" : "1Password CLI: missing",
           ...(installed
             ? [
-                signedIn
+                sessionAvailable
                   ? "1Password session: signed in"
                   : "1Password session: not signed in",
               ]

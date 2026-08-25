@@ -19,44 +19,40 @@ export const doctor = Effect.fn("doctor")(function* () {
   yield* Console.log(`Dotfiles dir: ${config.dotfilesDir}`);
   yield* Console.log(
     line({
-      label: "repo at ~/.dotfiles",
-      ok: config.dotfilesDir === `${config.homeDir}/.dotfiles`,
+      detail: config.dotfilesDir,
+      label: "dotfiles repository",
+      ok: yield* fs.exists(`${config.dotfilesDir}/package.json`),
     })
   );
 
-  for (const cmd of [
-    "git",
-    "brew",
-    "zsh",
-    "stow",
-    "op",
-    "pi",
-    "bun",
-  ] as const) {
+  for (const cmd of ["git", "zsh", "stow", "op", "pi", "bun"] as const) {
     yield* Console.log(line({ label: cmd, ok: yield* commands.exists(cmd) }));
   }
 
+  yield* Console.log(`Package manager: ${packages.managerName}`);
+  for (const manifestPath of packages.manifestPaths) {
+    yield* Console.log(
+      line({
+        detail: manifestPath,
+        label: "package manifest",
+        ok: yield* fs.exists(manifestPath),
+      })
+    );
+  }
   yield* Console.log(
     line({
-      detail: config.brewfilePath,
-      label: "Brewfile",
-      ok: yield* fs.exists(config.brewfilePath),
+      label: `${packages.managerName} packages installed`,
+      ok: yield* packages.checkManifest(packages.manifestPaths[0] ?? ""),
     })
+  );
+  const dotLauncher = yield* currentDotLauncher(config.localBinDotPath).pipe(
+    Effect.provideService(FileSystem.FileSystem, fs)
   );
   yield* Console.log(
     line({
-      label: "Brewfile packages installed",
-      ok: yield* packages.checkManifest(config.brewfilePath),
-    })
-  );
-  const dotLinkTarget = yield* currentDotLinkTarget(
-    config.localBinDotPath
-  ).pipe(Effect.provideService(FileSystem.FileSystem, fs));
-  yield* Console.log(
-    line({
-      detail: dotLinkTarget,
-      label: "dot symlink",
-      ok: dotLinkTarget === `${config.dotfilesDir}/dist/dot`,
+      detail: dotLauncher.detail,
+      label: "dot launcher",
+      ok: dotLauncher.ok,
     })
   );
   yield* Console.log(
@@ -92,10 +88,14 @@ export const doctor = Effect.fn("doctor")(function* () {
       ok: yield* fs.exists(config.piMcpConfigPath),
     })
   );
+  const dependencyAudit = yield* workspace.dependencyAudit;
   yield* Console.log(
     line({
+      ...(dependencyAudit.detail === undefined
+        ? {}
+        : { detail: dependencyAudit.detail }),
       label: "dependency audit",
-      ok: yield* workspace.dependencyAudit,
+      ok: dependencyAudit.ok,
     })
   );
 
@@ -112,14 +112,28 @@ export const doctor = Effect.fn("doctor")(function* () {
   }
 });
 
-const currentDotLinkTarget = Effect.fn("doctor.currentDotLinkTarget")(
-  function* (linkPath: string) {
-    const fs = yield* FileSystem.FileSystem;
-    return yield* fs
-      .readLink(linkPath)
-      .pipe(Effect.catchCause(() => Effect.succeed("missing")));
+const currentDotLauncher = Effect.fn("doctor.currentDotLauncher")(function* (
+  launcherPath: string
+) {
+  const fs = yield* FileSystem.FileSystem;
+  const linkTarget = yield* fs.readLink(launcherPath).pipe(
+    Effect.option,
+    Effect.map((target) => (target._tag === "Some" ? target.value : undefined))
+  );
+  if (linkTarget !== undefined) {
+    return {
+      detail: linkTarget,
+      ok: linkTarget.endsWith("/dist/dot"),
+    };
   }
-);
+
+  const contents = yield* fs.readFileString(launcherPath).pipe(Effect.option);
+  if (contents._tag === "Some" && contents.value.includes("/bin/dot.ts")) {
+    return { detail: "development shim", ok: true };
+  }
+
+  return { detail: "missing or unmanaged", ok: false };
+});
 
 const zshSyntaxOk = Effect.fn("doctor.zshSyntaxOk")(function* (
   files: readonly string[]

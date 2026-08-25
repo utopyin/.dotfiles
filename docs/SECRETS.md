@@ -4,7 +4,7 @@ Secrets are managed by 1Password and rendered into an ignored local shell file.
 
 ## Files
 
-- Committed template: `home/.config/zsh/secrets.template.zsh`
+- Committed template: `home/common/.config/zsh/secrets.template.zsh`
 - Ignored rendered file: `~/.config/secrets/env.zsh`
 
 ## 1Password items

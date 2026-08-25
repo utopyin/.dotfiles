@@ -1,9 +1,22 @@
+import { existsSync } from "node:fs";
 import { homedir } from "node:os";
+import { join } from "node:path";
 
 import * as Config from "effect/Config";
 
+const defaultDotfilesDir = () => {
+  const workingDirectory = process.cwd();
+  const isDotfilesCheckout =
+    existsSync(join(workingDirectory, "bin", "dot.ts")) &&
+    existsSync(join(workingDirectory, "packages", "Brewfile"));
+  return isDotfilesCheckout ? workingDirectory : join(homedir(), ".dotfiles");
+};
+
 export interface DotfilesConfigShape {
   readonly brewfilePath: string;
+  readonly archAurManifestPath: string;
+  readonly archRemoveManifestPath: string;
+  readonly archRepoManifestPath: string;
   readonly dotfilesDir: string;
   readonly editorCommand: string;
   readonly homeDir: string;
@@ -24,7 +37,7 @@ export interface DotfilesConfigShape {
 
 export const DotfilesConfig = Config.all({
   dotfilesDir: Config.string("DOTFILES_DIR").pipe(
-    Config.withDefault(`${homedir()}/.dotfiles`)
+    Config.withDefault(defaultDotfilesDir())
   ),
   editorCommand: Config.string("VISUAL").pipe(
     Config.orElse(() => Config.string("EDITOR")),
@@ -46,6 +59,9 @@ export const DotfilesConfig = Config.all({
       piNpmPackage,
       secretsVault,
     }): DotfilesConfigShape => ({
+      archAurManifestPath: `${dotfilesDir}/packages/arch.aur`,
+      archRemoveManifestPath: `${dotfilesDir}/packages/arch.remove`,
+      archRepoManifestPath: `${dotfilesDir}/packages/arch.repo`,
       brewfilePath: `${dotfilesDir}/packages/Brewfile`,
       dotfilesDir,
       editorCommand,
@@ -59,10 +75,10 @@ export const DotfilesConfig = Config.all({
       piVendorDir: `${dotfilesDir}/vendor/pi`,
       promptConfigPath: `${homeDir}/.p10k.zsh`,
       secretsOutputPath: `${homeDir}/.config/secrets/env.zsh`,
-      secretsTemplatePath: `${dotfilesDir}/home/.config/zsh/secrets.template.zsh`,
+      secretsTemplatePath: `${dotfilesDir}/home/common/.config/zsh/secrets.template.zsh`,
       secretsVault,
       shellConfigPath: `${homeDir}/.zshrc`,
-      trackedPiSettingsPath: `${dotfilesDir}/home/.pi/agent/settings.json`,
+      trackedPiSettingsPath: `${dotfilesDir}/home/common/.pi/agent/settings.json`,
     })
   )
 );

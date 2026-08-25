@@ -1,0 +1,5 @@
+keyboard_layout:
+  model: pc105
+  layout: ca
+  variant: eng
+  options: caps:hyper,shift:both_capslock_cancel

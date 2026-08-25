@@ -1,0 +1,38 @@
+#!/bin/sh
+set -eu
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+checkout_dir=$(dirname -- "$script_dir")
+dotfiles_dir=${DOTFILES_DIR:-"$checkout_dir"}
+
+if ! command -v git >/dev/null 2>&1; then
+  case "$(uname -s)" in
+    Darwin) /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && brew install git ;;
+    Linux)
+      if command -v omarchy >/dev/null 2>&1; then
+        omarchy pkg add git
+      else
+        printf '%s\n' "git is required; install it with your system package manager" >&2
+        exit 1
+      fi
+      ;;
+  esac
+fi
+
+if ! command -v bun >/dev/null 2>&1; then
+  case "$(uname -s)" in
+    Darwin) brew install bun ;;
+    Linux)
+      if command -v omarchy >/dev/null 2>&1; then
+        omarchy install dev-env bun
+      else
+        curl -fsSL https://bun.sh/install | bash
+      fi
+      ;;
+  esac
+fi
+
+export PATH="$HOME/.bun/bin:$PATH"
+cd "$dotfiles_dir"
+bun install --frozen-lockfile
+exec bun run dot init

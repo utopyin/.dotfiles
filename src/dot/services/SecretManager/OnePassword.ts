@@ -66,7 +66,7 @@ export const makeOnePasswordSecretManager = Effect.gen(function* () {
     ),
 
     isSignedIn: Effect.fn("OnePasswordSecretManager.isSignedIn")(function* () {
-      return yield* command.run("op", ["whoami"]).pipe(
+      return yield* command.run("op", ["vault", "list", "--format=json"]).pipe(
         Effect.as(true),
         Effect.catchCause(() => Effect.succeed(false))
       );
@@ -84,6 +84,15 @@ export const makeOnePasswordSecretManager = Effect.gen(function* () {
         );
     }),
 
+    itemTitles: Effect.fn("OnePasswordSecretManager.itemTitles")(function* (
+      vault: string
+    ) {
+      const output = yield* command
+        .runText("op", ["item", "list", "--vault", vault, "--format=json"])
+        .pipe(Effect.mapError(mapOpError("item list")));
+      return yield* parseItemTitles(output);
+    }),
+
     updatePasswordItem: Effect.fn(
       "OnePasswordSecretManager.updatePasswordItem"
     )(function* (title: string, value: string, vault: string) {
@@ -99,6 +108,29 @@ export const makeOnePasswordSecretManager = Effect.gen(function* () {
         .pipe(Effect.asVoid, Effect.mapError(mapOpError("item edit")));
     }),
   } satisfies SecretManagerShape;
+});
+
+interface OnePasswordItemSummary {
+  readonly title?: unknown;
+}
+
+export const parseItemTitles = Effect.fn(
+  "OnePasswordSecretManager.parseItemTitles"
+)(function* (output: string) {
+  const items = yield* Effect.try({
+    catch: (cause) =>
+      new SecretManagerError({
+        operation: "item list",
+        provider: "1Password",
+        reason: cause instanceof Error ? cause.message : String(cause),
+      }),
+    try: () => JSON.parse(output) as readonly OnePasswordItemSummary[],
+  });
+  return new Set(
+    items.flatMap((item) =>
+      typeof item.title === "string" ? [item.title] : []
+    )
+  );
 });
 
 const mapOpError = (operation: string) => (error: unknown) =>

@@ -3,7 +3,6 @@ import * as Data from "effect/Data";
 import * as Effect from "effect/Effect";
 import * as Option from "effect/Option";
 
-import { DotfilesConfig } from "../Config.ts";
 import type { PackageKind } from "../services/PackageInstaller/index.ts";
 import { PackageInstaller } from "../services/PackageInstaller/index.ts";
 
@@ -30,13 +29,12 @@ export const packageAdd = Effect.fn("packageAdd")(function* (
   name: string,
   options: PackageAddOptions
 ) {
-  const config = yield* DotfilesConfig;
   const installer = yield* PackageInstaller;
   if (options.kind === "mas" && Option.isNone(options.id)) {
     return yield* new PackageCommandError({ reason: "missing-mas-id" });
   }
   const id = Option.getOrUndefined(options.id);
-  yield* installer.addToManifest(config.brewfilePath, {
+  yield* installer.addToManifest(installer.manifestPaths[0] ?? "", {
     ...(id === undefined ? {} : { id }),
     kind: options.kind,
     name,
@@ -45,9 +43,10 @@ export const packageAdd = Effect.fn("packageAdd")(function* (
 });
 
 export const packageList = Effect.fn("packageList")(function* () {
-  const config = yield* DotfilesConfig;
   const installer = yield* PackageInstaller;
-  const manifest = yield* installer.listManifest(config.brewfilePath);
+  const manifest = yield* installer.listManifest(
+    installer.manifestPaths[0] ?? ""
+  );
   yield* Console.log(manifest);
 });
 
@@ -55,9 +54,8 @@ export const packageRemove = Effect.fn("packageRemove")(function* (
   name: string,
   options: PackageRemoveOptions
 ) {
-  const config = yield* DotfilesConfig;
   const installer = yield* PackageInstaller;
-  yield* installer.removeFromManifest(config.brewfilePath, {
+  yield* installer.removeFromManifest(installer.manifestPaths[0] ?? "", {
     kind: options.kind,
     name,
   });
@@ -65,8 +63,7 @@ export const packageRemove = Effect.fn("packageRemove")(function* (
 });
 
 export const packageUpdate = Effect.fn("packageUpdate")(function* () {
-  const config = yield* DotfilesConfig;
   const installer = yield* PackageInstaller;
-  yield* installer.updateAll(config.brewfilePath);
+  yield* installer.updateAll(installer.manifestPaths[0] ?? "");
   yield* Console.log("Updated packages");
 });

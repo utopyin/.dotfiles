@@ -1,6 +1,11 @@
+[settings.npm]
+package_manager = "bun"
+
 [tools]
 bun = "latest"
+claude = "latest"
 codex = "latest"
 gh = "latest"
 node = "26.7.0"
+"npm:@withgraphite/graphite-cli" = "stable"
 pi = "latest"

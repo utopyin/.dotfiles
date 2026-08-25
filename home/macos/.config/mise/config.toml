@@ -1,0 +1,5 @@
+[settings.npm]
+package_manager = "bun"
+
+[tools]
+"npm:@withgraphite/graphite-cli" = "stable"

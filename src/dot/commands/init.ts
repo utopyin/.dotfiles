@@ -29,6 +29,9 @@ export const init = Effect.fn("init")(function* () {
   yield* linker.linkDot("release");
   yield* shell.installIntegrations();
   yield* applyConfig();
+  yield* commands.runInteractive("mise", ["install"], {
+    cwd: config.homeDir,
+  });
   yield* git.configureIdentity();
   yield* agent.installSelfIfMissing();
   yield* agent.installPackageDeps(config.piPackageDir);

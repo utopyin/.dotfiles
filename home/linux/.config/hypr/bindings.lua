@@ -17,6 +17,8 @@
 
 o.bind("MOD3 + C", "Zed", { launch = "zeditor" })
 
+hl.unbind("ALT + CTRL + J")
+
 -- Move the clipboard manager from SUPER+CTRL+V to Hyper+H.
 hl.unbind("SUPER + CTRL + V")
 o.bind("MOD3 + H", "Clipboard manager", "omarchy-shell shell toggle omarchy.clipboard")

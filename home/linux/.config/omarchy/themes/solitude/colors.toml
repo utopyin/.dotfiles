@@ -1,0 +1,35 @@
+# Min Dark (Solid), ported from the Zed Min Theme extension.
+mode = "dark"
+
+accent = "#79B8FF"
+selection = "#2A2A2A"
+muted = "#727272"
+
+background = "#1A1A1A"
+dark_background = "#141414"
+darker_background = "#000000"
+lighter_background = "#2A2A2A"
+
+foreground = "#BBBBBB"
+dark_foreground = "#898989"
+light_foreground = "#D1D1D1"
+bright_foreground = "#F8F8F8"
+
+hyprland_active_border = "rgba(79b8ffee)"
+hyprland_inactive_border = "rgb(2a2a2a)"
+active_border_color = "#79B8FF"
+active_tab_background = "#2A2A2A"
+
+red = "#FA7584"
+yellow = "#FFAB70"
+green = "#79B8FF"
+cyan = "#79B8FF"
+blue = "#B392F1"
+magenta = "#E394DC"
+
+bright_red = "#FF9CAA"
+bright_yellow = "#FFC9A3"
+bright_green = "#A3D0FF"
+bright_cyan = "#A3D0FF"
+bright_blue = "#CFB8FF"
+bright_magenta = "#F3B8EC"

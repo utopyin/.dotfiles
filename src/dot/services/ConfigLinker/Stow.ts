@@ -35,6 +35,8 @@ export const makeStowConfigLinker = Effect.gen(function* () {
           NODE_MODULES_IGNORE,
           "--ignore",
           FOLDED_SKILLS_IGNORE,
+          "--ignore",
+          FOLDED_OMARCHY_THEMES_IGNORE,
           "--restow",
           ...packageNames,
         ])
@@ -44,6 +46,13 @@ export const makeStowConfigLinker = Effect.gen(function* () {
         Effect.provideService(FileSystem.FileSystem, fs),
         Effect.provideService(Path.Path, path)
       );
+
+      if (platform.os !== "darwin") {
+        yield* ensureFoldedOmarchyThemesLink(dotfilesDir, homeDir).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(Path.Path, path)
+        );
+      }
     }),
     unlinkHome: Effect.fn("StowConfigLinker.unlinkHome")(function* (
       dotfilesDir: string,
@@ -53,6 +62,14 @@ export const makeStowConfigLinker = Effect.gen(function* () {
         Effect.provideService(FileSystem.FileSystem, fs),
         Effect.provideService(Path.Path, path)
       );
+
+      if (platform.os !== "darwin") {
+        yield* removeFoldedOmarchyThemesLink(homeDir).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(Path.Path, path)
+        );
+      }
+
       yield* command
         .run("stow", [
           "--dir",
@@ -66,6 +83,8 @@ export const makeStowConfigLinker = Effect.gen(function* () {
           NODE_MODULES_IGNORE,
           "--ignore",
           FOLDED_SKILLS_IGNORE,
+          "--ignore",
+          FOLDED_OMARCHY_THEMES_IGNORE,
           "--delete",
           ...packageNames,
         ])
@@ -89,6 +108,21 @@ const ensureFoldedSkillLinks = Effect.fn(
     const linkPath = path.join(homeDir, ...linkName.split("/"));
     yield* ensureDirectoryLink(sourcePath, linkPath, homeDir);
   }
+});
+
+const ensureFoldedOmarchyThemesLink = Effect.fn(
+  "StowConfigLinker.ensureFoldedOmarchyThemesLink"
+)(function* (dotfilesDir: string, homeDir: string) {
+  const path = yield* Path.Path;
+  const sourcePath = path.join(
+    dotfilesDir,
+    "home",
+    "linux",
+    ...OMARCHY_THEMES_SEGMENTS
+  );
+  const linkPath = path.join(homeDir, ...OMARCHY_THEMES_SEGMENTS);
+
+  yield* ensureDirectoryLink(sourcePath, linkPath, homeDir);
 });
 
 const ensureDirectoryLink = Effect.fn("StowConfigLinker.ensureDirectoryLink")(
@@ -130,6 +164,18 @@ const removeFoldedSkillLinks = Effect.fn(
     if (isLink) {
       yield* fs.remove(linkPath);
     }
+  }
+});
+
+const removeFoldedOmarchyThemesLink = Effect.fn(
+  "StowConfigLinker.removeFoldedOmarchyThemesLink"
+)(function* (homeDir: string) {
+  const path = yield* Path.Path;
+  const linkPath = path.join(homeDir, ...OMARCHY_THEMES_SEGMENTS);
+  const isLink = yield* pathIsSymlink(linkPath);
+  if (isLink) {
+    const fs = yield* FileSystem.FileSystem;
+    yield* fs.remove(linkPath);
   }
 });
 
@@ -243,4 +289,6 @@ const backupConflicts = Effect.fn("StowConfigLinker.backupConflicts")(
 const SKILLS_SOURCE_SEGMENTS = [".agents", "skills"] as const;
 const FOLDED_SKILL_LINKS = [".agents/skills", ".claude/skills"] as const;
 const FOLDED_SKILLS_IGNORE = "\\.agents/skills$";
+const OMARCHY_THEMES_SEGMENTS = [".config", "omarchy", "themes"] as const;
+const FOLDED_OMARCHY_THEMES_IGNORE = "\\.config/omarchy/themes$";
 const NODE_MODULES_IGNORE = "(^|/)node_modules($|/)";

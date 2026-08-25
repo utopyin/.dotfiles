@@ -108,6 +108,22 @@
   },
   "tab_size": 2,
   "ui_font_weight": 400.0,
+  "auto_install_extensions": {
+    "charmed-icons": true,
+    "d2": true,
+    "dockerfile": true,
+    "effect-language-service-tsgo": true,
+    "html": true,
+    "log": true,
+    "min-theme": true,
+    "oxc": true,
+    "react-typescript-snippets": true,
+    "serendipity": true,
+    "sql": true,
+    "swift": true,
+    "toml": true,
+    "tsgo": true
+  },
   "auto_update_extensions": {
     "flow": false
   },

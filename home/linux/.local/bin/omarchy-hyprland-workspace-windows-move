@@ -1,0 +1,73 @@
+#!/bin/bash
+
+set -euo pipefail
+
+source_workspace_json=$(hyprctl activeworkspace -j)
+source_workspace=$(jq -er '.id' <<<"$source_workspace_json")
+source_layout=$(jq -er '.tiledLayout' <<<"$source_workspace_json")
+target_workspace="${1:-}"
+
+if [[ -z $target_workspace ]]; then
+  options=()
+  for workspace in {1..10}; do
+    if (( workspace != source_workspace )); then
+      options+=("Workspace $workspace")
+    fi
+  done
+
+  selection=$(omarchy-menu-select "Move all windows to" "${options[@]}") || exit 0
+  target_workspace=${selection##* }
+fi
+
+if [[ ! $target_workspace =~ ^[1-9][0-9]*$ ]]; then
+  echo "Usage: ${0##*/} [workspace-number]" >&2
+  exit 2
+fi
+
+if (( target_workspace == source_workspace )); then
+  exit 0
+fi
+
+case "$source_layout" in
+  dwindle | master | monocle | scrolling) ;;
+  *)
+    echo "Unsupported workspace layout: $source_layout" >&2
+    exit 1
+    ;;
+esac
+
+focused_window=$(hyprctl activewindow -j | jq -er \
+  --argjson workspace "$source_workspace" \
+  'select(.workspace.id == $workspace) | .address')
+
+mapfile -t window_addresses < <(
+  hyprctl clients -j |
+    jq -r --argjson workspace "$source_workspace" \
+      '.[] | select(.workspace.id == $workspace) | .address'
+)
+
+if (( ${#window_addresses[@]} == 0 )); then
+  exit 0
+fi
+
+# Apply the source workspace's layout type to the destination now and persist
+# it for future Hyprland reloads.
+layouts_dir="$HOME/.local/state/omarchy/workspace-layouts"
+mkdir -p "$layouts_dir"
+printf 'hl.workspace_rule({ workspace = "%s", layout = "%s" })\n' \
+  "$target_workspace" "$source_layout" >"$layouts_dir/$target_workspace.lua"
+hyprctl eval \
+  "hl.workspace_rule({ workspace = \"$target_workspace\", layout = \"$source_layout\" })" \
+  >/dev/null
+
+for address in "${window_addresses[@]}"; do
+  hyprctl dispatch \
+    "hl.dsp.window.move({ workspace = \"$target_workspace\", follow = false, window = \"address:$address\" })" \
+    >/dev/null
+done
+
+# Follow the moved windows and restore focus to the window that was active
+# before the operation.
+hyprctl dispatch \
+  "hl.dsp.focus({ window = \"address:$focused_window\" })" \
+  >/dev/null

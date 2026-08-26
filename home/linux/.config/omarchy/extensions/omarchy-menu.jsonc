@@ -1,0 +1,9 @@
+{
+  // Custom commands added to the SUPER+SPACE menu.
+  "trigger.move-workspace-windows": {
+    "icon": "󰆍",
+    "label": "Move All Windows",
+    "description": "Move every window on this workspace to another workspace",
+    "action": "omarchy-hyprland-workspace-windows-move"
+  },
+}

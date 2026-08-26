@@ -4,7 +4,6 @@
 export BROWSER="${BROWSER:-omarchy-launch-browser}"
 
 alias a="omarchy-agent --inline"
-alias zed="zeditor"
 
 open() {
   command xdg-open "$@" >/dev/null 2>&1 &

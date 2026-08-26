@@ -1,4 +1,8 @@
-import { readFile } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
+import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import * as Effect from "effect/Effect";
 import { describe, expect, it } from "vitest";
@@ -13,6 +17,12 @@ const trackedGitConfig = new URL(
   "../../../home/common/.config/git/config",
   import.meta.url
 );
+const signingKeyHelper = fileURLToPath(
+  new URL(
+    "../../../home/common/.local/bin/git-ssh-signing-key",
+    import.meta.url
+  )
+);
 
 describe("tracked Git configuration", () => {
   it("uses GitHub CLI credentials and automatically tracks new branches", async () => {
@@ -21,6 +31,39 @@ describe("tracked Git configuration", () => {
     expect(config).toContain('[credential "https://github.com"]');
     expect(config).toContain("helper = !gh auth git-credential");
     expect(config).toContain("autoSetupRemote = true");
+  });
+
+  it("rejects SSH agent diagnostics as signing keys", async () => {
+    const directory = await mkdtemp(join(tmpdir(), "git-signing-key-"));
+    const binDirectory = join(directory, "bin");
+    const sshAdd = join(binDirectory, "ssh-add");
+
+    try {
+      await mkdir(binDirectory);
+      await writeFile(
+        sshAdd,
+        "#!/bin/sh\nprintf '%s\\n' 'The agent has no identities.'\n",
+        { mode: 0o755 }
+      );
+
+      const result = spawnSync(signingKeyHelper, [], {
+        encoding: "utf-8",
+        env: {
+          ...process.env,
+          HOME: join(directory, "home"),
+          PATH: `${binDirectory}:${process.env.PATH ?? ""}`,
+          SSH_AUTH_SOCK: join(directory, "empty-agent.sock"),
+        },
+      });
+
+      expect(result.status).toBe(1);
+      expect(result.stdout).toBe("");
+      expect(result.stderr).toBe(
+        "git-ssh-signing-key: SSH agent has no valid public keys\n"
+      );
+    } finally {
+      await rm(directory, { force: true, recursive: true });
+    }
   });
 });
 

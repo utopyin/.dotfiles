@@ -18,12 +18,12 @@
 -- Hyper+C previously launched Zed directly.
 hl.unbind("MOD3 + C")
 
--- Show or hide maximized app scratchpads.
-o.bind("MOD3 + B", "Toggle browser", "~/.local/bin/toggle-browser")
-o.bind("MOD3 + C", "Toggle Zed", "~/.local/bin/toggle-zed")
-o.bind("MOD3 + D", "Toggle Spotify", "~/.local/bin/toggle-spotify")
-o.bind("MOD3 + L", "Toggle Linear", "~/.local/bin/toggle-linear")
-o.bind("MOD3 + S", "Toggle Slack", "~/.local/bin/toggle-slack")
+-- Focus each app in its existing workspace, or launch it on the current one.
+o.bind("MOD3 + B", "Browser", { launch = "helium-browser", focus = "^helium$" })
+o.bind("MOD3 + C", "Zed", { launch = "zeditor", focus = "^dev\\.zed\\.Zed(-Preview)?$" })
+o.bind("MOD3 + D", "Spotify", { launch = "spotify", focus = "^spotify$" })
+o.bind("MOD3 + L", "Linear", { launch = "linear-bin", focus = "^linear$" })
+o.bind("MOD3 + S", "Slack", { launch = "slack", focus = "^slack$" })
 
 hl.unbind("ALT + CTRL + J")
 

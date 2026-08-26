@@ -2,6 +2,7 @@
 package_manager = "bun"
 
 [tools]
+"aqua:modem-dev/hunk" = "latest"
 bun = "latest"
 claude = "latest"
 codex = "latest"

@@ -4,6 +4,6 @@
     "icon": "󰆍",
     "label": "Move All Windows",
     "description": "Move every window on this workspace to another workspace",
-    "action": "omarchy-hyprland-workspace-windows-move"
+    "action": "omarchy-hyprland-workspace-windows-move",
   },
 }

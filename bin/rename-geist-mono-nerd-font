@@ -1,0 +1,200 @@
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.11"
+# dependencies = ["fonttools==4.60.2"]
+# ///
+
+"""Install GeistMono Nerd Font Mono under the family name "Geist Mono"."""
+
+from __future__ import annotations
+
+import argparse
+import os
+import platform
+import shutil
+import sys
+import tempfile
+from collections import Counter
+from pathlib import Path
+
+from fontTools.ttLib import TTFont
+
+SOURCE_GLOB = "GeistMonoNerdFontMono-*.otf"
+REDUNDANT_GLOBS = (
+    "GeistMonoNerdFont-*.otf",
+    "GeistMonoNerdFontPropo-*.otf",
+)
+FAMILY = "Geist Mono"
+POSTSCRIPT_FAMILY = "GeistMono"
+
+
+def default_font_dir() -> Path:
+    if platform.system() == "Darwin":
+        return Path.home() / "Library" / "Fonts"
+    return Path.home() / ".local" / "share" / "fonts"
+
+
+def font_name(font: TTFont, name_id: int) -> str | None:
+    names = font["name"].names
+    preferred = sorted(
+        (name for name in names if name.nameID == name_id),
+        key=lambda name: (name.platformID != 3, name.langID != 0x409),
+    )
+    for name in preferred:
+        try:
+            value = name.toUnicode().strip()
+        except UnicodeDecodeError:
+            continue
+        if value:
+            return value
+    return None
+
+
+def source_style(font: TTFont) -> str:
+    style = font_name(font, 17) or font_name(font, 2)
+    if not style:
+        raise ValueError("font has no subfamily name")
+    return style
+
+
+def postscript_style(style: str) -> str:
+    return "".join(character for character in style if character.isalnum())
+
+
+def set_name(font: TTFont, name_id: int, value: str) -> None:
+    table = font["name"]
+    table.removeNames(nameID=name_id)
+    table.setName(value, name_id, 3, 1, 0x409)
+    table.setName(value, name_id, 1, 0, 0)
+
+
+def rename_font(source: Path, destination: Path) -> str:
+    font = TTFont(source, recalcTimestamp=False)
+    try:
+        style = source_style(font)
+        full_name = FAMILY if style == "Regular" else f"{FAMILY} {style}"
+        postscript_name = f"{POSTSCRIPT_FAMILY}-{postscript_style(style)}"
+
+        set_name(font, 1, FAMILY)
+        set_name(font, 2, style)
+        set_name(font, 3, f"{postscript_name};Nerd Fonts")
+        set_name(font, 4, full_name)
+        set_name(font, 6, postscript_name)
+        set_name(font, 16, FAMILY)
+        set_name(font, 17, style)
+
+        font.save(destination, reorderTables=False)
+        return style
+    finally:
+        font.close()
+
+
+def installed_fonts(font_dir: Path) -> list[tuple[str, str, Path]]:
+    installed: list[tuple[str, str, Path]] = []
+    paths = sorted((*font_dir.glob("*.otf"), *font_dir.glob("*.ttf")))
+    for path in paths:
+        font = TTFont(path, lazy=True)
+        try:
+            if font_name(font, 16) != FAMILY and font_name(font, 1) != FAMILY:
+                continue
+            postscript_name = font_name(font, 6)
+            if not postscript_name:
+                raise ValueError(f"{path} has no PostScript name")
+            installed.append((source_style(font), postscript_name, path))
+        finally:
+            font.close()
+    return installed
+
+
+def verify_unique(fonts: list[tuple[str, str, Path]]) -> None:
+    styles = [style for style, _postscript_name, _path in fonts]
+    postscript_names = [postscript_name for _style, postscript_name, _path in fonts]
+    duplicate_styles = [
+        style for style, count in Counter(styles).items() if count > 1
+    ]
+    duplicate_postscript_names = [
+        name for name, count in Counter(postscript_names).items() if count > 1
+    ]
+    if duplicate_styles or duplicate_postscript_names:
+        duplicates = sorted((*duplicate_styles, *duplicate_postscript_names))
+        raise ValueError(f"duplicate installed font records: {', '.join(duplicates)}")
+
+
+def refresh_font_cache() -> None:
+    if platform.system() == "Darwin":
+        os.system("atsutil databases -removeUser >/dev/null 2>&1 || true")
+        os.system("killall fontd >/dev/null 2>&1 || true")
+        return
+    if shutil.which("fc-cache"):
+        os.system("fc-cache -f >/dev/null 2>&1")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument(
+        "font_dir",
+        nargs="?",
+        type=Path,
+        default=default_font_dir(),
+        help="font directory to update",
+    )
+    args = parser.parse_args()
+    font_dir = args.font_dir.expanduser().resolve()
+    font_dir.mkdir(parents=True, exist_ok=True)
+
+    sources = sorted(font_dir.glob(SOURCE_GLOB))
+    if not sources:
+        installed = installed_fonts(font_dir)
+        if installed:
+            verify_unique(installed)
+            print(f"Geist Mono is already installed with {len(installed)} unique styles.")
+            return 0
+        print(f"No {SOURCE_GLOB} files found in {font_dir}", file=sys.stderr)
+        return 1
+
+    styles: list[str] = []
+    with tempfile.TemporaryDirectory(dir=font_dir) as temporary_dir:
+        staging = Path(temporary_dir)
+        staged: list[tuple[Path, Path, str]] = []
+        for source in sources:
+            temporary_destination = staging / source.name
+            font = TTFont(source, lazy=True)
+            try:
+                style = source_style(font)
+            finally:
+                font.close()
+            destination = font_dir / f"GeistMono-{postscript_style(style)}.otf"
+            renamed_style = rename_font(source, temporary_destination)
+            styles.append(renamed_style)
+            staged.append((temporary_destination, destination, renamed_style))
+
+        duplicates = [style for style, count in Counter(styles).items() if count > 1]
+        if duplicates:
+            joined = ", ".join(sorted(duplicates))
+            raise ValueError(f"duplicate source styles: {joined}")
+
+        for _style, _postscript_name, path in installed_fonts(font_dir):
+            path.unlink()
+        for temporary_destination, destination, _style in staged:
+            os.replace(temporary_destination, destination)
+
+    redundant = set(sources)
+    for pattern in REDUNDANT_GLOBS:
+        redundant.update(font_dir.glob(pattern))
+    for path in sorted(redundant):
+        path.unlink()
+
+    installed = installed_fonts(font_dir)
+    verify_unique(installed)
+    installed_styles = {style for style, _postscript_name, _path in installed}
+    if installed_styles != set(styles) or len(installed) != len(styles):
+        raise RuntimeError("installed font set does not contain exactly one file per style")
+
+    refresh_font_cache()
+    print(f"Installed {len(installed)} unique Geist Mono styles in {font_dir}")
+    print("Removed the Nerd Font, Nerd Font Mono, and Nerd Font Propo source families.")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

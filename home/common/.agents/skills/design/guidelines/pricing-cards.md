@@ -27,14 +27,18 @@ Covers: pricing tiers, pricing cards, pricing tables, plan comparisons, emphasiz
 
 ```html
 <!-- Pokes out top and bottom -->
-<div class="{breakpoint}:grid-cols-3 {breakpoint}:grid-rows-[--spacing(6)_1fr_--spacing(6)] grid">
+<div
+  class="{breakpoint}:grid-cols-3 {breakpoint}:grid-rows-[--spacing(6)_1fr_--spacing(6)] grid"
+>
   <div class="{breakpoint}:row-start-2"><!-- normal card --></div>
   <div class="{breakpoint}:row-span-full"><!-- emphasized card --></div>
   <div class="{breakpoint}:row-start-2"><!-- normal card --></div>
 </div>
 
 <!-- Pokes out top only -->
-<div class="{breakpoint}:grid-cols-3 {breakpoint}:grid-rows-[--spacing(6)_1fr] grid">
+<div
+  class="{breakpoint}:grid-cols-3 {breakpoint}:grid-rows-[--spacing(6)_1fr] grid"
+>
   <div class="{breakpoint}:row-start-2"><!-- normal card --></div>
   <div class="{breakpoint}:row-span-full"><!-- emphasized card --></div>
   <div class="{breakpoint}:row-start-2"><!-- normal card --></div>

@@ -134,6 +134,9 @@ Covers: inputs, selects, textareas, checkboxes, radio buttons, toggles, search b
   <span
     class="ring-{gray}-900/5 aspect-square w-1/2 rounded-full bg-white ring-1 shadow-xs transition-transform duration-200 ease-in-out group-has-checked:translate-x-full"
   ></span>
-  <input type="checkbox" class="absolute inset-0 size-full appearance-none focus:outline-hidden" />
+  <input
+    type="checkbox"
+    class="absolute inset-0 size-full appearance-none focus:outline-hidden"
+  />
 </div>
 ```

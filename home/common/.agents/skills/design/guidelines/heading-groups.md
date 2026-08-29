@@ -10,7 +10,11 @@ A heading group is a headline and subheadline (and optional eyebrow) at the top 
 
   ```html
   <div class="/* never add a max width here */">
-    <h2 class="mx-auto max-w-[35ch] text-4xl font-semibold tracking-tight text-balance">…</h2>
+    <h2
+      class="mx-auto max-w-[35ch] text-4xl font-semibold tracking-tight text-balance"
+    >
+      …
+    </h2>
     <p class="mx-auto mt-6 max-w-[48ch] text-lg text-pretty text-gray-600">…</p>
   </div>
   ```

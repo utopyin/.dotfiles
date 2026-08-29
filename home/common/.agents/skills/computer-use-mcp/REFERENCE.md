@@ -14,6 +14,8 @@ open-computer-use doctor
 
 On first use, `doctor` opens onboarding when Accessibility or Screen Recording permission is missing. Ask the user to grant both permissions to Open Computer Use in System Settings. Do not attempt to alter macOS TCC state directly.
 
+After the user grants permission, run `doctor` again and reconnect. The existing stdio MCP process may still hold stale permission state or may have closed.
+
 If Pi cannot reach the server, inspect status and reconnect once:
 
 ```text
@@ -21,7 +23,17 @@ mcp({ server: "computer" })
 mcp({ connect: "computer" })
 ```
 
+A catalog response only proves that Pi can read the server metadata. It does not prove that the server process accepts calls. After reconnecting, use `computer_get_app_state` as the health check. A `Not connected` result means recovery failed even if `mcp({ server: "computer" })` lists every tool.
+
 The server provides `list_apps`, `get_app_state`, `click`, `perform_secondary_action`, `scroll`, `drag`, `type_text`, `press_key`, and `set_value`, exposed by Pi with the `computer_` prefix.
+
+If the proxy remains disconnected, use a direct snapshot only to distinguish a working native runtime from a stale gateway:
+
+```sh
+open-computer-use snapshot net.imput.helium
+```
+
+If the snapshot works, restart the host or gateway instead of repeating the same MCP call.
 
 ## Snapshot budgets
 
@@ -41,6 +53,33 @@ mcp({ tool: "computer_get_app_state", args: "{\"app\":\"net.imput.helium\",\"max
 
 Budget values must be positive integers. Only explicit state calls accept them.
 
+## Editable controls and key submission
+
+`computer_set_value` updates a settable control but does not guarantee keyboard focus. When the next action is a key press, use this sequence:
+
+1. Set the value.
+2. Click the same control.
+3. Confirm focus when the refreshed state exposes it.
+4. Press the key.
+5. Refresh after any resulting navigation or modal transition.
+
+When using `open-computer-use call` for diagnosis, keep `get_app_state` and dependent element actions in one `--calls` process. A later CLI process must capture new state before using element indices.
+
+## Recording verification
+
+Confirm whether the user requested a display, app window, or selected region before recording. Platform-specific capture commands and window identifiers are documented in [LEARNINGS.md](LEARNINGS.md).
+
+Run a short test capture before the real recording. When using `bg_start`, its initial response proves only that the process spawned. Check `bg_status` before starting UI actions and require the recorder to still be running. Then inspect the test file's duration, dimensions, and size. After the real capture, verify the same properties. Process exit code alone does not prove the requested framing.
+
+```sh
+ffprobe -v error \
+  -select_streams v:0 \
+  -show_entries stream=width,height \
+  -show_entries format=duration,size \
+  -of default=noprint_wrappers=1 \
+  recording.mov
+```
+
 ## Coordinate click methods
 
 Omitting `click_method` selects semantic-first `auto`. Refresh state immediately before any explicit coordinate click.
@@ -58,7 +97,7 @@ mcp({ tool: "computer_click", args: "{\"app\":\"net.imput.helium\",\"x\":875,\"y
 ## Failure map
 
 - Stale element or changed page: refresh state and choose a current index.
-- Unfocused editable control: click it, inspect focus, then type; use `set_value` when settable.
+- Unfocused editable control: set its value when supported, click it, inspect focus, then type or press the submission key.
 - Missing app or window: call `computer_list_apps` once, adopt its identifier, then refresh.
 - Unsupported key or click method: use a supported key name or return to `auto`.
 - Connection or catalog error: reconnect once, then rediscover the server tools.

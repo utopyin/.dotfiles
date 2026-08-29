@@ -35,7 +35,7 @@ The state is ready when it identifies the intended app and window and exposes th
 Prefer semantic element actions over coordinates:
 
 - Click with `computer_click` and `element_index`.
-- Fill a settable control with `computer_set_value`.
+- Fill a settable control with `computer_set_value`. This does not guarantee keyboard focus. Before a key submission, click the control and confirm focus.
 - Otherwise click the editable control, confirm focus, then use `computer_type_text`.
 - Send named keys and combinations with `computer_press_key`.
 
@@ -45,7 +45,11 @@ Chain calls only while every next target exists in the latest action result and 
 
 One failed call ends that strategy. Refresh stale state, establish focus, adopt the canonical app identifier, or change to a supported method before retrying. A retry is valid only when the state, target, arguments, or method changed.
 
+After reconnecting an MCP server, verify it with `computer_get_app_state`. A tool catalog response is not a connection health check.
+
 Read [REFERENCE.md](REFERENCE.md) when state is truncated, the accessibility tree is incomplete, a coordinate click is necessary, permissions fail, or the MCP server cannot connect.
+
+Read [LEARNINGS.md](LEARNINGS.md) before platform-specific recording work or when familiar actions behave differently across operating systems.
 
 ## 5. Verify
 

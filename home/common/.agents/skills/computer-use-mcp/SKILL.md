@@ -12,14 +12,14 @@ Treat the desktop as the user's live session. Ask before sending, submitting, de
 
 ## 1. Resolve the app
 
-Use the app name or bundle identifier already established in the current session. Target Helium as `net.imput.helium` and keep its current/default profile. If the required account is not available in that profile, ask the user rather than switching profiles.
+Use the app identifier already established in the current session. Call `computer_list_apps` once when the identity is unknown or stale, adopt the identifier it advertises, then retain it for the session.
 
-Call `computer_list_apps` once when the app identity is unknown or stale, then retain the returned identifier.
+Keep Helium's current/default profile. If the required account is not available in that profile, ask the user rather than switching profiles.
 
 Pi exposes this server through the `mcp` proxy with the `computer_` prefix. Pass `mcp.args` as serialized JSON:
 
 ```text
-mcp({ tool: "computer_get_app_state", args: "{\"app\":\"net.imput.helium\"}" })
+mcp({ tool: "computer_get_app_state", args: "{\"app\":\"APP_IDENTIFIER\"}" })
 ```
 
 ## 2. Start from fresh state
@@ -39,6 +39,8 @@ Prefer semantic element actions over coordinates:
 - Otherwise click the editable control, confirm focus, then use `computer_type_text`.
 - Send named keys and combinations with `computer_press_key`.
 
+If a confirmed-focused control ignores one input attempt, read the platform procedure in [REFERENCE.md](REFERENCE.md) instead of repeating the same call.
+
 Chain calls only while every next target exists in the latest action result and the window has not changed. Stop and inspect after navigation, submission, modal transitions, downloads, uploads, or uncertainty.
 
 ## 4. Recover by changing the precondition
@@ -47,9 +49,9 @@ One failed call ends that strategy. Refresh stale state, establish focus, adopt 
 
 After reconnecting an MCP server, verify it with `computer_get_app_state`. A tool catalog response is not a connection health check.
 
-Read [REFERENCE.md](REFERENCE.md) when state is truncated, the accessibility tree is incomplete, a coordinate click is necessary, permissions fail, or the MCP server cannot connect.
+Read [REFERENCE.md](REFERENCE.md) when state is truncated, a renderer tree is missing, keyboard injection fails, a coordinate click is necessary, permissions fail, or the MCP server cannot connect.
 
-Read [LEARNINGS.md](LEARNINGS.md) before platform-specific recording work or when familiar actions behave differently across operating systems.
+Read [LEARNINGS.md](LEARNINGS.md) when observed behavior contradicts a tool response or the documented procedure.
 
 ## 5. Verify
 

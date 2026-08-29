@@ -1,38 +1,39 @@
 # Learnings
 
-These are observed platform behaviors, not API guarantees. Keep new findings under the relevant operating-system section.
+These are observed platform behaviors, not API guarantees. Keep findings here and operational procedures in [REFERENCE.md](REFERENCE.md).
+
+## Linux
+
+### App identifiers come from the accessibility registry
+
+In the tested session, `computer_list_apps` advertised Helium as `Helium`. That advertised name was the working identifier for subsequent state and action calls.
+
+### Chromium renderer accessibility is independent
+
+AT-SPI2 and D-Bus exposed Helium's native browser frame without exposing its web document. GNOME toolkit accessibility alone was insufficient. The document appeared only after renderer accessibility was enabled and Helium restarted.
+
+### AT-SPI focus does not prove keyboard injection
+
+Semantic focus worked in Chromium while `computer_type_text` produced no text. The same control did not expose a settable value. Wayland keyboard injection worked once it used the signed-in user's runtime directory and display.
+
+### Chromium actions are state-local
+
+Element indices changed after navigation, modal transitions, and asynchronous list updates. Some links exposed `jump` but ignored a semantic click, while a descendant exposing `click` navigated correctly.
+
+### Capture bounds and output dimensions use different scales
+
+AT-SPI reported the tested Helium region as `1157x1300+1231+38`. On the scaled display, `grim` produced `1851x2080` pixels and `gpu-screen-recorder` produced `1852x2080`. Both captured the requested region rather than the full display.
+
+`gpu-screen-recorder` accepted the older region form but emitted a deprecation warning. `SIGTERM` finalized the MP4 cleanly.
 
 ## macOS
 
-### Record one window, not the display
+### Window capture identifiers differ from accessibility indices
 
-`screencapture -v -D1` records the full display. To record one app window, pass its Core Graphics window ID with `-l`:
+The accessibility element index for a window was not its Core Graphics window ID. Reopening the app could replace the Core Graphics ID even when the accessibility window looked unchanged.
 
-```sh
-screencapture -v -V35 -l8802 -x output.mov
-```
-
-The accessibility element index for a window is not its Core Graphics window ID. Find the ID with `CGWindowListCopyWindowInfo`, then match the window by owner and title. Re-query it if the app recreates or reopens the window.
-
-```swift
-import CoreGraphics
-import Foundation
-
-let windows = CGWindowListCopyWindowInfo(
-  [.optionOnScreenOnly, .excludeDesktopElements],
-  kCGNullWindowID
-) as? [[String: Any]] ?? []
-
-for window in windows {
-  let owner = window[kCGWindowOwnerName as String] as? String ?? ""
-  let title = window[kCGWindowName as String] as? String ?? ""
-  guard owner == "Helium" else { continue }
-  print(window[kCGWindowNumber as String] ?? "?", title)
-}
-```
-
-Retina recordings use physical pixel dimensions, which can exceed the window's logical accessibility bounds. Window shadows can add more pixels. That alone does not mean the full display was captured.
+Retina recordings used physical pixel dimensions that exceeded the window's logical accessibility bounds. Window shadows added more pixels without changing the requested capture target.
 
 ### TCC changes can outlive the MCP process
 
-During testing, `open-computer-use doctor` reported both permissions as granted and direct CLI snapshots worked, while Pi's existing MCP connection remained disconnected. Restarting the host or gateway may be necessary after a macOS TCC change. The recovery procedure lives in [REFERENCE.md](REFERENCE.md).
+During testing, `open-computer-use doctor` reported both permissions as granted and direct CLI snapshots worked, while Pi's existing MCP connection remained disconnected. The connection recovered only after the host or gateway restarted.

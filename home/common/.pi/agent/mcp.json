@@ -1,6 +1,13 @@
 {
   "imports": ["cursor"],
   "mcpServers": {
+    "computer": {
+      "args": ["mcp"],
+      "command": "open-computer-use",
+      "directTools": false,
+      "lifecycle": "lazy",
+      "requestTimeoutMs": 60000
+    },
     "axiom": {
       "url": "https://mcp.axiom.co/mcp",
       "auth": "oauth",

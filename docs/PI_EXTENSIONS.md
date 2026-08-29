@@ -16,6 +16,7 @@ Only these upstreams are approved for the current vendoring pass:
 
 - Davis: <https://github.com/davis7dotsh/my-pi-setup/tree/main>
 - dmmulroy: <https://github.com/dmmulroy/.dotfiles/tree/main>
+- iFurySt: <https://github.com/iFurySt/open-codex-computer-use>
 - Neil-urk12: <https://github.com/Neil-urk12/pi-dots>
 
 ## Current imports
@@ -32,6 +33,7 @@ Only these upstreams are approved for the current vendoring pass:
 | `whimsical`              | dmmulroy   | `f1d259292fb07e08745484c546b789d9584959b6` | `home/common/.pi/agent/extensions/whimsical.ts`                                                                                                                           | Randomizes Pi's working message.                                                                                                                                                                                                                                                                                                                                                                                                                                           |
 | `pi-cloak`               | dmmulroy   | `f1d259292fb07e08745484c546b789d9584959b6` | `home/common/.pi/agent/extensions/pi-cloak/`                                                                                                                              | Secret masking extension.                                                                                                                                                                                                                                                                                                                                                                                                                                                  |
 | `pi-skill-toggle`        | dmmulroy   | `f1d259292fb07e08745484c546b789d9584959b6` | `home/common/.pi/agent/extensions/pi-skill-toggle/`                                                                                                                       | Skill toggle UI and frontmatter patching.                                                                                                                                                                                                                                                                                                                                                                                                                                  |
+| `computer-use-mcp` skill | iFurySt    | `503a5e54c812cde33c2f986f6199d16f7171538f` | `home/common/.agents/skills/computer-use-mcp/`                                                                                                                            | Guides local desktop interaction through the `computer` MCP server, with Helium-specific app targeting and reviewed safety rules. Dylan Mulroy's setup informed the Pi-specific adaptation; see the colocated `PROVENANCE.md`.                                                                                                                                                                                                                                             |
 | `pi-lazygit`             | Neil-urk12 | npm `0.1.1`                                | `home/common/.pi/agent/extensions/pi-lazygit/`                                                                                                                            | Opens lazygit fullscreen via `/lazygit` or `Alt+L` (`Option+L` on macOS). Vendored to replace upstream's conflicting `Ctrl+Shift+G` shortcut; see the colocated `PROVENANCE.md`.                                                                                                                                                                                                                                                                                           |
 
 ## Managed Pi packages
@@ -41,6 +43,14 @@ pinned in `home/common/.pi/agent/settings.json`, and its resolved dependency gra
 tracked in `home/common/.pi/agent/npm/package-lock.json`. MCP server configuration stays
 in `home/common/.pi/agent/mcp.json`; OAuth credentials and metadata caches remain
 ignored.
+
+## Computer use runtime
+
+Open Computer Use is pinned as `npm:open-computer-use@0.3.2` in both platform Mise
+configs. The `computer` MCP entry launches its stdio server lazily and keeps all nine
+tools behind the existing MCP proxy. The runtime controls the logged-in desktop and
+needs Accessibility and Screen Recording permission on macOS; it does not use E2B or
+require API credentials.
 
 ## Web tools decision
 

@@ -19,14 +19,15 @@ not included.
 ## Agent skills
 
 Local user skills are public and tracked under `home/common/.agents/skills` so a fresh
-machine gets the same skill library through the stow layout.
+machine gets the same skill library through the stow layout. The `computer-use-mcp`
+skill guides reviewed desktop automation through Pi's `computer` MCP server.
 
 ## Pi
 
 Tracked sanitized Pi config:
 
 - `home/common/.pi/agent/settings.json`
-- `home/common/.pi/agent/mcp.json`
+- `home/common/.pi/agent/mcp.json`, including the lazy local `computer` server.
 - `home/common/.pi/agent/keybindings.json`
 - `home/common/.pi/agent/themes/current-ide.json`
 - `home/common/.pi/agent/npm/package.json`
@@ -56,6 +57,9 @@ Installed Pi package and extension-local dependencies are represented by tracked
 - Global Git ignore: `home/common/.gitignore_global`
 - Ghostty config: `home/macos/.config/ghostty/config`
 - Ghostty theme/shaders used by the config are tracked under `home/macos/.config/ghostty/`.
+
+Open Computer Use is pinned in both platform Mise configs and exposes the
+`open-computer-use` command used by Pi's local desktop MCP server.
 
 Global tools observed on this machine include Pi, Hitch, npm/yarn/corepack, and
 project CLIs such as Codex, Bruno, Netlify, Vercel, Wrangler, Oxlint/Oxfmt, and

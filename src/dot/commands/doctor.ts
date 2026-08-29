@@ -30,6 +30,14 @@ export const doctor = Effect.fn("doctor")(function* () {
   for (const cmd of ["git", "gh", "zsh", "stow", "op", "pi", "bun"] as const) {
     yield* Console.log(line({ label: cmd, ok: yield* commands.exists(cmd) }));
   }
+  yield* Console.log(
+    line({
+      label: "open-computer-use",
+      ok: yield* miseToolInstalled("open-computer-use").pipe(
+        Effect.provideService(CommandExecutor, commands)
+      ),
+    })
+  );
 
   const gitStatus = yield* git.status();
   yield* Console.log(
@@ -170,6 +178,16 @@ const currentDotLauncher = Effect.fn("doctor.currentDotLauncher")(function* (
   }
 
   return { detail: "missing or unmanaged", ok: false };
+});
+
+const miseToolInstalled = Effect.fn("doctor.miseToolInstalled")(function* (
+  tool: string
+) {
+  const commands = yield* CommandExecutor;
+  return yield* commands.run("mise", ["which", tool]).pipe(
+    Effect.as(true),
+    Effect.catchCause(() => Effect.succeed(false))
+  );
 });
 
 const zshSyntaxOk = Effect.fn("doctor.zshSyntaxOk")(function* (

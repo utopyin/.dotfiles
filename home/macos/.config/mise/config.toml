@@ -3,3 +3,4 @@ package_manager = "bun"
 
 [tools]
 "npm:@withgraphite/graphite-cli" = "stable"
+"npm:open-computer-use" = "0.3.2"

@@ -3,12 +3,14 @@ import * as Effect from "effect/Effect";
 
 import { DotfilesConfig } from "../Config.ts";
 import { AgentRuntime } from "../services/AgentRuntime/index.ts";
+import { CommandExecutor } from "../services/CommandExecutor/index.ts";
 import { FileVersioning } from "../services/FileVersioning/index.ts";
 import { PackageInstaller } from "../services/PackageInstaller/index.ts";
 import { applyConfig } from "./stow.ts";
 
 export const update = Effect.fn("update")(function* () {
   const config = yield* DotfilesConfig;
+  const commands = yield* CommandExecutor;
   const vcs = yield* FileVersioning;
   const packages = yield* PackageInstaller;
   const agent = yield* AgentRuntime;
@@ -38,6 +40,11 @@ export const update = Effect.fn("update")(function* () {
 
   yield* Console.log("Applying dotfiles config...");
   yield* applyConfig();
+
+  yield* Console.log("Installing mise tools...");
+  yield* commands.runInteractive("mise", ["install"], {
+    cwd: config.homeDir,
+  });
 
   yield* Console.log("Installing Pi extension dependencies...");
   yield* agent.installExtensionPackageDeps(config.piExtensionsDir);

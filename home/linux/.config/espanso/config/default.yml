@@ -3,3 +3,6 @@ keyboard_layout:
   layout: ca
   variant: eng
   options: caps:hyper,shift:both_capslock_cancel
+
+# Avoid intercepting Alt+Space (reported as Super+Space by the DZ65 firmware).
+search_shortcut: off

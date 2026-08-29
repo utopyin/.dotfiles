@@ -52,6 +52,7 @@ hl.config({
     kb_layout = "ca",
     kb_variant = "eng",
     kb_options = "caps:hyper,shift:both_capslock_cancel",
+    sensitivity = -0.4,
   },
 })
 

@@ -25,10 +25,6 @@
   "always_treat_brackets_as_autoclosed": true,
   "use_autoclose": true,
   "context_servers": {
-    "uidotsh": {
-      "enabled": true,
-      "url": "https://ui.sh/mcp?agent=cursor"
-    },
     "linear": {
       "command": "npx",
       "args": ["-y", "mcp-remote", "https://mcp.linear.app/mcp"],
@@ -75,9 +71,6 @@
               "pattern": "^git\\s+branch(\\s|$)"
             }
           ]
-        },
-        "mcp:uidotsh:uidotsh_fetch": {
-          "default": "allow"
         }
       }
     },

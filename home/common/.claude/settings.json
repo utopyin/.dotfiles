@@ -7,7 +7,6 @@
     "defaultMode": "bypassPermissions"
   },
   "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": ["uidotsh"],
   "enableArtifact": false,
   "enabledPlugins": {
     "linear@claude-plugins-official": true,

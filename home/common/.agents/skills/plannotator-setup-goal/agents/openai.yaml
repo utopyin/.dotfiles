@@ -2,3 +2,5 @@ interface:
   display_name: "Setup Goal"
   short_description: "Turn an idea into a goal package for /goal"
   default_prompt: "Use $plannotator-setup-goal to turn this idea into a goal package."
+policy:
+  allow_implicit_invocation: false

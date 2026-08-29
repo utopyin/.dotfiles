@@ -55,6 +55,15 @@ hl.config({
   },
 })
 
+-- The DZ65 exposes two key-producing interfaces. Swap Alt and Super only on
+-- those interfaces, leaving every other keyboard on the global options above.
+for _, name in ipairs({ "dztech-dz65rgbv3", "dztech-dz65rgbv3-keyboard" }) do
+  hl.device({
+    name = name,
+    kb_options = "caps:hyper,shift:both_capslock_cancel,altwin:swap_alt_win",
+  })
+end
+
 -- App-specific touchpad scroll speeds.
 -- o.window("(Alacritty|kitty|foot)", { scroll_touchpad = 1.5 })
 -- o.window("com.mitchellh.ghostty", { scroll_touchpad = 0.2 })

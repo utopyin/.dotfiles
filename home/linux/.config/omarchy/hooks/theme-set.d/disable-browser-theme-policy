@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Keep Chromium-based browsers user-managed instead of forcing Omarchy's theme.
+policy=/etc/chromium/policies/managed/color.json
+rm -f "$policy"
+
+# Apply the policy removal to a running Helium instance.
+if pgrep -f '/opt/helium-browser-bin/helium' >/dev/null; then
+  helium-browser --refresh-platform-policy --no-startup-window >/dev/null 2>&1 || true
+fi

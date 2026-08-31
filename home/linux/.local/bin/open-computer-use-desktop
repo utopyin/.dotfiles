@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+socket="$XDG_RUNTIME_DIR/hypr/$HYPRLAND_INSTANCE_SIGNATURE/.socket2.sock"
+
+reconcile_outputs() {
+  local monitors output
+  local -a headless_outputs
+
+  monitors=$(hyprctl -j monitors 2>/dev/null) || return 0
+  mapfile -t headless_outputs < <(
+    jq -r '.[] | select(.name | startswith("HEADLESS-")) | .name' <<< "$monitors"
+  )
+
+  if jq -e 'any(.[]; .name != "FALLBACK" and (.name | startswith("HEADLESS-") | not))' <<< "$monitors" >/dev/null; then
+    for output in "${headless_outputs[@]}"; do
+      hyprctl output remove "$output" >/dev/null 2>&1 || true
+    done
+    return 0
+  fi
+
+  if jq -e 'length == 0' <<< "$monitors" >/dev/null; then
+    hyprctl output create headless >/dev/null
+  fi
+
+  if ! pgrep -u "$(id -u)" -x helium >/dev/null; then
+    helium-browser >/dev/null 2>&1 &
+  fi
+}
+
+sleep 1
+reconcile_outputs
+
+while read -r event; do
+  case "$event" in
+    monitoradded\>\>* | monitoraddedv2\>\>* | monitorremoved\>\>* | monitorremovedv2\>\>*)
+      sleep 1
+      reconcile_outputs
+      ;;
+  esac
+done < <(socat -U - "UNIX-CONNECT:$socket")

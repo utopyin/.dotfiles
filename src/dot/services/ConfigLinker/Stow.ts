@@ -310,23 +310,42 @@ const reloadAndValidateHyprland = Effect.fn(
   const instances = yield* command
     .runText("hyprctl", ["instances", "-j"])
     .pipe(Effect.catchCause(() => Effect.succeed("[]")));
-  if (!hasRunningHyprlandInstance(instances)) {
+  const instance = getRunningHyprlandInstance(instances);
+  if (!instance) {
     return;
   }
 
-  yield* command.run("hyprctl", ["reload", "config-only"]);
-  const errors = (yield* command.runText("hyprctl", ["configerrors"])).trim();
+  const instanceArgs = ["--instance", instance];
+  yield* command.run("hyprctl", [...instanceArgs, "reload", "config-only"]);
+  const errors = (yield* command.runText("hyprctl", [
+    ...instanceArgs,
+    "configerrors",
+  ])).trim();
   if (errors.length > 0) {
     return yield* new HyprlandConfigError({ errors });
   }
 });
 
-const hasRunningHyprlandInstance = (instances: string): boolean => {
+const getRunningHyprlandInstance = (instances: string): string | undefined => {
   try {
     const decoded: unknown = JSON.parse(instances);
-    return Array.isArray(decoded) && decoded.length > 0;
+    if (!Array.isArray(decoded)) {
+      return undefined;
+    }
+
+    const [first] = decoded;
+    if (
+      typeof first !== "object" ||
+      first === null ||
+      !("instance" in first) ||
+      typeof first.instance !== "string"
+    ) {
+      return undefined;
+    }
+
+    return first.instance;
   } catch {
-    return false;
+    return undefined;
   }
 };
 
@@ -525,10 +544,11 @@ const OMARCHY_THEMES_SEGMENTS = [".config", "omarchy", "themes"] as const;
 const FOLDED_OMARCHY_THEMES_IGNORE = "\\.config/omarchy/themes$";
 const HYPRLAND_CONFIG_SEGMENTS = [".config", "hypr"] as const;
 const MANAGED_HYPRLAND_FILES = [
+  "autostart.lua",
   "bindings.lua",
   "input.lua",
   "monitors.lua",
 ] as const;
 const MANAGED_HYPRLAND_FILES_IGNORE =
-  "\\.config/hypr/(bindings|input|monitors)\\.lua$";
+  "\\.config/hypr/(autostart|bindings|input|monitors)\\.lua$";
 const NODE_MODULES_IGNORE = "(^|/)node_modules($|/)";

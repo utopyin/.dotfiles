@@ -45,7 +45,12 @@ describe("StowConfigLinker", () => {
     await mkdir(sourceHyprDir, { recursive: true });
     await mkdir(targetHyprDir, { recursive: true });
 
-    for (const fileName of ["bindings.lua", "input.lua", "monitors.lua"]) {
+    for (const fileName of [
+      "autostart.lua",
+      "bindings.lua",
+      "input.lua",
+      "monitors.lua",
+    ]) {
       const sourcePath = join(sourceHyprDir, fileName);
       const targetPath = join(targetHyprDir, fileName);
       await writeFile(sourcePath, "-- valid\n");
@@ -70,7 +75,12 @@ describe("StowConfigLinker", () => {
       )
     );
 
-    for (const fileName of ["bindings.lua", "input.lua", "monitors.lua"]) {
+    for (const fileName of [
+      "autostart.lua",
+      "bindings.lua",
+      "input.lua",
+      "monitors.lua",
+    ]) {
       const sourcePath = join(sourceHyprDir, fileName);
       const targetPath = join(targetHyprDir, fileName);
       await expect(readlink(targetPath)).resolves.toBe(
@@ -80,7 +90,7 @@ describe("StowConfigLinker", () => {
 
     const stowCall = calls.find((call) => call.command === "stow");
     expect(stowCall?.args).toContain(
-      "\\.config/hypr/(bindings|input|monitors)\\.lua$"
+      "\\.config/hypr/(autostart|bindings|input|monitors)\\.lua$"
     );
   });
 });

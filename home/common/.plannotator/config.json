@@ -6,5 +6,9 @@
   },
   "diffOptions": {
     "diffStyle": "split"
+  },
+  "reviewAnalysis": {
+    "semanticDiff": true,
+    "callFlow": false
   }
 }

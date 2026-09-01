@@ -6,9 +6,11 @@ not included.
 
 ## Shell
 
+- Shell environment: `home/common/.zshenv`
 - Shell config: `home/common/.zshrc`
 - Prompt config: `home/common/.p10k.zsh`
 - Split zsh snippets: `home/common/.config/zsh/conf.d/*.zsh`
+- SSH config pins GitHub to `home/common/.ssh/github-utopyin.pub` while the private key stays in 1Password.
 - Oh My Zsh custom plugins present on this machine:
   - `zsh-autosuggestions`
   - `zsh-syntax-highlighting`

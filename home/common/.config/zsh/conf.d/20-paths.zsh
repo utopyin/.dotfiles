@@ -3,7 +3,8 @@ if [[ "$OSTYPE" == darwin* ]]; then
 else
   one_password_ssh_socket="$HOME/.1password/agent.sock"
 fi
-if [[ -S "$one_password_ssh_socket" ]]; then
+if [[ -S "$one_password_ssh_socket" &&
+      ( -z "${SSH_CONNECTION:-}" || ! -S "${SSH_AUTH_SOCK:-}" ) ]]; then
   export SSH_AUTH_SOCK="$one_password_ssh_socket"
 fi
 unset one_password_ssh_socket

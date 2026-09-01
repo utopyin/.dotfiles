@@ -1,5 +1,5 @@
 import { spawnSync } from "node:child_process";
-import { mkdtemp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -33,33 +33,20 @@ describe("tracked Git configuration", () => {
     expect(config).toContain("autoSetupRemote = true");
   });
 
-  it("rejects SSH agent diagnostics as signing keys", async () => {
+  it("requires the configured GitHub signing key", async () => {
     const directory = await mkdtemp(join(tmpdir(), "git-signing-key-"));
-    const binDirectory = join(directory, "bin");
-    const sshAdd = join(binDirectory, "ssh-add");
+    const homeDirectory = join(directory, "home");
 
     try {
-      await mkdir(binDirectory);
-      await writeFile(
-        sshAdd,
-        "#!/bin/sh\nprintf '%s\\n' 'The agent has no identities.'\n",
-        { mode: 0o755 }
-      );
-
       const result = spawnSync(signingKeyHelper, [], {
         encoding: "utf-8",
-        env: {
-          ...process.env,
-          HOME: join(directory, "home"),
-          PATH: `${binDirectory}:${process.env.PATH ?? ""}`,
-          SSH_AUTH_SOCK: join(directory, "empty-agent.sock"),
-        },
+        env: { ...process.env, HOME: homeDirectory },
       });
 
       expect(result.status).toBe(1);
       expect(result.stdout).toBe("");
       expect(result.stderr).toBe(
-        "git-ssh-signing-key: SSH agent has no valid public keys\n"
+        `git-ssh-signing-key: missing ${homeDirectory}/.ssh/github-utopyin.pub\n`
       );
     } finally {
       await rm(directory, { force: true, recursive: true });

@@ -18,7 +18,7 @@
   "zoomed_padding": true,
   "bottom_dock_layout": "contained",
   "edit_predictions": {
-    "mode": "eager"
+    "mode": "subtle"
   },
   "colorize_brackets": true,
   "snippet_sort_order": "top",

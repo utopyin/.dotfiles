@@ -34,6 +34,26 @@
     "fastmail": {
       "url": "https://api.fastmail.com/mcp",
       "directTools": false
+    },
+    "grafana": {
+      "type": "stdio",
+      "command": "docker",
+      "args": [
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GRAFANA_URL",
+        "-e",
+        "GRAFANA_SERVICE_ACCOUNT_TOKEN",
+        "mcp/grafana",
+        "-t",
+        "stdio"
+      ],
+      "env": {
+        "GRAFANA_URL": "https://grafana.inboxapp.com",
+        "GRAFANA_SERVICE_ACCOUNT_TOKEN": "${GRAFANA_SERVICE_ACCOUNT_TOKEN}"
+      }
     }
   }
 }

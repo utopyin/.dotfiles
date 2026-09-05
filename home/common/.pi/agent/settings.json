@@ -1,7 +1,7 @@
 {
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-5.6-sol",
-  "lastChangelogVersion": "0.84.4",
+  "defaultModel": "gpt-6-astra",
+  "lastChangelogVersion": "0.85.0",
   "defaultThinkingLevel": "high",
   "shellCommandPrefix": "for config_file in \"$HOME\"/.config/zsh/conf.d/{20-paths,30-aliases}.zsh; do [ -r \"$config_file\" ] && . \"$config_file\"; done",
   "treeFilterMode": "no-tools",
@@ -23,5 +23,8 @@
   "quietStartup": true,
   "steeringMode": "one-at-a-time",
   "defaultProjectTrust": "always",
-  "doubleEscapeAction": "tree"
+  "doubleEscapeAction": "tree",
+  "compaction": {
+    "enabled": true
+  }
 }

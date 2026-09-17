@@ -8,3 +8,4 @@ custom-shader = ~/.config/ghostty/shaders/cursor_blaze_tapered.glsl
 # background-opacity = 0
 macos-titlebar-style = tabs
 macos-option-as-alt = true
+auto-update-channel = tip

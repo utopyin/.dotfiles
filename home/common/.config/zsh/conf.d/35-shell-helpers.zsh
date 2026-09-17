@@ -93,10 +93,20 @@ _ssh_interactive() {
   ! grep -i '^remotecommand ' <<<"$resolved" | grep -qvi '^remotecommand none$'
 }
 
+# Inside Ghostty, let it install its terminfo on the remote host and forward its environment.
+# Other terminals keep plain ssh, where TERM=xterm-ghostty would be wrong.
+_ssh_run() {
+  if [[ "${TERM_PROGRAM:-}" == ghostty ]] && (( $+commands[ghostty] )); then
+    command ghostty +ssh -- "$@"
+  else
+    command ssh "$@"
+  fi
+}
+
 ssh() {
   local -i rc started=$SECONDS
 
-  command ssh "$@"
+  _ssh_run "$@"
   rc=$?
 
   [[ -t 1 ]] || return $rc
@@ -111,7 +121,7 @@ ssh() {
     while true; do
       print "Connection lost. Reconnecting (Ctrl-C to stop)..."
       sleep 2
-      command ssh "$@"
+      _ssh_run "$@"
       rc=$?
       _ssh_disarm
       (( rc != 255 )) && exit $rc

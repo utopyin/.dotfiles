@@ -12,14 +12,14 @@ export const makeStowConfigLinker = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const path = yield* Path.Path;
   const platform = yield* PlatformInfo;
-  const packageNames = ["common", platform.os === "darwin" ? "macos" : "linux"];
+  const packageNames = ["common", platform.environment];
 
   return {
     linkHome: Effect.fn("StowConfigLinker.linkHome")(function* (
       dotfilesDir: string,
       homeDir: string
     ) {
-      if (platform.os === "linux") {
+      if (platform.environment === "omarchy") {
         yield* verifyProspectiveHyprlandConfig(dotfilesDir, homeDir).pipe(
           Effect.provideService(CommandExecutor, command),
           Effect.provideService(FileSystem.FileSystem, fs),
@@ -58,7 +58,7 @@ export const makeStowConfigLinker = Effect.gen(function* () {
         Effect.provideService(Path.Path, path)
       );
 
-      if (platform.os === "linux") {
+      if (platform.environment === "omarchy") {
         yield* ensureFoldedOmarchyThemesLink(dotfilesDir, homeDir).pipe(
           Effect.provideService(FileSystem.FileSystem, fs),
           Effect.provideService(Path.Path, path)
@@ -83,7 +83,7 @@ export const makeStowConfigLinker = Effect.gen(function* () {
         Effect.provideService(Path.Path, path)
       );
 
-      if (platform.os === "linux") {
+      if (platform.environment === "omarchy") {
         yield* removeFoldedOmarchyThemesLink(homeDir).pipe(
           Effect.provideService(FileSystem.FileSystem, fs),
           Effect.provideService(Path.Path, path)
@@ -153,7 +153,7 @@ const verifyProspectiveHyprlandConfig = Effect.fn(
       const sourceConfigDir = path.join(
         dotfilesDir,
         "home",
-        "linux",
+        "omarchy",
         ...HYPRLAND_CONFIG_SEGMENTS
       );
       for (const fileName of MANAGED_HYPRLAND_FILES) {
@@ -223,7 +223,7 @@ const ensureFoldedOmarchyThemesLink = Effect.fn(
   const sourcePath = path.join(
     dotfilesDir,
     "home",
-    "linux",
+    "omarchy",
     ...OMARCHY_THEMES_SEGMENTS
   );
   const linkPath = path.join(homeDir, ...OMARCHY_THEMES_SEGMENTS);
@@ -238,7 +238,7 @@ const ensureHyprlandConfigLinks = Effect.fn(
   const sourceConfigDir = path.join(
     dotfilesDir,
     "home",
-    "linux",
+    "omarchy",
     ...HYPRLAND_CONFIG_SEGMENTS
   );
   const targetConfigDir = path.join(homeDir, ...HYPRLAND_CONFIG_SEGMENTS);
@@ -532,7 +532,7 @@ const backupConflicts = Effect.fn("StowConfigLinker.backupConflicts")(
 );
 
 const isManagedHyprlandEntry = (packageName: string, entry: string): boolean =>
-  packageName === "linux" &&
+  packageName === "omarchy" &&
   MANAGED_HYPRLAND_FILES.some(
     (fileName) => entry === `.config/hypr/${fileName}`
   );

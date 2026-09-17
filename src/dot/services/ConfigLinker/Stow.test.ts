@@ -39,7 +39,13 @@ describe("StowConfigLinker", () => {
     temporaryDirectories.push(root);
     const dotfilesDir = join(root, "repo");
     const homeDir = join(root, "home");
-    const sourceHyprDir = join(dotfilesDir, "home", "linux", ".config", "hypr");
+    const sourceHyprDir = join(
+      dotfilesDir,
+      "home",
+      "omarchy",
+      ".config",
+      "hypr"
+    );
     const targetHyprDir = join(homeDir, ".config", "hypr");
     await mkdir(join(dotfilesDir, "home", "common"), { recursive: true });
     await mkdir(sourceHyprDir, { recursive: true });
@@ -69,6 +75,7 @@ describe("StowConfigLinker", () => {
           architecture: "x64",
           distroId: "omarchy",
           distroLike: ["arch"],
+          environment: "omarchy",
           os: "linux",
         }),
         Effect.provide(Layer.merge(NodeFileSystem.layer, NodePath.layer))

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { parseOsRelease } from "./PlatformInfo.ts";
+import { parseOsRelease, resolveEnvironment } from "./PlatformInfo.ts";
 
 describe(parseOsRelease, () => {
   it("decodes Omarchy's Arch identity", () => {
@@ -17,5 +17,26 @@ describe(parseOsRelease, () => {
     expect(parseOsRelease("# generated\nID=arch\nmalformed\n")).toStrictEqual({
       ID: "arch",
     });
+  });
+});
+
+describe(resolveEnvironment, () => {
+  it("maps macOS regardless of distribution values", () => {
+    expect(resolveEnvironment("darwin", undefined, [])).toBe("macos");
+  });
+
+  it("maps Omarchy by its distribution id", () => {
+    expect(resolveEnvironment("linux", "omarchy", ["arch"])).toBe("omarchy");
+  });
+
+  it("maps Ubuntu and its derivatives", () => {
+    expect(resolveEnvironment("linux", "ubuntu", ["debian"])).toBe("ubuntu");
+    expect(resolveEnvironment("linux", "pop", ["ubuntu", "debian"])).toBe(
+      "ubuntu"
+    );
+  });
+
+  it("leaves other distributions unsupported", () => {
+    expect(resolveEnvironment("linux", "arch", [])).toBeUndefined();
   });
 });

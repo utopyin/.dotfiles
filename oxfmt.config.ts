@@ -6,7 +6,7 @@ export default defineConfig({
   ignorePatterns: [
     ...(ultracite.ignorePatterns ?? []),
     // Preserve the generated Raycast-to-Espanso import byte-for-byte.
-    "home/linux/.config/espanso/match/raycast-import.yml",
+    "home/omarchy/.config/espanso/match/raycast-import.yml",
     // Keep the Davis suite formatted by its upstream Prettier configuration.
     "home/common/.pi/agent/extensions/ask-user/**",
     "home/common/.pi/agent/extensions/background-terminals/**",

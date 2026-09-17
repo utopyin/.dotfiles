@@ -8,10 +8,13 @@ import * as Layer from "effect/Layer";
 
 export type OperatingSystem = "darwin" | "linux";
 
+export type Environment = "macos" | "omarchy" | "ubuntu";
+
 export interface PlatformInfoShape {
   readonly architecture: string;
   readonly distroId: string | undefined;
   readonly distroLike: readonly string[];
+  readonly environment: Environment;
   readonly os: OperatingSystem;
 }
 
@@ -37,14 +40,40 @@ export const makePlatformInfo = Effect.fn("PlatformInfo.make")(function* () {
       ? yield* fs.readFileString("/etc/os-release")
       : "";
   const values = parseOsRelease(release);
+  const distroId = values.ID;
+  const distroLike = values.ID_LIKE?.split(/\s+/u).filter(Boolean) ?? [];
+  const environment = resolveEnvironment(detected, distroId, distroLike);
+  if (environment === undefined) {
+    return yield* new UnsupportedPlatformError({
+      detectedPlatform: `${detected}/${distroId ?? "unknown"}`,
+    });
+  }
 
   return {
     architecture: process.arch,
-    distroId: values.ID,
-    distroLike: values.ID_LIKE?.split(/\s+/u).filter(Boolean) ?? [],
+    distroId,
+    distroLike,
+    environment,
     os: detected,
   } satisfies PlatformInfoShape;
 });
+
+export const resolveEnvironment = (
+  os: OperatingSystem,
+  distroId: string | undefined,
+  distroLike: readonly string[]
+): Environment | undefined => {
+  if (os === "darwin") {
+    return "macos";
+  }
+  if (distroId === "omarchy") {
+    return "omarchy";
+  }
+  if (distroId === "ubuntu" || distroLike.includes("ubuntu")) {
+    return "ubuntu";
+  }
+  return undefined;
+};
 
 export const parseOsRelease = (content: string): Record<string, string> =>
   Object.fromEntries(

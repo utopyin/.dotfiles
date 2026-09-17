@@ -82,6 +82,32 @@ export class GitSetup extends Context.Service<GitSetup>()("dot/GitSetup", {
 
     return {
       configureIdentity: Effect.fn("GitSetup.configureIdentity")(function* () {
+        const authenticated = yield* command
+          .run("gh", ["auth", "status", "--hostname", "github.com"])
+          .pipe(
+            Effect.as(true),
+            Effect.catchCause(() => Effect.succeed(false))
+          );
+        if (!authenticated && process.stdin.isTTY === true) {
+          yield* command
+            .runInteractive("gh", [
+              "auth",
+              "login",
+              "--hostname",
+              "github.com",
+              "--git-protocol",
+              "https",
+              "--web",
+            ])
+            .pipe(
+              Effect.mapError(
+                () =>
+                  new GitHubIdentityError({
+                    reason: "gh auth login did not complete; rerun dot init",
+                  })
+              )
+            );
+        }
         const output = yield* command.runText("gh", ["api", "user"]).pipe(
           Effect.mapError(
             () =>

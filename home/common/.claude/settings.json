@@ -6,7 +6,6 @@
   "permissions": {
     "defaultMode": "bypassPermissions"
   },
-  "model": "claude-fable-5-1[1m]",
   "enableAllProjectMcpServers": true,
   "enableArtifact": false,
   "enabledPlugins": {
@@ -29,5 +28,6 @@
   "autoCompactEnabled": true,
   "switchModelsOnFlag": false,
   "autoContinueAtUsageLimit": false,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "model": "claude-fable-5-1[1m]"
 }

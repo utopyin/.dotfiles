@@ -4,10 +4,13 @@ import * as ChildProcess from "effect/unstable/process/ChildProcess";
 import * as ChildProcessSpawner from "effect/unstable/process/ChildProcessSpawner";
 
 import { CommandExecutionError } from "./errors.ts";
+import { withToolPaths } from "./toolPaths.ts";
 import type { CommandExecutorShape, CommandResult } from "./types.ts";
 
 export const makeBunCommandExecutor = Effect.gen(function* () {
   const spawner = yield* ChildProcessSpawner.ChildProcessSpawner;
+  // Mise-installed tools such as gh and op must resolve from any parent shell.
+  const env = { PATH: withToolPaths(globalThis.process.env) };
 
   const run = Effect.fn("CommandExecutor.run")(function* (
     command: string,
@@ -18,6 +21,8 @@ export const makeBunCommandExecutor = Effect.gen(function* () {
       Effect.gen(function* () {
         const process = ChildProcess.make(command, args, {
           ...(options.cwd === undefined ? {} : { cwd: options.cwd }),
+          env,
+          extendEnv: true,
           stderr: "pipe",
           stdout: "pipe",
         });
@@ -90,6 +95,8 @@ export const makeBunCommandExecutor = Effect.gen(function* () {
       Effect.gen(function* () {
         const process = ChildProcess.make(command, args, {
           ...(options.cwd === undefined ? {} : { cwd: options.cwd }),
+          env,
+          extendEnv: true,
           stderr: "inherit",
           stdin: "inherit",
           stdout: "inherit",

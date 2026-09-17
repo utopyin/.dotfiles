@@ -16,3 +16,11 @@ if [[ -n "${SSH_CONNECTION:-}" && -S "$stable_ssh_auth_sock" ]]; then
 fi
 
 unset stable_ssh_auth_sock one_password_ssh_auth_sock one_password_macos_ssh_auth_sock
+
+# Mise shims keep tools such as op and gh reachable from non-interactive shells;
+# interactive shells get exact versions from `mise activate`.
+mise_shims_dir="${XDG_DATA_HOME:-$HOME/.local/share}/mise/shims"
+if [[ -d "$mise_shims_dir" && ":$PATH:" != *":$mise_shims_dir:"* ]]; then
+  export PATH="$PATH:$mise_shims_dir"
+fi
+unset mise_shims_dir

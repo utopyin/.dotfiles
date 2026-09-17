@@ -49,12 +49,6 @@ if ! command -v bun >/dev/null 2>&1; then
   esac
 fi
 
-# APT has no mise package; dot finds it in ~/.local/bin on its own.
-if is_ubuntu && ! command -v mise >/dev/null 2>&1 && [ ! -x "$HOME/.local/bin/mise" ]; then
-  command -v curl >/dev/null 2>&1 || apt_install curl
-  curl -fsSL https://mise.run | sh
-fi
-
 export PATH="$HOME/.bun/bin:$PATH"
 cd "$dotfiles_dir"
 bun install --frozen-lockfile

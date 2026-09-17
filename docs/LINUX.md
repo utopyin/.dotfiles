@@ -15,10 +15,10 @@ After cloning this repository to `~/.dotfiles`, run:
 ./bin/bootstrap
 ```
 
-The bootstrap script only resolves the Git/Bun dependency cycle. On Ubuntu it
-also installs mise with the official installer, because APT has no mise package
-and `dot init` needs it on `PATH`. All machine configuration remains in the
-Effect CLI.
+The bootstrap script only resolves the Git/Bun dependency cycle. All machine
+configuration remains in the Effect CLI. When no package manager provided mise,
+as on Ubuntu, `dot init` installs it into `~/.local/bin` with the official
+installer before running `mise install`.
 
 ## Package manifests
 

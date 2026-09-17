@@ -35,3 +35,7 @@ dist/
 # Tool caches/state
 .cache/
 .local/state/
+
+# codex sync
+
+**/.agents/skills/synced

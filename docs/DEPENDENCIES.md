@@ -20,6 +20,7 @@ runtime packages.
 - System/app dependencies: `packages/Brewfile`
 - Arch repository dependencies: `packages/arch.repo`
 - Arch AUR dependencies: `packages/arch.aur`
+- Ubuntu APT dependencies: `packages/ubuntu.apt`
 - Pi package dependencies: `home/common/.pi/agent/npm/package.json` +
   `home/common/.pi/agent/npm/package-lock.json`
 - Extension-local dependencies: colocated `package.json` + lockfiles under

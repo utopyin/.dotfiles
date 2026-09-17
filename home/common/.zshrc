@@ -139,3 +139,6 @@ if [[ -f "$HOME/.config/secrets/env.zsh" ]]; then
 fi
 
 export PATH="$HOME/bin:$PATH"
+
+# bun completions
+[ -s "/Users/utopy/.bun/_bun" ] && source "/Users/utopy/.bun/_bun"

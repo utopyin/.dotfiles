@@ -17,6 +17,7 @@ export interface DotfilesConfigShape {
   readonly archAurManifestPath: string;
   readonly archRemoveManifestPath: string;
   readonly archRepoManifestPath: string;
+  readonly aptManifestPath: string;
   readonly dotfilesDir: string;
   readonly editorCommand: string;
   readonly gitIdentityConfigPath: string;
@@ -61,6 +62,7 @@ export const DotfilesConfig = Config.all({
       piNpmPackage,
       secretsVault,
     }): DotfilesConfigShape => ({
+      aptManifestPath: `${dotfilesDir}/packages/ubuntu.apt`,
       archAurManifestPath: `${dotfilesDir}/packages/arch.aur`,
       archRemoveManifestPath: `${dotfilesDir}/packages/arch.remove`,
       archRepoManifestPath: `${dotfilesDir}/packages/arch.repo`,

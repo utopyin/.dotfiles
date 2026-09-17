@@ -110,6 +110,7 @@ export const cli = Command.make("dot").pipe(
           kind: Flag.choice("kind", [
             "repo",
             "aur",
+            "apt",
             "brew",
             "cask",
             "mas",
@@ -129,6 +130,7 @@ export const cli = Command.make("dot").pipe(
           kind: Flag.choice("kind", [
             "repo",
             "aur",
+            "apt",
             "brew",
             "cask",
             "mas",

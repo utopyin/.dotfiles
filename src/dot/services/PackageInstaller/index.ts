@@ -4,13 +4,21 @@ import * as Layer from "effect/Layer";
 import type * as PlatformError from "effect/PlatformError";
 
 import type { CommandExecutionError } from "../CommandExecutor/index.ts";
+import { makeAptPackageInstaller } from "./Apt.ts";
 import type { PackageInstallerConfigurationError } from "./errors.ts";
 import { makeHomebrewPackageInstaller } from "./Homebrew.ts";
 import { makeOmarchyPackageInstaller } from "./Omarchy.ts";
 
 export { PackageInstallerConfigurationError } from "./errors.ts";
 
-export type PackageKind = "aur" | "brew" | "cask" | "mas" | "repo" | "tap";
+export type PackageKind =
+  | "apt"
+  | "aur"
+  | "brew"
+  | "cask"
+  | "mas"
+  | "repo"
+  | "tap";
 
 export interface PackageEntry {
   readonly id?: number;
@@ -53,7 +61,10 @@ export interface PackageInstallerShape {
   ) => Effect.Effect<void, PlatformError.PlatformError>;
   readonly updateAll: (
     manifestPath: string
-  ) => Effect.Effect<void, CommandExecutionError>;
+  ) => Effect.Effect<
+    void,
+    CommandExecutionError | PackageInstallerConfigurationError
+  >;
 }
 
 export class PackageInstaller extends Context.Service<PackageInstaller>()(
@@ -64,6 +75,7 @@ export class PackageInstaller extends Context.Service<PackageInstaller>()(
     ),
   }
 ) {
+  static readonly Apt = Layer.effect(this, makeAptPackageInstaller());
   static readonly Homebrew = Layer.effect(this, makeHomebrewPackageInstaller);
   static readonly Omarchy = Layer.effect(this, makeOmarchyPackageInstaller());
 }

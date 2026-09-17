@@ -1,0 +1,17 @@
+# Ubuntu packages installed through APT.
+# Most developer tools come from home/ubuntu/.config/mise/config.toml, because
+# APT lacks them or ships versions too old for the shared shell config.
+build-essential
+curl
+ffmpeg
+git
+jq
+libssl-dev
+mosh
+pkg-config
+python3
+ripgrep
+stow
+tmux
+unzip
+zsh

@@ -8,14 +8,12 @@ import { CommandExecutor } from "./services/CommandExecutor/index.ts";
 import { ConfigLinker } from "./services/ConfigLinker/index.ts";
 import { FileVersioning } from "./services/FileVersioning/index.ts";
 import { GitSetup } from "./services/GitSetup.ts";
+import { makeAptPackageInstaller } from "./services/PackageInstaller/Apt.ts";
 import { makeHomebrewPackageInstaller } from "./services/PackageInstaller/Homebrew.ts";
 import { PackageInstaller } from "./services/PackageInstaller/index.ts";
 import { makeOmarchyPackageInstaller } from "./services/PackageInstaller/Omarchy.ts";
 import { PiExtensionVendor } from "./services/PiExtensionVendor.ts";
-import {
-  PlatformInfo,
-  UnsupportedPlatformError,
-} from "./services/PlatformInfo.ts";
+import { PlatformInfo } from "./services/PlatformInfo.ts";
 import { SecretManager } from "./services/SecretManager/index.ts";
 import { Secrets } from "./services/Secrets.ts";
 import { SecretValueInput } from "./services/SecretValueInput/index.ts";
@@ -30,15 +28,13 @@ const SelectedPackageInstaller = Layer.effect(
   PackageInstaller,
   Effect.gen(function* () {
     const platform = yield* PlatformInfo;
-    if (platform.os === "darwin") {
+    if (platform.environment === "macos") {
       return yield* makeHomebrewPackageInstaller;
     }
-    if (platform.distroId === "omarchy") {
+    if (platform.environment === "omarchy") {
       return yield* makeOmarchyPackageInstaller();
     }
-    return yield* new UnsupportedPlatformError({
-      detectedPlatform: `${platform.os}/${platform.distroId ?? "unknown"}`,
-    });
+    return yield* makeAptPackageInstaller();
   })
 );
 

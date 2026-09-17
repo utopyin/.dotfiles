@@ -7,6 +7,7 @@ import type { CommandExecutionError } from "../CommandExecutor/index.ts";
 import { makeZshShellSetup } from "./Zsh.ts";
 
 export interface ShellSetupShape {
+  readonly ensureLoginShell: () => Effect.Effect<boolean>;
   readonly installIntegrations: () => Effect.Effect<
     void,
     CommandExecutionError | PlatformError.PlatformError

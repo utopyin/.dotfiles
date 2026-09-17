@@ -1,3 +1,5 @@
+import { userInfo } from "node:os";
+
 import * as Effect from "effect/Effect";
 import * as FileSystem from "effect/FileSystem";
 import * as Path from "effect/Path";
@@ -20,6 +22,9 @@ const plugins = [
   },
 ] as const;
 
+export const isZshPath = (shell: string | undefined): boolean =>
+  shell !== undefined && /(^|\/)zsh$/u.test(shell);
+
 export const makeZshShellSetup = Effect.gen(function* () {
   const command = yield* CommandExecutor;
   const config = yield* DotfilesConfig;
@@ -30,6 +35,28 @@ export const makeZshShellSetup = Effect.gen(function* () {
   const customDir = path.join(ohMyZshDir, "custom");
 
   return {
+    ensureLoginShell: Effect.fn("ZshShellSetup.ensureLoginShell")(function* () {
+      if (isZshPath(process.env.SHELL)) {
+        return true;
+      }
+      const zshPath = yield* command
+        .runText("/bin/sh", ["-c", "command -v zsh"])
+        .pipe(Effect.orElseSucceed(() => ""));
+      if (zshPath.length === 0 || process.stdin.isTTY !== true) {
+        return false;
+      }
+      const user = userInfo().username;
+      const invocation =
+        process.getuid?.() === 0
+          ? { args: ["-s", zshPath, user], command: "chsh" }
+          : { args: ["chsh", "-s", zshPath, user], command: "sudo" };
+      return yield* command
+        .runInteractive(invocation.command, invocation.args)
+        .pipe(
+          Effect.as(true),
+          Effect.catchCause(() => Effect.succeed(false))
+        );
+    }),
     installIntegrations: Effect.fn("ZshShellSetup.installIntegrations")(
       function* () {
         yield* installOhMyZshIfMissing(ohMyZshDir).pipe(

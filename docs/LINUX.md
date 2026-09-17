@@ -76,6 +76,11 @@ When GitHub CLI is not authenticated, `dot init` runs `gh auth login` itself
 with the terminal attached, then continues. Without a terminal it stops with
 the usual hint instead.
 
+For image builds, `dot init --unattended` (or `bin/bootstrap --unattended`)
+skips the steps that need a person: GitHub sign-in, the Git identity it feeds,
+and the login-shell change. Install `packages/ubuntu.apt` as root first so the
+unprivileged run needs no `sudo`, then rerun `dot init` on the live machine.
+
 APT runs through `sudo` in a terminal, through `pkexec` without one, and
 directly when `dot` runs as root. `dot init` leaves the login shell alone; run
 `chsh -s "$(command -v zsh)"` once on a new devbox.

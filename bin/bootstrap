@@ -52,4 +52,4 @@ fi
 export PATH="$HOME/.bun/bin:$PATH"
 cd "$dotfiles_dir"
 bun install --frozen-lockfile
-exec bun run dot init
+exec bun run dot init "$@"

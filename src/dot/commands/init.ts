@@ -30,7 +30,11 @@ const installMiseIfMissing = Effect.fn("init.installMiseIfMissing")(
   }
 );
 
-export const init = Effect.fn("init")(function* () {
+export interface InitOptions {
+  readonly unattended: boolean;
+}
+
+export const init = Effect.fn("init")(function* (options: InitOptions) {
   const config = yield* DotfilesConfig;
   const agent = yield* AgentRuntime;
   const commands = yield* CommandExecutor;
@@ -50,7 +54,8 @@ export const init = Effect.fn("init")(function* () {
   yield* linker.linkDot("release");
   yield* Console.log("Installing shell integrations...");
   yield* shell.installIntegrations();
-  const loginShellIsZsh = yield* shell.ensureLoginShell();
+  const loginShellIsZsh =
+    options.unattended || (yield* shell.ensureLoginShell());
   yield* Console.log("Applying dotfiles config...");
   yield* applyConfig();
   yield* installMiseIfMissing();
@@ -58,8 +63,12 @@ export const init = Effect.fn("init")(function* () {
   yield* commands.runInteractive("mise", ["install"], {
     cwd: config.homeDir,
   });
-  yield* Console.log("Configuring Git identity...");
-  yield* git.configureIdentity();
+  if (options.unattended) {
+    yield* Console.log("Skipping Git identity; rerun dot init once signed in");
+  } else {
+    yield* Console.log("Configuring Git identity...");
+    yield* git.configureIdentity();
+  }
   yield* Console.log("Installing Pi runtime...");
   yield* agent.installSelfIfMissing();
   yield* Console.log("Installing Pi package dependencies...");

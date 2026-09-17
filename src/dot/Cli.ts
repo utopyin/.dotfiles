@@ -37,7 +37,13 @@ export const cli = Command.make("dot").pipe(
       Command.withHandler(doctor)
     ),
 
-    Command.make("init").pipe(
+    Command.make("init", {
+      unattended: Flag.boolean("unattended").pipe(
+        Flag.withDescription(
+          "Skip steps that need a person, such as GitHub sign-in; for image builds"
+        )
+      ),
+    }).pipe(
       Command.withDescription("Bootstrap this machine"),
       Command.withHandler(init)
     ),

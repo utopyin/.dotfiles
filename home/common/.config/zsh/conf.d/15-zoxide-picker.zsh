@@ -1,3 +1,5 @@
+eval "$(zoxide init zsh)"
+
 typeset -g _DOTFILES_ZOXIDE_GITSTATUS_NAME="ZOXIDE_PICKER"
 typeset -gi _dotfiles_zoxide_gitstatus_ready=0
 typeset -g _dotfiles_zoxide_selection=""

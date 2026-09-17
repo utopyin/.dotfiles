@@ -5,8 +5,10 @@
  * - Popup UI: arrow keys or number keys to pick, Enter to confirm
  * - "Write my own answer" opens an inline editor (Esc returns to the options)
  * - Esc on the options dismisses the question (the model is told you declined)
+ * - Questions unanswered for 15 seconds send a brrr push when configured
  */
 
+import { basename } from "node:path";
 import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
 import {
   Editor,
@@ -18,6 +20,10 @@ import {
 } from "@earendil-works/pi-tui";
 import { Cause, Effect, Exit } from "effect";
 import { Type, type Static } from "typebox";
+import {
+  ASK_USER_NOTIFICATION_KEY_ENV,
+  scheduleUnansweredNotification,
+} from "./notification.ts";
 import {
   ASK_USER_PARAMETER_DESCRIPTIONS,
   ASK_USER_PROMPT_GUIDELINES,
@@ -150,10 +156,18 @@ export default function askUser(pi: ExtensionAPI) {
           let cachedLines: string[] | undefined;
 
           let settled = false;
+          const cancelUnansweredNotification = scheduleUnansweredNotification(
+            {
+              question: params.question,
+              context: basename(ctx.cwd),
+            },
+            process.env[ASK_USER_NOTIFICATION_KEY_ENV],
+          );
 
           function finish(result: SelectionResult) {
             if (settled) return;
             settled = true;
+            cancelUnansweredNotification();
             uiSignal.removeEventListener("abort", cancel);
             done(result);
           }
@@ -324,6 +338,7 @@ export default function askUser(pi: ExtensionAPI) {
             },
             handleInput,
             dispose: () => {
+              cancelUnansweredNotification();
               uiSignal.removeEventListener("abort", cancel);
             },
           };

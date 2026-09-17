@@ -5,12 +5,26 @@ script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 checkout_dir=$(dirname -- "$script_dir")
 dotfiles_dir=${DOTFILES_DIR:-"$checkout_dir"}
 
+is_ubuntu() {
+  [ -r /etc/os-release ] && grep -Eq '^ID(_LIKE)?=.*ubuntu' /etc/os-release
+}
+
+apt_install() {
+  if [ "$(id -u)" -eq 0 ]; then
+    apt-get update && apt-get install --yes "$@"
+  else
+    sudo apt-get update && sudo apt-get install --yes "$@"
+  fi
+}
+
 if ! command -v git >/dev/null 2>&1; then
   case "$(uname -s)" in
     Darwin) /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && brew install git ;;
     Linux)
       if command -v omarchy >/dev/null 2>&1; then
         omarchy pkg add git
+      elif is_ubuntu; then
+        apt_install git
       else
         printf '%s\n' "git is required; install it with your system package manager" >&2
         exit 1
@@ -26,10 +40,19 @@ if ! command -v bun >/dev/null 2>&1; then
       if command -v omarchy >/dev/null 2>&1; then
         omarchy install dev-env bun
       else
+        if is_ubuntu; then
+          apt_install curl unzip
+        fi
         curl -fsSL https://bun.sh/install | bash
       fi
       ;;
   esac
+fi
+
+# APT has no mise package; dot finds it in ~/.local/bin on its own.
+if is_ubuntu && ! command -v mise >/dev/null 2>&1 && [ ! -x "$HOME/.local/bin/mise" ]; then
+  command -v curl >/dev/null 2>&1 || apt_install curl
+  curl -fsSL https://mise.run | sh
 fi
 
 export PATH="$HOME/.bun/bin:$PATH"

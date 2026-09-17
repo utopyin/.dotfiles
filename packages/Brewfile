@@ -40,6 +40,8 @@ cask "humanlayer"
 cask "devin-cli"
 cask "spotify"
 
+brew "git-delta"
+brew "zoxide"
 brew "bun"
 brew "ffmpeg"
 brew "gh"

@@ -81,6 +81,11 @@ skips the steps that need a person: GitHub sign-in, the Git identity it feeds,
 and the login-shell change. Install `packages/ubuntu.apt` as root first so the
 unprivileged run needs no `sudo`, then rerun `dot init` on the live machine.
 
+`dot init --skip-tools herdr,codex` keeps Mise from installing tools the machine
+already provides, such as an image that pins its own versions. It writes the
+untracked `~/.config/mise/config.local.toml` with a `disable_tools` setting, so
+later `mise install` and `dot update` runs skip them too.
+
 APT runs through `sudo` in a terminal, through `pkexec` without one, and
 directly when `dot` runs as root. `dot init` leaves the login shell alone; run
 `chsh -s "$(command -v zsh)"` once on a new devbox.

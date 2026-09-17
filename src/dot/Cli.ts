@@ -38,6 +38,11 @@ export const cli = Command.make("dot").pipe(
     ),
 
     Command.make("init", {
+      skipTools: Flag.optional(Flag.string("skip-tools")).pipe(
+        Flag.withDescription(
+          "Comma-separated Mise tools this machine never installs, e.g. herdr,codex"
+        )
+      ),
       unattended: Flag.boolean("unattended").pipe(
         Flag.withDescription(
           "Skip steps that need a person, such as GitHub sign-in; for image builds"

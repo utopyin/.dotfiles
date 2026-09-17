@@ -1,5 +1,7 @@
 import * as Console from "effect/Console";
 import * as Effect from "effect/Effect";
+import * as FileSystem from "effect/FileSystem";
+import * as Option from "effect/Option";
 
 import { DotfilesConfig } from "../Config.ts";
 import { AgentRuntime } from "../services/AgentRuntime/index.ts";
@@ -30,7 +32,40 @@ const installMiseIfMissing = Effect.fn("init.installMiseIfMissing")(
   }
 );
 
+export const parseToolList = (
+  value: Option.Option<string>
+): readonly string[] =>
+  Option.getOrElse(value, () => "")
+    .split(",")
+    .map((tool) => tool.trim())
+    .filter(Boolean);
+
+export const renderMiseLocalConfig = (tools: readonly string[]) =>
+  `# Written by dot init --skip-tools; Mise ignores these tools on this machine.
+[settings]
+disable_tools = [${tools.map((tool) => JSON.stringify(tool)).join(", ")}]
+`;
+
+// The tracked config.toml stays shared; this untracked sibling is per machine.
+const disableMiseTools = Effect.fn("init.disableMiseTools")(function* (
+  tools: readonly string[]
+) {
+  if (tools.length === 0) {
+    return;
+  }
+  const config = yield* DotfilesConfig;
+  const fs = yield* FileSystem.FileSystem;
+  const directory = `${config.homeDir}/.config/mise`;
+  yield* fs.makeDirectory(directory, { recursive: true });
+  yield* fs.writeFileString(
+    `${directory}/config.local.toml`,
+    renderMiseLocalConfig(tools)
+  );
+  yield* Console.log(`Mise will skip: ${tools.join(", ")}`);
+});
+
 export interface InitOptions {
+  readonly skipTools: Option.Option<string>;
   readonly unattended: boolean;
 }
 
@@ -59,6 +94,7 @@ export const init = Effect.fn("init")(function* (options: InitOptions) {
   yield* Console.log("Applying dotfiles config...");
   yield* applyConfig();
   yield* installMiseIfMissing();
+  yield* disableMiseTools(parseToolList(options.skipTools));
   yield* Console.log("Installing mise tools...");
   yield* commands.runInteractive("mise", ["install"], {
     cwd: config.homeDir,

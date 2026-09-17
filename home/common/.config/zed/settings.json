@@ -122,6 +122,7 @@
   },
   "buffer_font_size": 16.0,
   "git_panel": {
+    "group_by": "none",
     "tree_view": true,
     "dock": "right"
   },

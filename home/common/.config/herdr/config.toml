@@ -178,7 +178,7 @@ agent_panel_scope = "all"
 # delivery = "off"
 # delay_seconds = 1
 
-delivery = "system"
+delivery = "terminal"
 [ui.toast.herdr]
 # position = "bottom-right"
 
@@ -199,6 +199,7 @@ delivery = "system"
 # [ui.sound.agents]
 # droid = "off"
 
+enabled = false
 [session]
 # Resume supported AI-agent panes into their native conversation sessions after
 # a Herdr server restart. Requires official integrations that report session refs.

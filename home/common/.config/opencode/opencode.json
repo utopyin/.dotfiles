@@ -13,7 +13,6 @@
       "enabled": true
     }
   },
-  "lsp": true,
   "permission": {
     "skill": {
       "*": "deny"

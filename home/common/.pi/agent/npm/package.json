@@ -3,6 +3,7 @@
   "private": true,
   "dependencies": {
     "@plannotator/pi-extension": "^0.27.12",
+    "pi-account-switcher": "^0.1.2",
     "pi-mcp-adapter": "^2.11.0"
   }
 }

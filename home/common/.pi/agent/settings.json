@@ -17,7 +17,8 @@
       "skills": [],
       "extensions": ["+"]
     },
-    "npm:pi-mcp-adapter@2.11.0"
+    "npm:pi-mcp-adapter@2.11.0",
+    "npm:pi-account-switcher"
   ],
   "editorPaddingX": 3,
   "quietStartup": true,

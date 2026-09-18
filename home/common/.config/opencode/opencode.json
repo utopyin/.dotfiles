@@ -7,9 +7,44 @@
       "url": "https://mcp.linear.app/mcp",
       "enabled": true
     },
-    "fastmail": {
+    "axiom": {
       "type": "remote",
-      "url": "https://api.fastmail.com/mcp",
+      "url": "https://mcp.axiom.co/mcp",
+      "enabled": true
+    },
+    "inbox-admin": {
+      "url": "https://admin.inboxapp.com/api/mcp",
+      "type": "remote",
+      "enabled": true
+    },
+    "trigger": {
+      "command": ["npx", "trigger.dev@latest", "mcp"],
+      "type": "local",
+      "enabled": true
+    },
+    "PlanetScale": {
+      "url": "https://mcp.pscale.dev/mcp/planetscale",
+      "type": "remote",
+      "enabled": true
+    },
+    "grafana": {
+      "type": "local",
+      "command": [
+        "docker",
+        "run",
+        "-i",
+        "--rm",
+        "-e",
+        "GRAFANA_URL",
+        "-e",
+        "$GRAFANA_SERVICE_ACCOUNT_TOKEN",
+        "mcp/grafana",
+        "-t",
+        "stdio"
+      ],
+      "environment": {
+        "GRAFANA_SERVICE_ACCOUNT_TOKEN": "{env:GRAFANA_SERVICE_ACCOUNT_TOKEN}"
+      },
       "enabled": true
     }
   },

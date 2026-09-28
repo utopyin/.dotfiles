@@ -28,6 +28,5 @@
   "autoCompactEnabled": true,
   "switchModelsOnFlag": false,
   "autoContinueAtUsageLimit": false,
-  "agentPushNotifEnabled": true,
-  "model": "claude-fable-5-1[1m]"
+  "agentPushNotifEnabled": true
 }

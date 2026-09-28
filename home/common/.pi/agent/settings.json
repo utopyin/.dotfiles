@@ -1,7 +1,7 @@
 {
   "defaultProvider": "openai-codex",
   "defaultModel": "gpt-6-astra",
-  "lastChangelogVersion": "0.85.1",
+  "lastChangelogVersion": "0.87.1",
   "defaultThinkingLevel": "high",
   "shellCommandPrefix": "for config_file in \"$HOME\"/.config/zsh/conf.d/{20-paths,30-aliases}.zsh; do [ -r \"$config_file\" ] && . \"$config_file\"; done",
   "treeFilterMode": "no-tools",
@@ -15,7 +15,9 @@
     {
       "source": "npm:@plannotator/pi-extension",
       "skills": [],
-      "extensions": ["+"]
+      "extensions": [
+        "+"
+      ]
     },
     "npm:pi-mcp-adapter@2.11.0",
     "npm:pi-account-switcher"

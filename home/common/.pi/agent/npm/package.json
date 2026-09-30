@@ -2,7 +2,6 @@
   "name": "pi-extensions",
   "private": true,
   "dependencies": {
-    "@plannotator/pi-extension": "^0.27.22",
-    "pi-mcp-adapter": "^2.11.0"
+    "@plannotator/pi-extension": "^0.27.22"
   }
 }

@@ -16,9 +16,9 @@
       "source": "npm:@plannotator/pi-extension",
       "skills": [],
       "extensions": ["+"]
-    },
-    "npm:pi-mcp-adapter@2.11.0"
+    }
   ],
+  "extensions": ["+builtin:mcp"],
   "editorPaddingX": 3,
   "quietStartup": true,
   "steeringMode": "one-at-a-time",

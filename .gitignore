@@ -23,6 +23,8 @@ home/common/.pi/agent/*.local.json
 home/common/.pi/agent/mcp-cache.json
 home/common/.pi/agent/mcp-*-cache.json
 home/common/.pi/agent/mcp-oauth/
+home/common/.pi/agent/mcp-auth.json
+home/common/.pi/agent/mcp-auth-refresh-*
 home/common/.pi/agent/sessions/
 home/common/.pi/agent/extensions/**/config.private.json
 

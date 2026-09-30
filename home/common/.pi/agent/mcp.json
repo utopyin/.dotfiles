@@ -1,41 +1,40 @@
 {
-  "imports": ["cursor"],
   "mcpServers": {
     "computer": {
-      "args": ["mcp"],
       "command": "open-computer-use",
-      "directTools": false,
-      "lifecycle": "lazy",
-      "requestTimeoutMs": 60000
+      "args": ["mcp"],
+      "timeout": 60,
+      "exposure": "codemode"
     },
     "axiom": {
       "url": "https://mcp.axiom.co/mcp",
-      "auth": "oauth",
-      "directTools": false
+      "exposure": "codemode"
     },
     "inbox-admin": {
       "url": "https://admin.inboxapp.com/api/mcp",
-      "directTools": false
+      "oauth": {
+        "scope": "openid"
+      },
+      "exposure": "codemode"
     },
     "trigger": {
-      "args": ["trigger.dev@latest", "mcp"],
       "command": "npx",
-      "directTools": false
+      "args": ["trigger.dev@latest", "mcp"],
+      "exposure": "codemode"
     },
     "PlanetScale": {
-      "headers": {},
       "url": "https://mcp.pscale.dev/mcp/planetscale",
-      "directTools": false
+      "exposure": "codemode"
     },
     "linear": {
-      "directTools": false
+      "url": "https://mcp.linear.app/mcp",
+      "exposure": "codemode"
     },
     "fastmail": {
       "url": "https://api.fastmail.com/mcp",
-      "directTools": false
+      "exposure": "codemode"
     },
     "grafana": {
-      "type": "stdio",
       "command": "docker",
       "args": [
         "run",
@@ -52,7 +51,15 @@
       "env": {
         "GRAFANA_URL": "https://grafana.inboxapp.com",
         "GRAFANA_SERVICE_ACCOUNT_TOKEN": "${GRAFANA_SERVICE_ACCOUNT_TOKEN}"
-      }
+      },
+      "exposure": "codemode"
+    },
+    "firecrawl": {
+      "url": "https://mcp.firecrawl.dev/v2/mcp",
+      "headers": {
+        "Authorization": "Bearer ${FIRECRAWL_API_KEY}"
+      },
+      "exposure": "codemode"
     }
   }
 }

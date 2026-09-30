@@ -12,19 +12,15 @@ Treat the desktop as the user's live session. Ask before sending, submitting, de
 
 ## 1. Resolve the app
 
-Use the app identifier already established in the current session. Call `computer_list_apps` once when the identity is unknown or stale, adopt the identifier it advertises, then retain it for the session.
+Use the app identifier already established in the current session. Call `list_apps` once when the identity is unknown or stale, adopt the identifier it advertises, then retain it for the session.
 
 Keep Helium's current/default profile. If the required account is not available in that profile, ask the user rather than switching profiles.
 
-Pi exposes this server through the `mcp` proxy with the `computer_` prefix. Pass `mcp.args` as serialized JSON:
-
-```text
-mcp({ tool: "computer_get_app_state", args: "{\"app\":\"APP_IDENTIFIER\"}" })
-```
+Tool names in this skill are the server's names, such as `get_app_state` and `click`. Resolve them through the current client's tool discovery; clients may add a server prefix or expose them through a gateway. Follow the discovered schema and argument format rather than assuming a client-specific calling convention. Inspect returned text and images before choosing the next action.
 
 ## 2. Start from fresh state
 
-Begin each assistant turn that will interact with an app by calling `computer_get_app_state`. Element indices belong only to that state.
+Begin each assistant turn that will interact with an app by calling `get_app_state`. Element indices belong only to that state.
 
 Use each action's refreshed state to choose the next action. Refresh explicitly after navigation, reloads, window or modal changes, failed actions, or incomplete returned state.
 
@@ -34,10 +30,10 @@ The state is ready when it identifies the intended app and window and exposes th
 
 Prefer semantic element actions over coordinates:
 
-- Click with `computer_click` and `element_index`.
-- Fill a settable control with `computer_set_value`. This does not guarantee keyboard focus. Before a key submission, click the control and confirm focus.
-- Otherwise click the editable control, confirm focus, then use `computer_type_text`.
-- Send named keys and combinations with `computer_press_key`.
+- Click with `click` and `element_index`.
+- Fill a settable control with `set_value`. This does not guarantee keyboard focus. Before a key submission, click the control and confirm focus.
+- Otherwise click the editable control, confirm focus, then use `type_text`.
+- Send named keys and combinations with `press_key`.
 
 If a confirmed-focused control ignores one input attempt, read the platform procedure in [REFERENCE.md](REFERENCE.md) instead of repeating the same call.
 
@@ -47,7 +43,7 @@ Chain calls only while every next target exists in the latest action result and 
 
 One failed call ends that strategy. Refresh stale state, establish focus, adopt the canonical app identifier, or change to a supported method before retrying. A retry is valid only when the state, target, arguments, or method changed.
 
-After reconnecting an MCP server, verify it with `computer_get_app_state`. A tool catalog response is not a connection health check.
+After reconnecting an MCP server, verify it with `get_app_state`. A tool catalog response is not a connection health check.
 
 Read [REFERENCE.md](REFERENCE.md) when state is truncated, a renderer tree is missing, keyboard injection fails, a coordinate click is necessary, permissions fail, or the MCP server cannot connect.
 

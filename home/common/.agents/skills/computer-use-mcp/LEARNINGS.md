@@ -6,7 +6,7 @@ These are observed platform behaviors, not API guarantees. Keep findings here an
 
 ### App identifiers come from the accessibility registry
 
-In the tested session, `computer_list_apps` advertised Helium as `Helium`. That advertised name was the working identifier for subsequent state and action calls.
+In the tested session, `list_apps` advertised Helium as `Helium`. That advertised name was the working identifier for subsequent state and action calls.
 
 ### Chromium renderer accessibility is independent
 
@@ -14,7 +14,7 @@ AT-SPI2 and D-Bus exposed Helium's native browser frame without exposing its web
 
 ### AT-SPI focus does not prove keyboard injection
 
-Semantic focus worked in Chromium while `computer_type_text` produced no text. The same control did not expose a settable value. Wayland keyboard injection worked once it used the signed-in user's runtime directory and display.
+Semantic focus worked in Chromium while `type_text` produced no text. The same control did not expose a settable value. Wayland keyboard injection worked once it used the signed-in user's runtime directory and display.
 
 ### Chromium actions are state-local
 

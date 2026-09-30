@@ -1,10 +1,10 @@
 # Open Computer Use reference
 
-Load only the section needed for the current interaction.
+Load only the section needed for the current interaction. Tool names are the server's names; discover their client-specific equivalents before calling them. JSON examples show tool arguments, not a particular client's invocation syntax.
 
 ## Setup and connection
 
-Check the installed runtime, then resolve the target through `computer_list_apps`. Use the identifier it advertises for all state, action, and snapshot calls.
+Check the installed runtime, then resolve the target through `list_apps`. Use the identifier it advertises for all state, action, and snapshot calls.
 
 ```sh
 open-computer-use --version
@@ -38,22 +38,17 @@ Add renderer accessibility to `~/.config/helium-browser-flags.conf`:
 --force-renderer-accessibility
 ```
 
-Ask before restarting Helium. Preserve its default profile, restore the existing session, then require `computer_get_app_state` to expose the web document and page controls.
+Ask before restarting Helium. Preserve its default profile, restore the existing session, then require `get_app_state` to expose the web document and page controls.
 
 ### Reconnect and verify
 
-If Pi cannot reach the server, inspect status and reconnect once:
+If the client cannot reach the server, inspect its MCP connection status and reconnect once through its server manager or connection controls.
 
-```text
-mcp({ server: "computer" })
-mcp({ connect: "computer" })
-```
+A tool listing does not prove that the server process accepts calls. After reconnecting, use `get_app_state` as the health check. A `Not connected` result means recovery failed even if the tool listing is complete.
 
-A catalog response only proves that Pi can read the server metadata. It does not prove that the server process accepts calls. After reconnecting, use `computer_get_app_state` as the health check. A `Not connected` result means recovery failed even if `mcp({ server: "computer" })` lists every tool.
+The server provides `list_apps`, `get_app_state`, `click`, `perform_secondary_action`, `scroll`, `drag`, `type_text`, `press_key`, and `set_value`. Client prefixes and gateway syntax vary; use the discovered tools and schemas.
 
-The server provides `list_apps`, `get_app_state`, `click`, `perform_secondary_action`, `scroll`, `drag`, `type_text`, `press_key`, and `set_value`, exposed by Pi with the `computer_` prefix.
-
-If the proxy remains disconnected, use a direct snapshot only to distinguish a working native runtime from a stale gateway:
+If the server remains disconnected, use a direct snapshot only to distinguish a working native runtime from a stale connection:
 
 ```sh
 open-computer-use snapshot APP_IDENTIFIER
@@ -67,21 +62,32 @@ State defaults to 500 text characters, 1,200 accessibility nodes, and 64 levels.
 
 When required semantic text ends in `...`, request a bounded text limit first:
 
-```text
-mcp({ tool: "computer_get_app_state", args: "{\"app\":\"APP_IDENTIFIER\",\"text_limit\":1000}" })
+Call `get_app_state` with:
+
+```json
+{
+  "app": "APP_IDENTIFIER",
+  "text_limit": 1000
+}
 ```
 
 Use `"text_limit":"max"` only when complete text is required. If a visible long page, list, or table remains absent from the tree after scrolling, raise the tree budget:
 
-```text
-mcp({ tool: "computer_get_app_state", args: "{\"app\":\"APP_IDENTIFIER\",\"max_tree_nodes\":3000,\"max_tree_depth\":96}" })
+Call `get_app_state` with:
+
+```json
+{
+  "app": "APP_IDENTIFIER",
+  "max_tree_nodes": 3000,
+  "max_tree_depth": 96
+}
 ```
 
 Budget values must be positive integers. Only explicit state calls accept them.
 
 ## Editable controls and key submission
 
-`computer_set_value` updates a settable control but does not guarantee keyboard focus. When the next action is a key press, use this sequence:
+`set_value` updates a settable control but does not guarantee keyboard focus. When the next action is a key press, use this sequence:
 
 1. Set the value.
 2. Click the same control.
@@ -93,7 +99,7 @@ When using `open-computer-use call` for diagnosis, keep `get_app_state` and depe
 
 ### Linux Wayland fallback
 
-If a confirmed-focused Chromium control ignores one `computer_type_text` attempt and is not settable, do not repeat the same call. Use `wtype` with the signed-in user's Wayland environment:
+If a confirmed-focused Chromium control ignores one `type_text` attempt and is not settable, do not repeat the same call. Use `wtype` with the signed-in user's Wayland environment:
 
 ```sh
 export XDG_RUNTIME_DIR=/run/user/$(id -u)
@@ -112,7 +118,7 @@ wtype -k Return
 
 Confirm whether the user requested a display, app window, or selected region before recording, then use the matching platform subsection below.
 
-Run a short test capture before the real recording. When using `bg_start`, its initial response proves only that the process spawned. Check `bg_status` before starting UI actions and require the recorder to still be running. Then inspect the test file's duration, dimensions, and size. After the real capture, verify the same properties. Process exit code alone does not prove the requested framing.
+Run a short test capture before the real recording. Starting a background process proves only that it spawned. Check the process status before starting UI actions and require the recorder to still be running. Then inspect the test file's duration, dimensions, and size. After the real capture, verify the same properties. Process exit code alone does not prove the requested framing.
 
 Accessibility bounds may use logical pixels while capture files use physical pixels. Validate framing visually instead of treating larger output dimensions as proof of a full-display capture.
 
@@ -179,16 +185,30 @@ Omitting `click_method` selects semantic-first `auto`. Refresh state immediately
 - `sky_click` uses macOS private SkyLight behavior when Chromium ignores `app_post`. The target window must be current, visible, and in the same Space. Revalidate this method after macOS upgrades.
 - `global` moves the desktop pointer and may change focus. Use it only when the user explicitly approves that behavior, and enable `OPEN_COMPUTER_USE_ALLOW_GLOBAL_POINTER_FALLBACKS=1` only for that bounded session.
 
-```text
-mcp({ tool: "computer_click", args: "{\"app\":\"net.imput.helium\",\"x\":875,\"y\":375,\"click_method\":\"app_post\"}" })
+Call `click` with:
+
+```json
+{
+  "app": "net.imput.helium",
+  "x": 875,
+  "y": 375,
+  "click_method": "app_post"
+}
 ```
 
 ### Linux
 
 Prefer semantic AT-SPI clicks with `element_index`. For a coordinate click, use `global` only after user approval and only when the Computer MCP server was started with `OPEN_COMPUTER_USE_ALLOW_GLOBAL_POINTER_FALLBACKS=1` for the bounded session. `app_post` and `sky_click` are unavailable.
 
-```text
-mcp({ tool: "computer_click", args: "{\"app\":\"Helium\",\"x\":875,\"y\":375,\"click_method\":\"global\"}" })
+Call `click` with:
+
+```json
+{
+  "app": "Helium",
+  "x": 875,
+  "y": 375,
+  "click_method": "global"
+}
 ```
 
 Explicit methods do not fall back. Refresh state when the target window moves, closes, changes workspace, hides, or minimizes. If a Chromium link with a `jump` action ignores one semantic click, refresh and use its nearest descendant that exposes `click` rather than repeating the same index.
@@ -197,7 +217,7 @@ Explicit methods do not fall back. Refresh state when the target window moves, c
 
 - Stale element or changed page: refresh state and choose a current index.
 - Unfocused editable control: set its value when supported, click it, inspect focus, then type or press the submission key.
-- Missing app or window: call `computer_list_apps` once, adopt its advertised identifier, then refresh.
+- Missing app or window: call `list_apps` once, adopt its advertised identifier, then refresh.
 - Native app frame without expected content: follow the platform setup procedure, then refresh.
 - Focused control ignores typing: follow the platform input procedure and change the injection method.
 - Unsupported key or click method: use a supported key name or return to `auto`.

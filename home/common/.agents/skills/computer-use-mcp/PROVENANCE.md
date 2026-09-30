@@ -7,6 +7,6 @@ The skill is adapted from the Open Computer Use guidance in:
 - Upstream paths: `skills/open-computer-use/SKILL.md` and `skills/open-computer-use/references/`
 - License: MIT
 
-Dylan Mulroy's Pi configuration at <https://github.com/dmmulroy/.dotfiles> commit `a6d5117c5c132775f21d66880bb364e4c784d4c0` informed the MCP server name, proxy-tool naming, and tight interaction loop. The local text was rewritten for this repo's Pi MCP adapter, default Helium profile, Mise-managed CLI, and safety rules.
+Dylan Mulroy's Pi configuration at <https://github.com/dmmulroy/.dotfiles> commit `a6d5117c5c132775f21d66880bb364e4c784d4c0` informed the MCP server name, proxy-tool naming, and tight interaction loop. The local text was rewritten for this repo's default Helium profile, Mise-managed CLI, and safety rules. The shared skill uses server tool names and JSON argument examples without client-specific prefixes or gateway syntax. Client-specific connection and invocation details belong in the host's configuration, not this shared skill.
 
 Runtime package: `open-computer-use@0.3.2` from the same upstream repository.

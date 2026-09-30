@@ -17,6 +17,7 @@ file is and ask them to review it.
 
    plannotator-tui opens beside you (or wherever the user configured it), already knowing that
    feedback comes back to this pane.
+
 3. **End your turn.** Do not wait, poll, or read the pane. The review arrives as the next
    user message, as numbered feedback:
 

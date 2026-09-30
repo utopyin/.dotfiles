@@ -1,6 +1,6 @@
 {
   "defaultProvider": "openai-codex",
-  "defaultModel": "gpt-6-astra",
+  "defaultModel": "gpt-6.1-sol",
   "lastChangelogVersion": "0.99.1",
   "defaultThinkingLevel": "high",
   "shellCommandPrefix": "for config_file in \"$HOME\"/.config/zsh/conf.d/{20-paths,30-aliases}.zsh; do [ -r \"$config_file\" ] && . \"$config_file\"; done",
@@ -27,5 +27,9 @@
   "compaction": {
     "enabled": true
   },
-  "deviceId": "e6a51ac1-4b77-483d-8335-1338224255d7"
+  "deviceId": "e6a51ac1-4b77-483d-8335-1338224255d7",
+  "modelThinkingLevels": {
+    "openai/gpt-6.1-sol": "high",
+    "openai/gpt-6-astra": "high"
+  }
 }

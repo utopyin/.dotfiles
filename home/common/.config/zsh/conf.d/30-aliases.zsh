@@ -9,7 +9,14 @@ alias lz="lazygit"
 alias gw="git worktree"
 alias ghv="gh repo view -w"
 alias b="bun"
-alias bcd="find . \( -name node_modules -o -name .next -o -name .turbo \) -type d -prune -exec trash {} +"
+# Trash build/dependency directories, skipping any that hold git-tracked files (e.g. vendored fixtures).
+bcd() {
+  find . \( -name node_modules -o -name .next -o -name .turbo \) -type d -prune -print0 |
+    while IFS= read -r -d '' dir; do
+      [[ -n "$(git ls-files -- "$dir" 2>/dev/null | head -1)" ]] || print -rN -- "$dir"
+    done |
+    xargs -0 trash
+}
 alias clean-alchemy="find . -name .alchemy -type d -prune -exec trash {} +"
 alias bi="bun install"
 alias br="bun run"

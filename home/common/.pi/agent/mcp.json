@@ -60,6 +60,10 @@
         "Authorization": "Bearer ${FIRECRAWL_API_KEY}"
       },
       "exposure": "codemode"
+    },
+    "whiteboard": {
+      "command": "sh",
+      "args": ["-c", "exec \"$HOME/.local/bin/whiteboard\" mcp"]
     }
   }
 }

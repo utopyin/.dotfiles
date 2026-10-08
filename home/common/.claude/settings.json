@@ -10,13 +10,20 @@
   "enableArtifact": false,
   "enabledPlugins": {
     "linear@claude-plugins-official": true,
-    "plannotator@plannotator": true
+    "plannotator@plannotator": true,
+    "whiteboard@devfast": true
   },
   "extraKnownMarketplaces": {
     "plannotator": {
       "source": {
         "source": "github",
         "repo": "backnotprop/plannotator"
+      }
+    },
+    "devfast": {
+      "source": {
+        "source": "github",
+        "repo": "devdotfast/whiteboard"
       }
     }
   },

@@ -10,6 +10,14 @@
       "url": "https://mcp.axiom.co/mcp",
       "exposure": "codemode"
     },
+    "inbox": {
+      "url": "https://mcp2.inboxapp.com/mcp",
+      "exposure": "codemode"
+    },
+    "inbox-local": {
+      "url": "http://localhost:3000/api/mcp/mcp",
+      "exposure": "codemode"
+    },
     "inbox-admin": {
       "url": "https://admin.inboxapp.com/api/mcp",
       "oauth": {

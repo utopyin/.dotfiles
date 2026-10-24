@@ -3,6 +3,7 @@ package_manager = "bun"
 
 [tools]
 "aqua:modem-dev/hunk" = "latest"
+"github:ariana-dot-dev/agent-server" = { version = "1.0.68", version_prefix = "boat-cli-v", bin = "boat" }
 bun = "latest"
 claude = "latest"
 codex = "latest"

@@ -1,6 +1,40 @@
 _dotfiles_source_cached_integration "worktrunk-init-v1" wt config shell init zsh
 _dotfiles_source_cached_integration "op-completion-v1" op completion zsh
 _dotfiles_source_cached_integration "try-init-v1" try init "$HOME/Work/tries"
+_dotfiles_source_cached_integration "boat-completions-v1" boat completions zsh --no-update
+
+# Boat writes the sandbox/conversation it just created to these files so
+# `boat new|start|fork|prompt` can export BOAT_CURRENT_ID/BOAT_CURRENT_CONVO.
+boat() {
+  local boat_bin="${commands[boat]:-}"
+  if [[ -z "$boat_bin" ]]; then
+    print -u2 "boat: command not found"
+    return 127
+  fi
+
+  local current_file convo_file value
+  current_file="$(mktemp)"
+  convo_file="$(mktemp)"
+  BOAT_CURRENT_ID_FILE="$current_file" BOAT_CURRENT_CONVO_FILE="$convo_file" \
+    "$boat_bin" "$@"
+  local code=$?
+
+  if (( code == 0 )); then
+    case "${1:-}" in
+      new|start|fork)
+        [[ -s "$current_file" ]] && value="$(tr -d '[:space:]' < "$current_file")"
+        [[ -n "$value" ]] && export BOAT_CURRENT_ID="$value"
+        ;;
+      prompt)
+        [[ -s "$convo_file" ]] && IFS= read -r value < "$convo_file"
+        [[ -n "$value" ]] && export BOAT_CURRENT_CONVO="$value"
+        ;;
+    esac
+  fi
+
+  rm -f "$current_file" "$convo_file"
+  return "$code"
+}
 
 # >>> hitch shell integration >>>
 function _hitch_prompt_segment() {

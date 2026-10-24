@@ -2,5 +2,6 @@
 package_manager = "bun"
 
 [tools]
+"github:ariana-dot-dev/agent-server" = { version = "1.0.68", version_prefix = "boat-cli-v", bin = "boat" }
 "npm:@withgraphite/graphite-cli" = "stable"
 "npm:open-computer-use" = "0.3.2"

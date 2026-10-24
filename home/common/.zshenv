@@ -24,3 +24,6 @@ if [[ -d "$mise_shims_dir" && ":$PATH:" != *":$mise_shims_dir:"* ]]; then
   export PATH="$PATH:$mise_shims_dir"
 fi
 unset mise_shims_dir
+
+# mise pins boat; its built-in auto-update would rewrite the pinned binary.
+export BOAT_NO_UPDATE=1

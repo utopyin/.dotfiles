@@ -58,11 +58,12 @@ fill in the values, and keep its permissions at `600`.
 ## Ubuntu
 
 The Ubuntu layer targets minimal devboxes: the full command-line toolset with
-no desktop configuration. `home/ubuntu/` tracks the Mise tool declarations and a
-small zsh integration file.
+no desktop configuration. `home/ubuntu/` tracks the Ubuntu-only Mise tool
+declarations and a small zsh integration file; tools every platform shares live
+in `home/common/.config/mise/conf.d/common.toml`.
 
 APT installs only the base system packages: compilers, git, zsh, stow, tmux, and
-similar. Every other developer tool in the macOS Brewfile comes from Mise, which
+similar. Every other developer tool comes from Mise, as on macOS, which
 ships current versions where APT is missing or outdated. That covers Neovim,
 lazygit, `gh`, `fd`, `fzf`, `delta`, zoxide, k9s, the cloud CLIs, Rust, Zig, and
 the 1Password CLI (`op`).

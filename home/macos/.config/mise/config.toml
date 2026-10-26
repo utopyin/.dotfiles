@@ -1,7 +1,24 @@
-[settings.npm]
-package_manager = "bun"
-
+# Developer CLIs; Homebrew keeps apps, libraries and tools mise lacks.
 [tools]
-"github:ariana-dot-dev/agent-server" = { version = "1.0.68", version_prefix = "boat-cli-v", bin = "boat" }
-"npm:@withgraphite/graphite-cli" = "stable"
-"npm:open-computer-use" = "0.3.2"
+act = "latest"
+aws-cli = "latest"
+caddy = "latest"
+cloudflared = "latest"
+d2 = "latest"
+delta = "latest"
+fd = "latest"
+flyctl = "latest"
+fzf = "latest"
+herdr = "latest"
+infisical = "latest"
+jq = "latest"
+k9s = "latest"
+lazygit = "latest"
+neonctl = "latest"
+neovim = "latest"
+ripgrep = "latest"
+rust = "latest"
+tree-sitter = "latest"
+worktrunk = "latest"
+zig = "latest"
+zoxide = "latest"

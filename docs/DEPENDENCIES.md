@@ -17,7 +17,9 @@ runtime packages.
 ## Current package manifests
 
 - Dot CLI dependencies: `package.json` + `bun.lock`
-- System/app dependencies: `packages/Brewfile`
+- macOS apps, libraries and system packages: `packages/Brewfile`
+- Developer CLIs (Mise): `home/common/.config/mise/conf.d/common.toml` for every
+  platform, plus `home/<platform>/.config/mise/config.toml` extras
 - Arch repository dependencies: `packages/arch.repo`
 - Arch AUR dependencies: `packages/arch.aur`
 - Ubuntu APT dependencies: `packages/ubuntu.apt`

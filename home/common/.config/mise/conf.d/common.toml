@@ -1,3 +1,5 @@
+# Tools every platform installs through mise. Platform extras live in
+# home/<platform>/.config/mise/config.toml.
 [settings.npm]
 package_manager = "bun"
 

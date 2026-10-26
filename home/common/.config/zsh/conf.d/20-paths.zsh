@@ -30,7 +30,5 @@ if [[ "$OSTYPE" == darwin* ]]; then
   export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 fi
 
-export PATH="/opt/zig:$PATH"
-
 export PATH="$HOME/.opencode/bin:$PATH"
 export PATH="$HOME/bin:$PATH"

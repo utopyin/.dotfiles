@@ -1,5 +1,6 @@
 # Ubuntu packages installed through APT.
-# Most developer tools come from home/ubuntu/.config/mise/config.toml, because
+# Most developer tools come from Mise (home/common/.config/mise/conf.d/common.toml
+# and home/ubuntu/.config/mise/config.toml), because
 # APT lacks them or ships versions too old for the shared shell config.
 build-essential
 curl

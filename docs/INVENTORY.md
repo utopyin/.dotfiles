@@ -59,6 +59,8 @@ Installed Pi package and extension-local dependencies are represented by tracked
 - Global Git ignore: `home/common/.gitignore_global`
 - Ghostty config: `home/macos/.config/ghostty/config`
 - Ghostty theme/shaders used by the config are tracked under `home/macos/.config/ghostty/`.
+- Rex config: `home/macos/.config/rex/init.lua`, with the `current-ide` theme under
+  `home/macos/.config/rex/themes/`. Font and Option-key settings live in Rex Settings.
 
 Open Computer Use is pinned in both platform Mise configs and exposes the
 `open-computer-use` command used by Pi's local desktop MCP server.

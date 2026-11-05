@@ -41,3 +41,7 @@ dist/
 # codex sync
 
 **/.agents/skills/synced
+
+# Hex writes these into ~/.config/hex (`hex commands init`)
+home/macos/.config/hex/AGENTS.md
+home/macos/.config/hex/hex.d.ts

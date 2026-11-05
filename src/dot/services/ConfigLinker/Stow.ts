@@ -47,6 +47,8 @@ export const makeStowConfigLinker = Effect.gen(function* () {
           "--ignore",
           FOLDED_OMARCHY_THEMES_IGNORE,
           "--ignore",
+          FOLDED_HEX_CONFIG_IGNORE,
+          "--ignore",
           MANAGED_HYPRLAND_FILES_IGNORE,
           "--restow",
           ...packageNames,
@@ -57,6 +59,13 @@ export const makeStowConfigLinker = Effect.gen(function* () {
         Effect.provideService(FileSystem.FileSystem, fs),
         Effect.provideService(Path.Path, path)
       );
+
+      if (platform.environment === "macos") {
+        yield* ensureFoldedHexConfigLink(dotfilesDir, homeDir).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(Path.Path, path)
+        );
+      }
 
       if (platform.environment === "omarchy") {
         yield* ensureFoldedOmarchyThemesLink(dotfilesDir, homeDir).pipe(
@@ -83,6 +92,13 @@ export const makeStowConfigLinker = Effect.gen(function* () {
         Effect.provideService(Path.Path, path)
       );
 
+      if (platform.environment === "macos") {
+        yield* removeFoldedHexConfigLink(homeDir).pipe(
+          Effect.provideService(FileSystem.FileSystem, fs),
+          Effect.provideService(Path.Path, path)
+        );
+      }
+
       if (platform.environment === "omarchy") {
         yield* removeFoldedOmarchyThemesLink(homeDir).pipe(
           Effect.provideService(FileSystem.FileSystem, fs),
@@ -105,6 +121,8 @@ export const makeStowConfigLinker = Effect.gen(function* () {
           FOLDED_SKILLS_IGNORE,
           "--ignore",
           FOLDED_OMARCHY_THEMES_IGNORE,
+          "--ignore",
+          FOLDED_HEX_CONFIG_IGNORE,
           "--delete",
           ...packageNames,
         ])
@@ -391,6 +409,35 @@ const removeFoldedSkillLinks = Effect.fn(
   }
 });
 
+// Hex only loads config files whose real path is inside ~/.config/hex, so the
+// whole folder is linked instead of each file.
+const ensureFoldedHexConfigLink = Effect.fn(
+  "StowConfigLinker.ensureFoldedHexConfigLink"
+)(function* (dotfilesDir: string, homeDir: string) {
+  const path = yield* Path.Path;
+  const sourcePath = path.join(
+    dotfilesDir,
+    "home",
+    "macos",
+    ...HEX_CONFIG_SEGMENTS
+  );
+  const linkPath = path.join(homeDir, ...HEX_CONFIG_SEGMENTS);
+
+  yield* ensureDirectoryLink(sourcePath, linkPath, homeDir);
+});
+
+const removeFoldedHexConfigLink = Effect.fn(
+  "StowConfigLinker.removeFoldedHexConfigLink"
+)(function* (homeDir: string) {
+  const path = yield* Path.Path;
+  const linkPath = path.join(homeDir, ...HEX_CONFIG_SEGMENTS);
+  const isLink = yield* pathIsSymlink(linkPath);
+  if (isLink) {
+    const fs = yield* FileSystem.FileSystem;
+    yield* fs.remove(linkPath);
+  }
+});
+
 const removeFoldedOmarchyThemesLink = Effect.fn(
   "StowConfigLinker.removeFoldedOmarchyThemesLink"
 )(function* (homeDir: string) {
@@ -542,6 +589,8 @@ const FOLDED_SKILL_LINKS = [".agents/skills", ".claude/skills"] as const;
 const FOLDED_SKILLS_IGNORE = "\\.agents/skills$";
 const OMARCHY_THEMES_SEGMENTS = [".config", "omarchy", "themes"] as const;
 const FOLDED_OMARCHY_THEMES_IGNORE = "\\.config/omarchy/themes$";
+const HEX_CONFIG_SEGMENTS = [".config", "hex"] as const;
+const FOLDED_HEX_CONFIG_IGNORE = "\\.config/hex$";
 const HYPRLAND_CONFIG_SEGMENTS = [".config", "hypr"] as const;
 const MANAGED_HYPRLAND_FILES = [
   "autostart.lua",

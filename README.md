@@ -64,7 +64,7 @@ bun run dot link --dev      # install a shim that runs bin/dot.ts via Bun
 
 ### Default developer file app
 
-On macOS, apply the tracked developer-file associations for Zed Preview with:
+On macOS, apply the tracked developer-file associations for Zed Dev with:
 
 ```bash
 duti ~/.duti

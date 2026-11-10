@@ -22,7 +22,7 @@ hl.unbind("MOD3 + C")
 o.bind("MOD3 + B", "Browser", { launch = "helium-browser", focus = "^helium$" })
 o.bind("MOD3 + C", "Zed", { launch = "zeditor", focus = "^dev\\.zed\\.Zed(-Preview)?$" })
 o.bind("MOD3 + D", "Spotify", { launch = "spotify", focus = "^spotify$" })
-o.bind("MOD3 + L", "Linear", { launch = "linear-bin", focus = "^linear$" })
+o.bind("MOD3 + L", "Linear", { launch = "linear", focus = "^linear$" })
 o.bind("MOD3 + S", "Slack", { launch = "slack", focus = "^slack$" })
 
 hl.unbind("ALT + CTRL + J")
@@ -82,3 +82,10 @@ o.bind("SUPER + SHIFT + CTRL + A", "ChatGPT", { webapp = "https://chatgpt.com" }
 -- o.bind("SUPER + SHIFT + S", nil, "omarchy-capture-screenshot")
 -- o.bind("SUPER + H", nil, "voxtype record toggle")
 -- o.bind("SUPER + PERIOD", nil, "omarchy-shell shell toggle omarchy.emojis")
+
+-- Dictation keys from before Alt + Space and Right Alt became the defaults.
+-- Remove these lines to give the keys back to applications.
+if o.dictation_installed and o.dictation_installed() then
+  o.bind("SUPER + CTRL + X", "Toggle dictation", "omarchy-dictation toggle")
+  o.bind_hold("F9", "Start dictation (push-to-talk)", "omarchy-dictation start", "Stop dictation (push-to-talk)", "omarchy-dictation stop")
+end

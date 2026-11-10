@@ -1,0 +1,13 @@
+#!/bin/bash
+
+# `omarchy refresh pacman` rewrites /etc/pacman.conf from the channel template,
+# which drops the Rex repository. Put its Include back before the upgrade runs.
+
+CONF=/etc/pacman.conf
+SNIPPET=/etc/pacman.d/rex.conf
+MARKER="Include = $SNIPPET"
+
+[[ -r $SNIPPET ]] || exit 0
+grep -qxF "$MARKER" "$CONF" && exit 0
+
+printf '\n%s\n' "$MARKER" | sudo tee -a "$CONF" >/dev/null

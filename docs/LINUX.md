@@ -90,3 +90,36 @@ later `mise install` and `dot update` runs skip them too.
 APT runs through `sudo` in a terminal, through `pkexec` without one, and
 directly when `dot` runs as root. `dot init` leaves the login shell alone; run
 `chsh -s "$(command -v zsh)"` once on a new devbox.
+
+## Rex
+
+Rex is installed from the Superlogical pacman repository, so `packages/arch.repo`
+can only reconcile it once the repository is configured. That part lives under
+`/etc` and is done by hand on a new machine:
+
+```sh
+curl -fsSL -o /tmp/rex.asc https://pkgs.superlogical.com/rex/keys/rex.asc
+sudo pacman-key --add /tmp/rex.asc
+sudo pacman-key --lsign-key E28636AC71905C6DDE40C1EDFAA6B80F641307A7
+printf '[rex]\nSigLevel = Required DatabaseRequired\nServer = https://pkgs.superlogical.com/rex/arch/snapshot/$arch\n' \
+  | sudo install -m 0644 /dev/stdin /etc/pacman.d/rex.conf
+echo 'Include = /etc/pacman.d/rex.conf' | sudo tee -a /etc/pacman.conf >/dev/null
+```
+
+`omarchy refresh pacman`, `omarchy channel set`, and `omarchy reinstall pkgs`
+rewrite `/etc/pacman.conf` from a template. The tracked hook
+`home/omarchy/.config/omarchy/hooks/pre-refresh-pacman.d/add-rex-repo` puts the
+Include line back before the upgrade runs.
+
+The personal server runs through the package's user units. The service unit
+starts it at boot, the socket unit hands connections over and brings it back
+after a stop, and lingering keeps it running while logged out:
+
+```sh
+systemctl --user enable --now rex.socket rex.service
+loginctl enable-linger
+```
+
+`home/omarchy/.config/systemd/user/rex.service.d/tailscale.conf` starts the
+server with its embedded Tailscale node as `matteo-rex-linux`. The first start
+on a new machine prints a Tailscale sign-in link in `rex server status`.

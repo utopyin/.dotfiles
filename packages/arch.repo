@@ -23,3 +23,6 @@ stow
 tree-sitter-cli
 zig
 zsh
+
+# Terminal multiplexer from the Superlogical pacman repository (see docs/LINUX.md)
+rex

@@ -8,6 +8,7 @@
 // command palette (cmd-shift-p / ctrl-shift-p)
 {
   // "cli_default_open_behavior": "new_window",
+  "show_diff_file_tree": true,
   "vim_mode": false,
   "proxy": "",
   "use_display_p3": true,
@@ -154,6 +155,22 @@
         },
         {
           "paths": ["/root"]
+        }
+      ]
+    },
+    {
+      "host": "omarchy.buru-company.ts.net",
+      "username": "utopy",
+      "args": [],
+      "projects": [
+        {
+          "paths": ["/home/utopy/.config/git"]
+        },
+        {
+          "paths": ["/home/utopy/.dotfiles"]
+        },
+        {
+          "paths": ["/home/utopy/.ssh"]
         }
       ]
     }

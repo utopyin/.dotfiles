@@ -13,11 +13,6 @@
 
 [gpg]
 	format = ssh
-
-[gpg "ssh"]
-	program = op-ssh-sign
-	defaultKeyCommand = git-ssh-signing-key
-
 [commit]
 	gpgSign = true
 
@@ -44,3 +39,7 @@
 
 [push]
 	autoSetupRemote = true
+[user]
+	signingKey = /home/utopy/.ssh/git-signing
+[gpg "ssh"]
+	allowedSignersFile = /home/utopy/.ssh/allowed_signers

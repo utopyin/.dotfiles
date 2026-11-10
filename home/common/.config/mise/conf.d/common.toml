@@ -3,13 +3,18 @@
 [settings.npm]
 package_manager = "bun"
 
+[settings.upgrade]
+auto_prune = false
+
 [tools]
 "aqua:modem-dev/hunk" = "latest"
 "github:ariana-dot-dev/agent-server" = { version = "1.0.68", version_prefix = "boat-cli-v", bin = "boat" }
 bun = "latest"
 claude = "latest"
 codex = "latest"
+doctl = "latest"
 gh = "latest"
+kubectl = "1.36.3"
 node = "26.7.0"
 "npm:@withgraphite/graphite-cli" = "stable"
 "npm:open-computer-use" = "0.3.2"

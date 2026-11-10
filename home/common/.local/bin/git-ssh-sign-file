@@ -1,0 +1,6 @@
+#!/bin/sh
+# Sign with the on-disk key from user.signingKey, bypassing any SSH agent.
+# ssh-keygen -Y sign prefers the agent when it holds the same key, which
+# makes 1Password prompt for every commit.
+unset SSH_AUTH_SOCK
+exec ssh-keygen "$@"

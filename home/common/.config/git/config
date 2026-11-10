@@ -40,6 +40,7 @@
 [push]
 	autoSetupRemote = true
 [user]
-	signingKey = /home/utopy/.ssh/git-signing
+	signingKey = ~/.ssh/git-signing
 [gpg "ssh"]
-	allowedSignersFile = /home/utopy/.ssh/allowed_signers
+	program = ~/.local/bin/git-ssh-sign-file
+	allowedSignersFile = ~/.ssh/allowed_signers

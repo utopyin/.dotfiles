@@ -31,4 +31,9 @@ if [[ "$OSTYPE" == darwin* ]]; then
 fi
 
 export PATH="$HOME/.opencode/bin:$PATH"
-export PATH="$HOME/bin:$PATH"
+# `mise activate` re-prepends its tools on every prompt; keep the wrappers in ~/bin ahead of them.
+_dotfiles_bin_first() { path=("$HOME/bin" ${path:#$HOME/bin}) }
+_dotfiles_bin_first
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd _dotfiles_bin_first
+add-zsh-hook chpwd _dotfiles_bin_first
